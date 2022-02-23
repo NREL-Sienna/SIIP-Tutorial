@@ -1,0 +1,6 @@
+__site/
+__cache/
+_assets/plotlyfigs
+.DS_Store
+node_modules/
+package-lock.json

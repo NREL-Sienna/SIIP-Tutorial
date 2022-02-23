@@ -1,0 +1,349 @@
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.3.0/d3.min.js"
+  integrity="sha512-NMhzM2RHzbCRO0s5VPaRC+2bW6nmNXimzC9p5sp2x19M+zzuSJ2T50dEQ7hpHkNjnX1mt8nQg1NNthwRZgsoIg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-collection/0.1.0/d3-collection.min.js"
+  integrity="sha512-1/mV4cROFokbcS1RCHs3CqNdvflNQ2FMKaFbuwEPp7GjMLrgCoppAYvFF9Al7UuDj1FPw0R/DbopUV6Ik+IpiA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-zoom/0.0.1/d3-zoom.min.js"
+  integrity="sha512-YuxdfgsiwteZIurpHpCnrHq3i27yxn8FjJ7/ToX3g1DLoKUTYsiwoHVOXaVYAYAAkhLGFei901qzo9ngfOxHiw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<head>
+  <style>
+    section {
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      margin-top: 2%;
+      height: 95vh;
+      grid-auto-flow: column;
+      border: 1px solid #0f0f0f;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div id="network"></div>
+  </section>
+  <input type="checkbox" id="gen" />
+  <label for="gen">Show Generator Labels</label>
+  <input type="checkbox" id="bus" checked />
+  <label for="bus">Show Bus Labels</label>
+  <input type="checkbox" id="load" checked />
+  <label for="load">Show Load Labels</label>
+  <input type="checkbox" id="loadprofile" />
+  <label for="loadprofile">Show Load Profile</label>
+
+  <script>
+    const graph = {{graph}};
+    const time_series_data = {{time_series_data}};
+    const marked = {{marked}};
+
+    const checkbox = {gen: false, bus: true, load: true, loadprofile: false}
+
+    d3.select("#gen").on("change", () => {
+      checkbox.gen = !checkbox.gen
+      ticked()
+    })
+    d3.select("#bus").on("change", () => {
+      checkbox.bus = !checkbox.bus
+      ticked()
+    })
+    d3.select("#load").on("change", () => {
+      checkbox.load = !checkbox.load
+      ticked()
+    })
+    d3.select("#loadprofile").on("change", () => {
+      checkbox.loadprofile = !checkbox.loadprofile
+      if (checkbox.loadprofile) {
+        loadprofilesvg.style("visibility", "visible")
+      } else {
+        loadprofilesvg.style("visibility", "hidden")
+        loadprofile.selectAll("*").remove()
+        xaxis = undefined
+        yaxis = undefined
+        existingLoads = []
+      }
+      ticked()
+    })
+
+    const nodes = graph.nodes.map(d => Object.assign({}, d));
+    const links = graph.links.map(d => Object.assign({}, d));
+    const nodeRadius = 5;
+    const MAGIC_X = 20;
+    const MAGIC_Y = 15;
+    const nodeInfluenceScalingFactor = 3;
+    const BusTypes = {}
+    BusTypes.ISOLATED = 1
+    BusTypes.PQ = 2
+    BusTypes.PV = 3
+    BusTypes.REF = 4
+    BusTypes.SLACK = 5
+    const componentTypes = [
+      "Generator",
+      "ISOLATED",
+      "PQ",
+      "PV",
+      "REF",
+      "SLACK",
+      "Load"
+    ]
+    let transform = d3.zoomIdentity;
+    const width = d3.select("section").node().getBoundingClientRect().width
+    const height = d3.select("section").node().getBoundingClientRect().height
+    const graph_dom = d3.select('#network').append('canvas')
+      .attr('width', width)
+      .attr('height', height)
+      .node();
+
+    function isMarked(d) {
+      return marked.includes(d.name)
+    }
+
+    const tooltip = d3.select("#network")
+      .append("div")
+      .style("position", "absolute")
+      .style("visibility", "hidden")
+      .style("background-color", "white")
+      .style("border", "solid")
+      .style("border-width", "1px")
+      .style("border-radius", "5px")
+      .style("padding", "10px")
+      .text("");
+
+    const loadprofilesvg = d3.select("section")
+      .append("svg")
+      .style("font", "10px sans-serif")
+      .style("user-select", "none")
+      .style("position", "absolute")
+      .style("visibility", "hidden")
+      .style("background-color", "white")
+      .style("border", "solid")
+      .style("border-width", "1px")
+      .style("border-radius", "5px")
+      .style("margin", "10px")
+      .style("max-width", "80%")
+      .style("max-height", "35%")
+      .style("width", "80%")
+      .style("height", "35%")
+    const loadprofile = loadprofilesvg
+      .append("g")
+      .attr("transform", `translate(25,10) scale(0.8)`);
+
+    function dataMungeRow(row) {
+        return row.map(
+            (d) => { return {date: d3.timeParse("%Y-%m-%dT%H:%M:%S.0")(d.timestamp), value: d.A} }
+        )
+    }
+
+    let closestNode = null
+    function nodeType(node) {
+      return node.group == 0 ? "Gen" : node.group == 6 ? "Load" : "Bus"
+    }
+    function name(node) {
+      const t = nodeType(node)
+      const n = node.name;
+      return `${t}: ${n}`
+    }
+
+    let xaxis
+    let yaxis
+    let existingLoads = []
+
+    function showLoadProfile(closestNode) {
+      const width = loadprofilesvg.node().getBoundingClientRect().width
+      const height = loadprofilesvg.node().getBoundingClientRect().height
+      const data = dataMungeRow(closestNode.timeseries)
+      if (xaxis === undefined) {
+        xaxis = d3.scaleTime()
+              .domain(d3.extent(data, function(d) { return d.date; }))
+              .range([ 0, width ]);
+        loadprofile.append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(xaxis));
+      }
+      if (yaxis === undefined) {
+        yaxis = d3.scaleLinear()
+                .domain([0, 2.5])
+                .range([ height, 0 ]);
+        loadprofile.append("g")
+          .call(d3.axisLeft(yaxis));
+      }
+
+      if (!existingLoads.includes(closestNode.name)) {
+        loadprofile.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .style("stroke-dasharray", ("3, 3"))
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(function(d) { return xaxis(d.date) })
+            .y(function(d) { return yaxis(1) })
+            )
+
+        loadprofile.append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 1.5)
+          .attr("d", d3.line()
+              .x(function(d) { return xaxis(d.date) })
+              .y(function(d) { return yaxis(d.value) })
+          )
+        const lastelem = data[data.length - 1]
+        loadprofile.append("text")
+          .attr("x", xaxis(lastelem.date))
+          .attr("y", yaxis(lastelem.value))
+          .attr("dy", "0.35em")
+          .text(closestNode.name)
+        existingLoads.push(closestNode.name)
+      }
+    }
+
+    d3.select("canvas")
+      .on("mouseout", function(event) {
+        tooltip.style("visibility", "hidden")
+      })
+      .on("mousemove", function(event) {
+        const x = event.x - MAGIC_X
+        const y = event.y - MAGIC_Y
+        closestNode = simulation.find(transform.invertX(x), transform.invertY(y), nodeRadius*nodeInfluenceScalingFactor);
+        if (closestNode) {
+          tooltip.style("visibility", "visible")
+          const t = closestNode.group == 0 ? "Gen" : closestNode.group == 6 ? "Load" : "Bus"
+          const name = t == "Bus" ? closestNode.name + ' (' + componentTypes[closestNode.group] + ')' : closestNode.name;
+          if (t == "Load") {
+            showLoadProfile(closestNode)
+          }
+          tooltip
+            .style("top", y + 10 + "px")
+            .style("left", x + 25 + "px")
+            .html(`${t}: ${name}`);
+        } else {
+          tooltip
+            .style("visibility", "hidden")
+        }
+        ticked();
+      })
+
+    const ctx = graph_dom.getContext('2d');
+    const canvas = ctx.canvas;
+    const scale = d3.scaleOrdinal(d3.schemeCategory10);
+    function color(d) {
+      return scale(d.group);
+    };
+    function dragsubject(event) {
+      const x = transform.invertX(event.x),
+          y = transform.invertY(event.y);
+      const node = simulation.find(x, y, nodeRadius*nodeInfluenceScalingFactor);
+      if (node) {
+        node.x =  transform.applyX(node.x);
+        node.y = transform.applyY(node.y);
+      }
+      return node;
+    }
+
+    function clamp(x, lo, hi) {
+      return x < lo ? lo : x > hi ? hi : x;
+    }
+
+    let clickDate = new Date()
+    let difference_ms;
+
+    function dragstarted(event) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      event.subject.fx = transform.invertX(clamp(event.subject.x, 0, width));
+      event.subject.fy = transform.invertY(clamp(event.subject.y, 0, height));
+      clickDate = new Date()
+    }
+
+    function dragged(event) {
+      event.subject.fx = transform.invertX(clamp(event.x, 0, width));
+      event.subject.fy = transform.invertY(clamp(event.y, 0, height));
+    }
+
+    function dragended(event) {
+      if (!event.active) simulation.alphaTarget(0);
+      difference_ms = (new Date()).getTime() - clickDate.getTime();
+      clickDate = new Date();
+      if (difference_ms < 200) {
+        simulation.alphaTarget(0.3).restart()
+        event.subject.fx = null;
+        event.subject.fy = null;
+      }
+    }
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id))
+      .force("charge", d3.forceManyBody())
+      .force("center", d3.forceCenter(width/2, height/2))
+      .on("tick", ticked);
+
+    simulation.alphaTarget(0.3).restart()
+
+    function ticked() {
+      ctx.save();
+      ctx.clearRect(0, 0, width, height);
+      ctx.translate(transform.x, transform.y);
+      ctx.scale(transform.k, transform.k);
+
+      links.forEach(function(d) {
+        ctx.beginPath();
+        ctx.moveTo(d.source.x, d.source.y);
+        ctx.lineTo(d.target.x, d.target.y);
+        ctx.lineWidth = Math.sqrt(d.value);
+        ctx.strokeStyle = '#aaa';
+        ctx.stroke();
+      });
+
+      nodes.forEach(function(d, i) {
+        ctx.beginPath();
+        ctx.fillStyle = color(d);
+        // Text label
+        if ((checkbox.bus && nodeType(d) == "Bus") || (checkbox.gen && nodeType(d) == "Gen") || (checkbox.load && nodeType(d) == "Load")) {
+          ctx.fillText(name(d), d.x+10, d.y+3);
+        }
+        // Node fill
+        let extra = isMarked(d) ? 5 : 0
+        if (closestNode && (d.id == closestNode.id)) {
+          extra = extra + 5
+        }
+        ctx.moveTo(d.x + nodeRadius + extra, d.y);
+        ctx.arc(d.x, d.y, nodeRadius + extra, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = '#fff'
+        ctx.lineWidth = '1.5'
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    function zoomed(event) {
+      transform = event.transform;
+      ticked();
+    }
+
+    d3.select(ctx.canvas)
+      .call(
+        d3.drag()
+          .subject(dragsubject)
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended)
+      )
+      .call(
+        d3.zoom()
+          .scaleExtent([1 / 10, 8])
+          .on('zoom', zoomed)
+      )
+  </script>
+</body>
