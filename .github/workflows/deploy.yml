@@ -1,0 +1,28 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: tlienart/xranklin-build-action@v1.7
+        with:
+          BASE_URL_PREFIX: 'SIIP-Tutorial'
+
+          PYTHON_LIBS: 'matplotlib pandas ansi2html'
+          PLOTS: 'xvfb-run'
+          LATEX: true
+          GNUPLOT: true
+
+          # ===================================================================
+          # DON'T CHANGE THE FOLLOWING UNLESS YOU HAVE GOOD REASONS TO
+          # >> amounts to build(clear=true) when commit message contains [clear]
+          CLEAR_CACHE: ${{ contains(github.event.head_commit.message, '[clear]') }}
+          # >> change the digit at the end if, for some reason, you believe
+          # that the cache used by the github action has an issue
+          CACHE_KEY: 'franklin-cache'
