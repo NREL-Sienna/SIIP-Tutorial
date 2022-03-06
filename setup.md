@@ -15,8 +15,8 @@ This document describes that you'll need in your local environment to participat
    - <https://github.com/julia-vscode/julia-vscode#installing-juliavs-codevs-code-julia-extension>
 1. `git clone https://github.com/NREL-SIIP/SIIP-Tutorial.git`
    - After installing vscode, use `git` to clone this repository anywhere you choose.
-   - On MacOS, I like to clone it into `~/gitrepos/SIIP-Tutorial
-   - On Windows, I like to clone it into `C:\gitrepos\SIIP-Tutorial
+   - On MacOS, I like to clone it into `~/gitrepos/SIIP-Tutorial`
+   - On Windows, I like to clone it into `C:\gitrepos\SIIP-Tutorial`
      - On Windows, you might have to use `Git Bash` to clone the repository.
    - Use vscode to open this folder.
 
