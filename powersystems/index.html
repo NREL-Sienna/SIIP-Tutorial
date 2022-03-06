@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="how_to_interact_with_data_in_a_powersystems.system_struct" ><a href="#how_to_interact_with_data_in_a_powersystems.system_struct"> How to interact with data in a <code>PowerSystems.System</code> <code>struct</code></a></h1><p>In this tutorial, we will walk through how to use the <code>PowerSystems.System</code> <code>struct</code>.</p>
+<h2 id="loading_a_system" ><a href="#loading_a_system"> Loading a system</a></h2><p>Let's start first by loading the same system we did in <a href="/SIIP-Tutorial/day-ahead-market">the previous tutorial</a>.</p>
+<pre><code class="julia">using PowerSystems
+using PowerSystemCaseBuilder
+
+system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;);</code></pre>
+<p>We have already learnt that the <code>system</code> is a <code>PowerSystems.System</code>.</p>
+<pre><code class="julia">typeof(system) === PowerSystems.System</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">true</code></pre></div><fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+Up until now, we have been using <code>PowerSystemCaseBuilder</code> to load a system.
+However, we can use the parsers in <code>PowerSystems</code> to load other systems as well.
+Here's an example of loading the 24 bus system from MATPOWER.<pre><code class="julia">System(&quot;./data/case24_ieee_rts.m&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">System
+┌───────────────────┬─────────────┐
+│ Property          │ Value       │
+├───────────────────┼─────────────┤
+│ System Units Base │ SYSTEM_BASE │
+│ Base Power        │ 100.0       │
+│ Base Frequency    │ 60.0        │
+│ Num Components    │ 152         │
+└───────────────────┴─────────────┘
+
+Static Components
+┌─────────────────┬───────┬────────────────────────┬───────────────┐
+│ Type            │ Count │ Has Static Time Series │ Has Forecasts │
+├─────────────────┼───────┼────────────────────────┼───────────────┤
+│ Arc             │ 34    │ false                  │ false         │
+│ Area            │ 4     │ false                  │ false         │
+│ Bus             │ 24    │ false                  │ false         │
+│ FixedAdmittance │ 1     │ false                  │ false         │
+│ Line            │ 33    │ false                  │ false         │
+│ LoadZone        │ 1     │ false                  │ false         │
+│ PowerLoad       │ 17    │ false                  │ false         │
+│ TapTransformer  │ 5     │ false                  │ false         │
+│ ThermalStandard │ 33    │ false                  │ false         │
+└─────────────────┴───────┴────────────────────────┴───────────────┘
+
+</code></pre></div><code>PowerSystems</code> has similar parsing features for PSSE, CSV and other data formats.
+
+</fieldset><p>In a <code>PowerSystems.System</code>, there may be a bunch of <code>PowerSystems.Component</code> types.
+<code>PowerSystems.Component</code> is a parent abstract type, and has a number of children.
+Here is a hierarchical tree of the children of <code>PowerSystems.Component</code>:</p>
+<pre><code class="julia">include(&quot;utils.jl&quot;)
+D3PowerSystemTypes(PowerSystems.Component)</code></pre>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.3.0/d3.min.js"
+  integrity="sha512-NMhzM2RHzbCRO0s5VPaRC+2bW6nmNXimzC9p5sp2x19M+zzuSJ2T50dEQ7hpHkNjnX1mt8nQg1NNthwRZgsoIg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-collection/0.1.0/d3-collection.min.js"
+  integrity="sha512-1/mV4cROFokbcS1RCHs3CqNdvflNQ2FMKaFbuwEPp7GjMLrgCoppAYvFF9Al7UuDj1FPw0R/DbopUV6Ik+IpiA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-zoom/0.0.1/d3-zoom.min.js"
+  integrity="sha512-YuxdfgsiwteZIurpHpCnrHq3i27yxn8FjJ7/ToX3g1DLoKUTYsiwoHVOXaVYAYAAkhLGFei901qzo9ngfOxHiw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<head>
+  <style>
+    section {
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      margin-top: 2%;
+      height: 95vh;
+      grid-auto-flow: column;
+      border: 1px solid #0f0f0f;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div id="component"></div>
+  </section>
+
+  <script>
+    chart()
+
+    function chart() {
+        const width = d3.select("section").node().getBoundingClientRect().width
+        const height = d3.select("section").node().getBoundingClientRect().height
+        const dx = 10
+        const dy = width / 6
+        const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        const margin = {top: 50, right: 50, bottom: 50, left: 100}
+        const tree = d3.tree().size([width, height])
+        const excludes = [
+            "Service",
+            "Topology",
+            "RegulatorDevice",
+            "DynamicInjection",
+            "Source",
+            "StaticInjectionSubsystem",
+            "Storage",
+        ]
+
+        const tooltip = d3.select("#component")
+          .append("p")
+          .style("position", "absolute")
+          .style("visibility", "hidden")
+          .style("background-color", "white")
+          .style("border", "solid")
+          .style("border-width", "1px")
+          .style("border-radius", "5px")
+          .style("padding", "10px")
+          .style("max-width", "35%")
+          .style("overflow-wrap", "break-word")
+          .style("word-wrap", "break-word")
+          .style("hyphens", "auto")
+          .text("");
+
+        const data = {"name":"PowerSystems.Component","children":[{"name":"PowerSystems.Device","children":[{"name":"PowerSystems.Branch","children":[{"name":"PowerSystems.ACBranch","children":[{"name":"PowerSystems.DynamicBranch","fielddocs":["","","",""],"fieldnames":["branch","n_states","states","internal"],"fieldtypes":["PowerSystems.ACBranch","Int64","Vector{Symbol}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":4},{"name":"PowerSystems.Line","fielddocs":["","","","","","System per-unit value","System per-unit value","System per-unit value","","","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","active_power_flow","reactive_power_flow","arc","r","x","b","rate","angle_limits","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Float64","PowerSystems.Arc","Float64","Float64","NamedTuple{(:from, :to), Tuple{Float64, Float64}}","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":14},{"name":"PowerSystems.MonitoredLine","fielddocs":["","","","","","System per-unit value","System per-unit value","System per-unit value","TODO: throw warning above max SIL","TODO: compare to SIL (warn) (theoretical limit)","","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","active_power_flow","reactive_power_flow","arc","r","x","b","flow_limits","rate","angle_limits","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Float64","PowerSystems.Arc","Float64","Float64","NamedTuple{(:from, :to), Tuple{Float64, Float64}}","NamedTuple{(:from_to, :to_from), Tuple{Float64, Float64}}","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":15},{"name":"PowerSystems.PhaseShiftingTransformer","fielddocs":["","","","","","System per-unit value","System per-unit value","","","","","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","active_power_flow","reactive_power_flow","arc","r","x","primary_shunt","tap","α","rate","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Float64","PowerSystems.Arc","Float64","Float64","Float64","Float64","Float64","Union{Nothing, Float64}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":15},{"name":"PowerSystems.TapTransformer","fielddocs":["","","","","","System per-unit value","System per-unit value","System per-unit value","","","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","active_power_flow","reactive_power_flow","arc","r","x","primary_shunt","tap","rate","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Float64","PowerSystems.Arc","Float64","Float64","Float64","Float64","Union{Nothing, Float64}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":14},{"name":"PowerSystems.Transformer2W","fielddocs":["","","","","","System per-unit value","System per-unit value","System per-unit value","","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","active_power_flow","reactive_power_flow","arc","r","x","primary_shunt","rate","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Float64","PowerSystems.Arc","Float64","Float64","Float64","Union{Nothing, Float64}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":13}]},{"name":"PowerSystems.DCBranch","children":[{"name":"PowerSystems.HVDCLine","fielddocs":["","","","","","","","","","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","active_power_flow","arc","active_power_limits_from","active_power_limits_to","reactive_power_limits_from","reactive_power_limits_to","loss","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","PowerSystems.Arc","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:l0, :l1), Tuple{Float64, Float64}}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":13},{"name":"PowerSystems.VSCDCLine","fielddocs":["","","","","","","","","","","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","active_power_flow","arc","rectifier_tap_limits","rectifier_xrc","rectifier_firing_angle","inverter_tap_limits","inverter_xrc","inverter_firing_angle","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","PowerSystems.Arc","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":14}]}]},{"name":"PowerSystems.DynamicInjection","children":[{"name":"PowerSystems.DynamicGenerator","fielddocs":["","","","","","","","","","","",""],"fieldnames":["name","ω_ref","machine","shaft","avr","prime_mover","pss","base_power","n_states","states","ext","internal"],"fieldtypes":["String","Float64","PowerSystems.Machine","PowerSystems.Shaft","PowerSystems.AVR","PowerSystems.TurbineGov","PowerSystems.PSS","Float64","Int64","Vector{Symbol}","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":12},{"name":"PowerSystems.DynamicInverter","fielddocs":["","","","","","","","","","","","",""],"fieldnames":["name","ω_ref","converter","outer_control","inner_control","dc_source","freq_estimator","filter","base_power","n_states","states","ext","internal"],"fieldtypes":["String","Float64","PowerSystems.Converter","PowerSystems.OuterControl","PowerSystems.InnerControl","PowerSystems.DCSource","PowerSystems.FrequencyEstimator","PowerSystems.Filter","Float64","Int64","Vector{Symbol}","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":13},{"name":"PowerSystems.PeriodicVariableSource","fielddocs":["","Source Thevenin resistance","Source Thevenin reactance","a0 term of the Fourier Series for the voltage","Frequencies in radians/s","Coefficients for terms n > 1. First component corresponds to sin and second component to cos","a0 term of the Fourier Series for the angle","Frequencies in radians/s","Coefficients for terms n > 1. First component corresponds to sin and second component to cos","Base power","State for time, voltage and angle","","","power system internal reference, do not modify"],"fieldnames":["name","R_th","X_th","internal_voltage_bias","internal_voltage_frequencies","internal_voltage_coefficients","internal_angle_bias","internal_angle_frequencies","internal_angle_coefficients","base_power","states","n_states","ext","internal"],"fieldtypes":["String","Float64","Float64","Float64","Vector{Float64}","Vector{Tuple{Float64, Float64}}","Float64","Vector{Float64}","Vector{Tuple{Float64, Float64}}","Float64","Vector{Symbol}","Int64","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":14}]},{"name":"PowerSystems.RegulationDevice","fielddocs":["","","","","","","","",""],"fieldnames":["device","droop","participation_factor","reserve_limit_up","reserve_limit_dn","inertia","cost","time_series_container","internal"],"fieldtypes":["PowerSystems.StaticInjection","Float64","NamedTuple{(:up, :dn), Tuple{Float64, Float64}}","Float64","Float64","Float64","Float64","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":9},{"name":"PowerSystems.StaticInjection","children":[{"name":"PowerSystems.ElectricLoad","children":[{"name":"PowerSystems.ControllableLoad","children":[{"name":"PowerSystems.InterruptibleLoad","fielddocs":["","","","","","","","","Base power of the unit in MVA","Operation Cost of Generation [`TwoPartCost`](@ref)","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","model","active_power","reactive_power","max_active_power","max_reactive_power","base_power","operation_cost","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","PowerSystems.LoadModelsModule.LoadModels","Float64","Float64","Float64","Float64","Float64","PowerSystems.TwoPartCost","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":15}]},{"name":"PowerSystems.FixedAdmittance","fielddocs":["","","","System per-unit value","Services that this device contributes to","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","Y","services","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","ComplexF64","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":8},{"name":"PowerSystems.StaticLoad","children":[{"name":"PowerSystems.PowerLoad","fielddocs":["","","","","","","Base power of the unit in MVA","","","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","model","active_power","reactive_power","base_power","max_active_power","max_reactive_power","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","Union{Nothing, PowerSystems.LoadModelsModule.LoadModels}","Float64","Float64","Float64","Float64","Float64","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":14}]}]},{"name":"PowerSystems.Generator","children":[{"name":"PowerSystems.HydroGen","children":[{"name":"PowerSystems.HydroDispatch","fielddocs":["","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","Prime mover technology according to EIA 923","","","ramp up and ramp down limits in MW (in component base per unit) per minute","Minimum up and Minimum down time limits in hours","Base power of the unit in MVA","Operation Cost of Generation [`OperationalCost`](@ref)","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","active_power","reactive_power","rating","prime_mover","active_power_limits","reactive_power_limits","ramp_limits","time_limits","base_power","operation_cost","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","Float64","Float64","Float64","PowerSystems.PrimeMoversModule.PrimeMovers","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Float64","PowerSystems.OperationalCost","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":18},{"name":"PowerSystems.HydroEnergyReservoir","fielddocs":["","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","Prime mover technology according to EIA 923","","","ramp up and ramp down limits in MW (in component base per unit) per minute","Minimum up and Minimum down time limits in hours","Base power of the unit in MVA","Maximum storage capacity in the reservoir (units can be p.u-hr or m^3).","Baseline inflow into the reservoir (units can be p.u. or m^3/hr)","Initial storage capacity in the reservoir (units can be p.u-hr or m^3).","Operation Cost of Generation [`OperationalCost`](@ref)","Storage target at the end of simulation as ratio of storage capacity.","Conversion factor from flow/volume to energy: m^3 -> p.u-hr.","","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","active_power","reactive_power","rating","prime_mover","active_power_limits","reactive_power_limits","ramp_limits","time_limits","base_power","storage_capacity","inflow","initial_storage","operation_cost","storage_target","conversion_factor","time_at_status","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","Float64","Float64","Float64","PowerSystems.PrimeMoversModule.PrimeMovers","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Float64","Float64","Float64","Float64","PowerSystems.OperationalCost","Float64","Float64","Float64","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":24},{"name":"PowerSystems.HydroPumpedStorage","fielddocs":["","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","Base power of the unit in MVA","Prime mover technology according to EIA 923","","","ramp up and ramp down limits in MW (in component base per unit) per minute","Minimum up and Minimum down time limits in hours","Thermal limited MVA Power Withdrawl of the pump. <= Capacity","","","ramp up and ramp down limits in MW (in component base per unit) per minute of pump","Minimum up and Minimum down time limits of pump in hours","Maximum storage capacity in the upper and lower reservoirs (units can be p.u-hr or m^3).","Baseline inflow into the upper reservoir (units can be p.u. or m^3/hr)","Baseline outflow from the lower reservoir (units can be p.u. or m^3/hr)","Initial storage capacity in the upper and lower reservoir (units can be p.u-hr or m^3).","Storage target of upper reservoir at the end of simulation as ratio of storage capacity.","Operation Cost of Generation [`OperationalCost`](@ref)","Efficiency of pump","Conversion factor from flow/volume to energy: m^3 -> p.u-hr.","","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","active_power","reactive_power","rating","base_power","prime_mover","active_power_limits","reactive_power_limits","ramp_limits","time_limits","rating_pump","active_power_limits_pump","reactive_power_limits_pump","ramp_limits_pump","time_limits_pump","storage_capacity","inflow","outflow","initial_storage","storage_target","operation_cost","pump_efficiency","conversion_factor","time_at_status","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","Float64","Float64","Float64","Float64","PowerSystems.PrimeMoversModule.PrimeMovers","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","NamedTuple{(:up, :down), Tuple{Float64, Float64}}","Float64","Float64","NamedTuple{(:up, :down), Tuple{Float64, Float64}}","NamedTuple{(:up, :down), Tuple{Float64, Float64}}","PowerSystems.OperationalCost","Float64","Float64","Float64","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":31}]},{"name":"PowerSystems.RenewableGen","children":[{"name":"PowerSystems.RenewableDispatch","fielddocs":["","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","Prime mover technology according to EIA 923","","","Operation Cost of Generation [`TwoPartCost`](@ref)","Base power of the unit in MVA","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","active_power","reactive_power","rating","prime_mover","reactive_power_limits","power_factor","operation_cost","base_power","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","Float64","Float64","Float64","PowerSystems.PrimeMoversModule.PrimeMovers","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Float64","PowerSystems.TwoPartCost","Float64","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":16},{"name":"PowerSystems.RenewableFix","fielddocs":["","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","Prime mover technology according to EIA 923","","Base power of the unit in MVA","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","active_power","reactive_power","rating","prime_mover","power_factor","base_power","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","Float64","Float64","Float64","PowerSystems.PrimeMoversModule.PrimeMovers","Float64","Float64","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":14}]},{"name":"PowerSystems.ThermalGen","children":[{"name":"PowerSystems.ThermalMultiStart","fielddocs":["","","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","Prime mover technology according to EIA 923","Prime mover fuel according to EIA 923","","","","Power trajectory the unit will take during the start-up and shut-down ramp process","Minimum up and Minimum down time limits in hours","Time limits for start-up based on turbine temperature in hours","Number of start-up based on turbine temperature","","Base power of the unit in MVA","Services that this device contributes to","","","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","status","bus","active_power","reactive_power","rating","prime_mover","fuel","active_power_limits","reactive_power_limits","ramp_limits","power_trajectory","time_limits","start_time_limits","start_types","operation_cost","base_power","services","time_at_status","must_run","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Bool","PowerSystems.Bus","Float64","Float64","Float64","PowerSystems.PrimeMoversModule.PrimeMovers","PowerSystems.ThermalFuelsModule.ThermalFuels","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:startup, :shutdown), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:hot, :warm, :cold), Tuple{Float64, Float64, Float64}}}","Int64","PowerSystems.OperationalCost","Float64","Vector{PowerSystems.Service}","Float64","Bool","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":25},{"name":"PowerSystems.ThermalStandard","fielddocs":["","","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","","","ramp up and ramp down limits in MW (in component base per unit) per minute","","Base power of the unit in MVA","Minimum up and Minimum down time limits in hours","Prime mover technology according to EIA 923","Prime mover fuel according to EIA 923","Services that this device contributes to","","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","status","bus","active_power","reactive_power","rating","active_power_limits","reactive_power_limits","ramp_limits","operation_cost","base_power","time_limits","prime_mover","fuel","services","time_at_status","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Bool","PowerSystems.Bus","Float64","Float64","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","PowerSystems.OperationalCost","Float64","Union{Nothing, NamedTuple{(:up, :down), Tuple{Float64, Float64}}}","PowerSystems.PrimeMoversModule.PrimeMovers","PowerSystems.ThermalFuelsModule.ThermalFuels","Vector{PowerSystems.Service}","Float64","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":21}]}]},{"name":"PowerSystems.Source","fielddocs":["","","","","","Source Thevenin resistance","Source Thevenin reactance","Internal Voltage","Internal Angle","corresponding dynamic injection device","Services that this device contributes to","","power system internal reference, do not modify"],"fieldnames":["name","available","bus","active_power","reactive_power","R_th","X_th","internal_voltage","internal_angle","dynamic_injector","services","ext","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","Float64","Float64","Float64","Float64","Float64","Float64","Union{Nothing, PowerSystems.DynamicInjection}","Vector{PowerSystems.Service}","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":13},{"name":"PowerSystems.StaticInjectionSubsystem","children":[{"name":"PowerSystems.HybridSystem","fielddocs":["","","","","","","","","","","","","Thermal limited MVA Power Output of the unit. <= Capacity","","","","","corresponding dynamic injection device","","","internal forecast storage","power system internal reference, do not modify"],"fieldnames":["name","available","status","bus","active_power","reactive_power","base_power","operation_cost","thermal_unit","electric_load","storage","renewable_unit","interconnection_impedance","interconnection_rating","input_active_power_limits","output_active_power_limits","reactive_power_limits","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Bool","PowerSystems.Bus","Float64","Float64","Float64","PowerSystems.OperationalCost","Union{Nothing, PowerSystems.ThermalGen}","Union{Nothing, PowerSystems.ElectricLoad}","Union{Nothing, PowerSystems.Storage}","Union{Nothing, PowerSystems.RenewableGen}","ComplexF64","Union{Nothing, Float64}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":22}]},{"name":"PowerSystems.Storage","children":[{"name":"PowerSystems.BatteryEMS","fielddocs":["","","","Prime mover technology according to EIA 923","State of Charge of the Battery p.u.-hr","Maximum and Minimum storage capacity in p.u.-hr","","","","","","","","Base power of the unit in MVA","","Storage target at the end of simulation as ratio of storage capacity.","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","prime_mover","initial_energy","state_of_charge_limits","rating","active_power","input_active_power_limits","output_active_power_limits","efficiency","reactive_power","reactive_power_limits","base_power","operation_cost","storage_target","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","PowerSystems.PrimeMoversModule.PrimeMovers","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Float64","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:in, :out), Tuple{Float64, Float64}}","Float64","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Float64","Union{Nothing, PowerSystems.OperationalCost}","Float64","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":21},{"name":"PowerSystems.GenericBattery","fielddocs":["","","","Prime mover technology according to EIA 923","State of Charge of the Battery p.u.-hr","Maximum and Minimum storage capacity in p.u.-hr","","","","","","","","Base power of the unit in MVA","","Services that this device contributes to","corresponding dynamic injection device","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","bus","prime_mover","initial_energy","state_of_charge_limits","rating","active_power","input_active_power_limits","output_active_power_limits","efficiency","reactive_power","reactive_power_limits","base_power","operation_cost","services","dynamic_injector","ext","time_series_container","internal"],"fieldtypes":["String","Bool","PowerSystems.Bus","PowerSystems.PrimeMoversModule.PrimeMovers","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","Float64","Float64","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:min, :max), Tuple{Float64, Float64}}","NamedTuple{(:in, :out), Tuple{Float64, Float64}}","Float64","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Float64","Union{Nothing, PowerSystems.OperationalCost}","Vector{PowerSystems.Service}","Union{Nothing, PowerSystems.DynamicInjection}","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":20}]}]}]},{"name":"PowerSystems.Service","children":[{"name":"PowerSystems.AGC","fielddocs":["","","","PID Proportional Constant","PID Integral Constant","PID Derrivative Constant","PID Discretization period [Seconds]","the area controlled by the AGC","PID Discretization period [Seconds]","","power system internal reference, do not modify"],"fieldnames":["name","available","bias","K_p","K_i","K_d","delta_t","area","initial_ace","ext","internal"],"fieldtypes":["String","Bool","Float64","Float64","Float64","Float64","Float64","Union{Nothing, PowerSystems.Area}","Float64","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":11},{"name":"PowerSystems.AbstractReserve","children":[{"name":"PowerSystems.Reserve","children":[{"name":"PowerSystems.ReserveDemandCurve","fielddocs":["","","","","","",""],"fieldnames":["variable","name","available","time_frame","ext","time_series_container","internal"],"fieldtypes":["Union{Nothing, InfrastructureSystems.TimeSeriesKey}","String","Bool","Float64","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":7},{"name":"PowerSystems.StaticReserve","fielddocs":["","","","","",""],"fieldnames":["name","available","time_frame","requirement","ext","internal"],"fieldtypes":["String","Bool","Float64","Float64","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":6},{"name":"PowerSystems.VariableReserve","fielddocs":["","","","","","",""],"fieldnames":["name","available","time_frame","requirement","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Float64","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":7}]},{"name":"PowerSystems.ReserveNonSpinning","children":[{"name":"PowerSystems.StaticReserveNonSpinning","fielddocs":["","","the relative saturation time_frame","the static value of required reserves in system p.u.","","power system internal reference, do not modify"],"fieldnames":["name","available","time_frame","requirement","ext","internal"],"fieldtypes":["String","Bool","Float64","Float64","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":6},{"name":"PowerSystems.VariableReserveNonSpinning","fielddocs":["","","the relative saturation time_frame","the required quantity of the product should be scaled by a TimeSeriesData","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","time_frame","requirement","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Float64","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":7}]}]},{"name":"PowerSystems.StaticReserveGroup","fielddocs":["","","","","",""],"fieldnames":["name","available","requirement","ext","contributing_services","internal"],"fieldtypes":["String","Bool","Float64","Dict{String, Any}","Vector{PowerSystems.Service}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":6},{"name":"PowerSystems.Transfer","fielddocs":["","","","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","available","requirement","ext","time_series_container","internal"],"fieldtypes":["String","Bool","Float64","Dict{String, Any}","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":6}]},{"name":"PowerSystems.Topology","children":[{"name":"PowerSystems.AggregationTopology","children":[{"name":"PowerSystems.Area","fielddocs":["","","","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","peak_active_power","peak_reactive_power","load_response","time_series_container","internal"],"fieldtypes":["String","Float64","Float64","Float64","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":6},{"name":"PowerSystems.LoadZone","fielddocs":["","","","internal time_series storage","power system internal reference, do not modify"],"fieldnames":["name","peak_active_power","peak_reactive_power","time_series_container","internal"],"fieldtypes":["String","Float64","Float64","InfrastructureSystems.TimeSeriesContainer","InfrastructureSystems.InfrastructureSystemsInternal"],"value":5}]},{"name":"PowerSystems.Arc","fielddocs":["The initial bus","The terminal bus","power system internal reference, do not modify"],"fieldnames":["from","to","internal"],"fieldtypes":["PowerSystems.Bus","PowerSystems.Bus","InfrastructureSystems.InfrastructureSystemsInternal"],"value":3},{"name":"PowerSystems.Bus","fielddocs":["number associated with the bus","the name of the bus","bus type","angle of the bus in radians","voltage as a multiple of basevoltage","limits on the voltage variation as multiples of basevoltage","the base voltage in kV","the area containing the bus","the load zone containing the bus","","power system internal reference, do not modify"],"fieldnames":["number","name","bustype","angle","magnitude","voltage_limits","base_voltage","area","load_zone","ext","internal"],"fieldtypes":["Int64","String","Union{Nothing, PowerSystems.BusTypesModule.BusTypes}","Union{Nothing, Float64}","Union{Nothing, Float64}","Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}","Union{Nothing, Float64}","Union{Nothing, PowerSystems.Area}","Union{Nothing, PowerSystems.LoadZone}","Dict{String, Any}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":11}]}]};
+        const root = d3.hierarchy(data);
+
+        root.x0 = dy / 2;
+        root.y0 = 0;
+        root.descendants().forEach((d, i) => {
+          d.id = i;
+          d._children = d.children;
+          if (excludes.map(t => "PowerSystems." + t).includes(d.data.name)) {
+              d.children = null;
+          }
+          // if (d.depth && d.data.name.length !== 7) d.children = null;
+        });
+
+        const svg = d3.select("#component").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [-margin.left, -margin.top, width, dx])
+            .style("font", "10px sans-serif")
+            .style("user-select", "none");
+
+        const gLink = svg.append("g")
+            .attr("fill", "none")
+            .attr("stroke", "#555")
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1.5);
+
+        const gNode = svg.append("g")
+            .attr("cursor", "pointer")
+            .attr("pointer-events", "all");
+
+        function update(source) {
+          const duration = d3.event && d3.event.altKey ? 2500 : 250;
+          const nodes = root.descendants().reverse();
+          const links = root.links();
+
+          // Compute the new tree layout.
+          tree(root);
+
+          let left = root;
+          let right = root;
+          root.eachBefore(node => {
+            if (node.x < left.x) left = node;
+            if (node.x > right.x) right = node;
+          });
+
+          const height = right.x - left.x + margin.top + margin.bottom;
+
+          const transition = svg.transition()
+              .duration(duration)
+              .attr("viewBox", [-margin.left, left.x - margin.top, width, height])
+              .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+
+          // Update the nodes…
+          const node = gNode.selectAll("g")
+            .data(nodes, d => d.id);
+
+          // Enter any new nodes at the parent's previous position.
+          const nodeEnter = node.enter().append("g")
+              .attr("transform", d => `translate(${source.y0},${source.x0})`)
+              .attr("fill-opacity", 0)
+              .attr("stroke-opacity", 0)
+              .on("click", (event, d) => {
+                d.children = d.children ? null : d._children;
+                update(d);
+              });
+
+          nodeEnter.append("circle")
+              .attr("r", 2.5)
+              .attr("fill", d => d._children ? "#555" : "#999")
+              .attr("stroke-width", 10);
+
+          nodeEnter.append("text")
+              .attr("dy", "0.31em")
+              .attr("x", d => d._children ? -6 : 6)
+              .attr("text-anchor", d => d._children ? "end" : "start")
+              .attr("font-weight", d => (d.data.fieldnames && d.data.fieldnames.length > 0) ? "bold" : "")
+              .attr("font-size", d => (d.data.fieldnames && d.data.fieldnames.length > 0) ? "1.5em" : "1.5em")
+              .text(d => d.data.name)
+              .on("mousemove", function(event, d) {
+                const x = event.x
+                const y = event.y
+                const html = (d.data.fieldnames) ?
+                    `
+                        <span style="color:green">struct</span> ${d.data.name}<br/>
+                        ${d.data.fieldnames.map(
+                            (f, i) => `
+                            &nbsp;&nbsp;${f}<span style="color:blue">::${d.data.fieldtypes[i]}</span>
+                            ${(d.data.fielddocs[i] != "") ?
+                            "<span style='color:lightgrey;font-style:italic;'>&nbsp;&nbsp;#&nbsp;" + d.data.fielddocs[i] + "</span>"
+                            : ""}
+                            `
+                        ).join('<br/>')}
+                        <br/><span style="color:green">end</span>
+                    `
+                : `
+                <span style="color:green">abstract struct</span> ${d.data.name} <span style="color:green">end</span>
+                `
+                tooltip
+                    .style("visibility", "visible")
+                    .style("top", 10 + "px")
+                    .style("left", 40 + "px")
+                    .html(html);
+              })
+            .clone(true).lower()
+              .attr("stroke-linejoin", "round")
+              .attr("stroke-width", 3)
+              .attr("stroke", "white");
+
+          // Transition nodes to their new position.
+          const nodeUpdate = node.merge(nodeEnter).transition(transition)
+              .attr("transform", d => `translate(${d.y},${d.x})`)
+              .attr("fill-opacity", 1)
+              .attr("stroke-opacity", 1);
+
+          // Transition exiting nodes to the parent's new position.
+          const nodeExit = node.exit().transition(transition).remove()
+              .attr("transform", d => `translate(${source.y},${source.x})`)
+              .attr("fill-opacity", 0)
+              .attr("stroke-opacity", 0);
+
+          // Update the links…
+          const link = gLink.selectAll("path")
+            .data(links, d => d.target.id);
+
+          // Enter any new links at the parent's previous position.
+          const linkEnter = link.enter().append("path")
+              .attr("d", d => {
+                const o = {x: source.x0, y: source.y0};
+                return diagonal({source: o, target: o});
+              });
+
+          // Transition links to their new position.
+          link.merge(linkEnter).transition(transition)
+              .attr("d", diagonal);
+
+          // Transition exiting nodes to the parent's new position.
+          link.exit().transition(transition).remove()
+              .attr("d", d => {
+                const o = {x: source.x, y: source.y};
+                return diagonal({source: o, target: o});
+              });
+
+          // Stash the old positions for transition.
+          root.eachBefore(d => {
+            d.x0 = d.x;
+            d.y0 = d.y;
+          });
+        }
+
+        update(root);
+        const zoom = d3.zoom()
+            .scaleExtent([0.25, 5])
+            .on("zoom", handleZoom);
+        d3.select("svg").on("click", () => tooltip.style("visibility", "hidden")).call(zoom)
+        function handleZoom(e) {
+            gLink.attr('transform', e.transform);
+            gNode.attr('transform', e.transform);
+        }
+    }
+  </script>
+</body>
+<p>Hover over the various labels to see the <code>struct</code> definition.
+The bold types are the leaf concrete types, and are the ones you may be particularly interested in.</p>
+<h2 id="getter_and_setter_accessor_functions" ><a href="#getter_and_setter_accessor_functions"> getter and setter accessor functions</a></h2><p>This <code>System</code> type is a <code>struct</code>, an instance of which can contains all the data that represents a 73 bus test system.</p>
+<p>Let's say hypothetically we wanted to get all the buses in this system.
+Maybe we want to verify that it is indeed a 73 bus test system.
+We can do that using the <code>get_components</code> function from <code>PowerSystems</code>.</p>
+<pre><code class="julia">buses = collect(get_components(Bus, system))</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">73-element Vector{PowerSystems.Bus}:
+ Bus(202, Bacon, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1877810214196211, 1.04844, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(321, Cobb, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.21539492271297458, 1.05, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(37.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(322, Cole, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.3153659860038082, 1.05, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(37.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(102, Adams, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1364470483941135, 1.04783, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(117, Aston, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.19956391373276003, 1.04783, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(17.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(324, Curie, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.02279504722859714, 1.01046, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(121, Attlee, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.22840303616101354, 1.05, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(17.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(206, Bajer, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.28198796032281825, 1.03259, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(217, Bates, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.15390994022494278, 1.04847, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(27.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(103, Adler, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.1258539470320591, 1.01085, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(301, Cabell, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1631570436678591, 1.0486, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(204, Bailey, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23535398444000616, 1.0189, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(107, Alder, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.19681606735842017, 1.03745, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(311, Cary, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.10019394183631328, 1.0283, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(33.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(110, Allen, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18536496213608536, 1.05, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(13.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(317, Chuhsi, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.18053999941894702, 1.04785, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(37.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(215, Barton, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.08087000542408246, 1.04327, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(323, Comte, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.15046692920953353, 1.05, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(35.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(201, Bach, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.18657098464921346, 1.04841, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(303, Caesar, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.14969497008137647, 1.01045, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(307, Carew, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.21900304187562247, 1.03804, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(205, Bain, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23757194885344055, 1.03603, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(315, Chase, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.12306107116301779, 1.043, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(222, Bell, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.28679302628648384, 1.05, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(27.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(308, Carrel, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.26499107140227146, 1.01056, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(109, Ali, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.15385496235350493, 1.0261, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(13.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(310, Caruso, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.2146959183475509, 1.05, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(33.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(124, Avery, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.04159800285910765, 1.01155, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(116, Asser, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.13210903253828157, 1.04565, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(122, Aubrey, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.33073605352857105, 1.05, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(17.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(211, Bardeen, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.12100996022607405, 1.02735, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(23.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(316, Chifa, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.11516991401597582, 1.04558, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(108, Alger, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23997701256268875, 1.01024, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(223, Bloch, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.125340994764898, 1.05, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(25.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(104, Agricola, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18441393222667365, 1.01765, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(118, Astor, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.21859498389650622, 1.05, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(17.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(105, Aiken, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18690504066804514, 1.03568, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(319, Clay, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.10324303203954738, 1.03953, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(35.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(213, Barlow, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.05611408078086969, 1.03752, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(24.0, 2.65, 0.54), Dict{String, Any}())
+ Bus(304, Caine, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.21271793670626568, 1.01785, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(224, Bordet, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.01675603348377156, 1.01456, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(210, Banks, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23526793970788284, 1.05, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(23.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(325, Curtiss, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.15696304468545644, 1.04986, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(35.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(216, Basov, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0820320456400603, 1.04556, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(209, Balzac, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.204623972300142, 1.02781, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(23.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(306, Camus, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.26078796949761873, 1.0326, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(314, Chain, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0559889406735017, 1.04631, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(312, Caxton, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.0723620489193857, 1.019, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(33.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(106, Alber, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23176995082103577, 1.03242, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(318, Clark, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.19796606480255924, 1.05, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(37.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(119, Attar, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.11620000734050288, 1.03962, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(15.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(111, Anna, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.0683600089445627, 1.02764, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(13.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(115, Arthur, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.13892297247099264, 1.04335, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(313, Cecil, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.04215197036369065, 1.03802, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(34.0, 2.65, 0.54), Dict{String, Any}())
+ Bus(220, Beethoven, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.09886400094629359, 1.0438, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(25.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(123, Austen, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.15805998412033487, 1.05, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(15.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(120, Attila, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.13509895607987307, 1.04399, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(15.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(101, Abel, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.13511501310899143, 1.04777, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(208, Balch, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.2831550619936269, 1.01203, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(309, Carter, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18232006072305607, 1.02579, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(33.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(320, Clive, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.1256129170623587, 1.04389, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(35.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(221, Behring, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.1855649768683639, 1.05, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(27.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(305, Calvin, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.2155490352859257, 1.03609, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(302, Cabot, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1646020017555852, 1.04864, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(218, Bayle, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.17444094634785287, 1.05, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(27.0, 3.33, 0.68), Dict{String, Any}())
+ Bus(219, Bede, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.07351902768053274, 1.03946, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(25.0, 3.09, 0.63), Dict{String, Any}())
+ Bus(114, Arnold, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.03020396990331307, 1.04401, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(207, Baker, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.23502708427110763, 1.03973, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 5.29, 1.08), Dict{String, Any}())
+ Bus(214, Barry, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.08177199158151313, 1.04335, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26.0, 6.109999999999999, 1.23), Dict{String, Any}())
+ Bus(212, Barkla, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.09168807972671891, 1.01921, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(23.0, 3.7, 0.76), Dict{String, Any}())
+ Bus(113, Arne, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.03943, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(14.0, 2.65, 0.54), Dict{String, Any}())
+ Bus(203, Baffin, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18281503609892163, 1.01886, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 4.33, 0.88), Dict{String, Any}())
+ Bus(112, Archer, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.042310969858547334, 1.02024, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(13.0, 3.7, 0.76), Dict{String, Any}())</code></pre></div><p>Now the <code>buses</code> variable contains a <code>Vector</code> of all the <code>Bus</code> components.</p>
+<pre><code class="julia">typeof(buses)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Vector{PowerSystems.Bus}</code></pre></div><fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+In Julia, some types can be parameterized.
+In this case, <code>Vector</code> is a abstract type and <code>Vector&lbrace;Bus&rbrace;</code> is a concrete parameterized type.
+
+</fieldset><fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+What do you think the result of the following will be?<pre><code class="julia">numbers = [1,2,3,4]
+typeof(numbers)</code></pre>
+What about the following?<pre><code class="julia">numbers = [1.,2,3,4]
+typeof(numbers)</code></pre>
+</fieldset><p>We can count the number of buses by getting the <code>length</code> of the <code>Vector&lbrace;Bus&rbrace;</code> instance.</p>
+<pre><code class="julia">length(buses)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">73</code></pre></div><fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+When you are writing code for an analysis, often you will want to assert that your code is doing the right thing.
+You can do this by using the <code>@assert</code> macro.<pre><code class="julia">@assert length(buses) == 73</code></pre>
+This line will silently pass if the assertion returns <code>true</code> and can be a easy way to sanity check your code.
+Assertions that fail will result in errors.It can also come in handy to write tests to verify that your code is working as expected.
+Julia has a package as part of the standard library for testing.<pre><code class="julia">using Test
+@test length(buses) == 73</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Test Passed
+  Expression: length(buses) == 73
+   Evaluated: 73 == 73</code></pre></div></fieldset><fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+How many "areas" are in this test system? Can you find the answer programmatically?<button type="button" class="collapsible"> Click to expand and view the solution </button><div class="collapsiblecontent"> We can use the <code>Area</code> type, the <code>get_components</code> function and the <code>length</code> to get the number of areas. <pre><code class="julia">length(get_components(Area, system))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">3</code></pre></div> Note that we did not need to call <code>collect</code> to get the length. </div>
+
+</fieldset><h2 id="get_attributes" ><a href="#get_attributes"> Get attributes</a></h2><p>A <code>struct</code> in Julia like a <code>dataclass</code> in Python.
+And these <code>struct</code>s can have many fields.
+This is an example of what the <code>PowerSystems</code> <code>struct</code> looks like:</p>
+<pre><code class="julia">struct System
+    data
+    frequency
+    bus_numbers
+    runchecks
+    units_settings
+end</code></pre>
+<p>You'll notice that <code>frequency</code> is a field on the <code>System</code> <code>struct</code>.
+This means you can access the system's frequency by using the <code>.</code> operator:</p>
+<pre><code class="julia">system.frequency</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">60.0</code></pre></div><p>However, these fields in <code>PowerSystems</code> are considered implementation details, and may change in future versions of the package.</p>
+<p>For accessing data, <code>PowerSystems</code> provide a number of accessor functions.
+Instead of using <code>system.frequency</code>, it is recommended for example to use <code>get_frequency</code>.
+You'll see that this yields the same answer.</p>
+<pre><code class="julia">get_frequency(system)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">60.0</code></pre></div><p>You can find the full list of these accessor functions in <a href="https://nrel-siip.github.io/PowerSystems.jl/stable/api/public/">the PowerSystems public API reference</a>.</p>
+<p>The function we used earlier, i.e. <code>get_components</code> is one such accessor function.
+This function takes in two arguments, a <code>PowerSystems.Component</code> type as the first argument and the system as the second argument, and returns a collection of components.</p>
+<fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+For performance and implementation-detail reasons, <code>get_components</code> actually returns a Iterator type.<pre><code class="julia">typeof(get_components(Bus, system))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">InfrastructureSystems.FlattenIteratorWrapper{PowerSystems.Bus}</code></pre></div>However, you can call the Julia standard library <code>collect</code> to convert the iterator to a <code>Vector&lbrace;PowerSystem.Bus&rbrace;</code>.
+
+</fieldset><p>If you are using a Julia REPL where the <code>PowerSystems</code> package is already loaded, you can type <code>PowerSystems.get_</code> and hit the <code>&lt;TAB&gt;</code> key twice in quick succession.
+This should show a list of autocompletion options for the <code>get_</code> accessor functions.</p>
+<fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+Can you print the names of all the <code>Bus</code> components in the RTS test system?
+How many unique base voltage levels are there in the RTS test system?<button type="button" class="collapsible"> Click to expand and view the solution </button><div class="collapsiblecontent"> We can get the names using Julia's broadcasting operator. <pre><code class="julia">names = get_name.(get_components(Bus, system))</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">73-element Vector{String}:
+ "Bacon"
+ "Cobb"
+ "Cole"
+ "Adams"
+ "Aston"
+ "Curie"
+ "Attlee"
+ "Bajer"
+ "Bates"
+ "Adler"
+ "Cabell"
+ "Bailey"
+ "Alder"
+ "Cary"
+ "Allen"
+ "Chuhsi"
+ "Barton"
+ "Comte"
+ "Bach"
+ "Caesar"
+ "Carew"
+ "Bain"
+ "Chase"
+ "Bell"
+ "Carrel"
+ "Ali"
+ "Caruso"
+ "Avery"
+ "Asser"
+ "Aubrey"
+ "Bardeen"
+ "Chifa"
+ "Alger"
+ "Bloch"
+ "Agricola"
+ "Astor"
+ "Aiken"
+ "Clay"
+ "Barlow"
+ "Caine"
+ "Bordet"
+ "Banks"
+ "Curtiss"
+ "Basov"
+ "Balzac"
+ "Camus"
+ "Chain"
+ "Caxton"
+ "Alber"
+ "Clark"
+ "Attar"
+ "Anna"
+ "Arthur"
+ "Cecil"
+ "Beethoven"
+ "Austen"
+ "Attila"
+ "Abel"
+ "Balch"
+ "Carter"
+ "Clive"
+ "Behring"
+ "Calvin"
+ "Cabot"
+ "Bayle"
+ "Bede"
+ "Arnold"
+ "Baker"
+ "Barry"
+ "Barkla"
+ "Arne"
+ "Baffin"
+ "Archer"</code></pre></div> We can use Julia's <code>unique</code> function for this: <pre><code class="julia">unique(get_base_voltage.(get_components(Bus, system)))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[138.0, 230.0]</code></pre></div> </div>
+
+</fieldset><p>Another reason to use <code>get_*</code> accessor functions is that data can be transformed appropriately when using these functions.
+For example, it is possible to change the base units on the system and have the accessors return the corresponding values.</p>
+<pre><code class="julia">set_units_base_system!(system, &quot;SYSTEM_BASE&quot;)
+gen = first(get_components(ThermalStandard, system))
+get_active_power_limits(gen)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">(min = 0.22, max = 0.55)</code></pre></div><pre><code class="julia">set_units_base_system!(system, &quot;NATURAL_UNITS&quot;)
+gen = first(get_components(ThermalStandard, system))
+get_active_power_limits(gen)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">(min = 22.0, max = 55.0)</code></pre></div><p>You can think about these accessor functions as the API through which you can interact with the <code>PowerSystems.System</code> <code>struct</code>.</p>
+<p>Similar to <code>get_*</code> accessor functions, there are <code>set_*</code> accessor functions</p>
+<p>Here is the name of the first <code>ThermalStandard</code> generator.</p>
+<pre><code class="julia">gen = first(get_components(ThermalStandard, system))
+get_name(gen)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">"322_CT_6"</code></pre></div><p>Let's say we wanted to change it to include the power rating.</p>
+<pre><code class="julia">n = get_name(gen)
+min_p, max_p = get_active_power_limits(gen)
+set_name!(system, gen, &quot;$(n)_$(Int(min_p))_$(Int(max_p))&quot;)
+get_name(gen)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">"322_CT_6_22_55"</code></pre></div><h2 id="add_and_remove_components" ><a href="#add_and_remove_components"> Add and remove components</a></h2><p>Let's say you wanted to add a new component to an existing system.
+You can do that by using the <code>add_component!</code> function.
+In the Julia REPL, hit <code>?</code> to enter the documentation mode and type <code>add_component!</code>.</p>
+<pre><code class="julia">help?&gt; add_component!</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">```julia
+add_component!(sys::PowerSystems.System, component::PowerSystems.Component; skip_validation, kwargs...)
+
+```
+
+Add a component to the system.
+
+Throws ArgumentError if the component's name is already stored for its concrete type. Throws ArgumentError if any Component-specific rule is violated. Throws InvalidValue if any of the component's field values are outside of defined valid range.
+
+# Examples
+
+```julia
+sys = System(100.0)
+
+# Add a single component.
+add_component!(sys, bus)
+
+# Add many at once.
+buses = [bus1, bus2, bus3]
+generators = [gen1, gen2, gen3]
+foreach(x -> add_component!(sys, x), Iterators.flatten((buses, generators)))
+```
+
+```julia
+add_component!(sys::PowerSystems.System, dyn_injector::PowerSystems.DynamicInjection, static_injector::PowerSystems.StaticInjection; kwargs...)
+
+```
+
+Add a dynamic injector to the system.
+
+Throws ArgumentError if the name does not match the static*injector name. Throws ArgumentError if the static*injector is not attached to the system.
+
+All rules for the generic add_component! method also apply.
+</code></pre></div><p>This function takes a <code>PowerSystems.System</code> and a <code>PowerSystems.Component</code>.
+Let's create a battery storage and attach it to a bus.</p>
+<pre><code class="julia">battery = GenericBattery(; name = &quot;battery&quot;,
+  available = true,
+  bus = get_bus(first(loads)),
+  prime_mover=PrimeMovers.BA,
+  initial_energy=0.0,
+  state_of_charge_limits=(min=0.0, max=0.0),
+  rating=0.0,
+  active_power=0.0,
+  input_active_power_limits=(min=0.0, max=0.0),
+  output_active_power_limits=(min=0.0, max=0.0),
+  efficiency=(in=0.0, out=0.0),
+  reactive_power=0.0,
+  reactive_power_limits=(min=0.0, max=0.0),
+  base_power=0.0,
+)
+add_component!(system, battery)
+battery</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">battery (PowerSystems.GenericBattery):
+   name: battery
+   available: true
+   bus: Bacon (PowerSystems.Bus)
+   prime_mover: PowerSystems.PrimeMoversModule.PrimeMovers.BA = 1
+   initial_energy: 0.0
+   state_of_charge_limits: (min = 0.0, max = 0.0)
+   rating: 0.0
+   active_power: 0.0
+   input_active_power_limits: (min = 0.0, max = 0.0)
+   output_active_power_limits: (min = 0.0, max = 0.0)
+   efficiency: (in = 0.0, out = 0.0)
+   reactive_power: 0.0
+   reactive_power_limits: (min = 0.0, max = 0.0)
+   base_power: 0.0
+   operation_cost: nothing
+   services: 0-element Vector{PowerSystems.Service}
+   dynamic_injector: nothing
+   ext: Dict{String, Any}()
+   time_series_container: InfrastructureSystems.TimeSeriesContainer: 0
+   InfrastructureSystems.SystemUnitsSettings:
+      base_value: 100.0
+      unit_system: InfrastructureSystems.UnitSystemModule.UnitSystem.NATURAL_UNITS = 2</code></pre></div><p>And if you want to remove the component, you can use the <code>remove_component!</code> function:</p>
+<pre><code class="julia">remove_component!(system, battery)
+# OR
+remove_component!(system, get_component(GenericBattery, system, &quot;battery&quot;))</code></pre>
+<p>During the next session, we will explore building a formulation that includes batteries as part of the scheduling problem.</p>
+<h2 id="working_with_time_series_data" ><a href="#working_with_time_series_data"> Working with time series data</a></h2><p>Let's say we wanted to retrieve the load profile data.
+First, we can get all the <code>PowerLoad</code> components.</p>
+<pre><code class="julia">loads = collect(get_components(PowerLoad, system))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.PowerLoad[PowerLoad(Bacon, true, Bus(202, Bacon, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1877810214196211, 1.04844, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 97.0, 20.0, 100.0, 97.0, 20.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Adams, true, Bus(102, Adams, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1364470483941135, 1.04783, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 97.0, 20.0, 100.0, 97.0, 20.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Bajer, true, Bus(206, Bajer, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.28198796032281825, 1.03259, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 136.0, 28.000000000000004, 100.0, 136.0, 28.000000000000004, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Adler, true, Bus(103, Adler, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.1258539470320591, 1.01085, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 180.0, 37.0, 100.0, 180.0, 37.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Cabell, true, Bus(301, Cabell, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1631570436678591, 1.0486, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 108.0, 22.0, 100.0, 108.0, 22.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Bailey, true, Bus(204, Bailey, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23535398444000616, 1.0189, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 74.0, 15.0, 100.0, 74.0, 15.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Alder, true, Bus(107, Alder, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.19681606735842017, 1.03745, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 125.0, 25.0, 100.0, 125.0, 25.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Allen, true, Bus(110, Allen, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18536496213608536, 1.05, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(13.0, 370.0, 76.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 195.0, 40.0, 100.0, 195.0, 40.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Barton, true, Bus(215, Barton, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.08087000542408246, 1.04327, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 317.0, 64.0, 100.0, 317.0, 64.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Bach, true, Bus(201, Bach, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.18657098464921346, 1.04841, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 108.0, 22.0, 100.0, 108.0, 22.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Caesar, true, Bus(303, Caesar, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.14969497008137647, 1.01045, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 180.0, 37.0, 100.0, 180.0, 37.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Carew, true, Bus(307, Carew, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.21900304187562247, 1.03804, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 125.0, 25.0, 100.0, 125.0, 25.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Bain, true, Bus(205, Bain, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23757194885344055, 1.03603, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 71.0, 14.000000000000002, 100.0, 71.0, 14.000000000000002, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Chase, true, Bus(315, Chase, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.12306107116301779, 1.043, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 317.0, 64.0, 100.0, 317.0, 64.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Carrel, true, Bus(308, Carrel, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.26499107140227146, 1.01056, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 171.0, 35.0, 100.0, 171.0, 35.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Ali, true, Bus(109, Ali, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.15385496235350493, 1.0261, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(13.0, 370.0, 76.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 175.0, 36.0, 100.0, 175.0, 36.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Caruso, true, Bus(310, Caruso, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.2146959183475509, 1.05, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(33.0, 370.0, 76.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 195.0, 40.0, 100.0, 195.0, 40.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Asser, true, Bus(116, Asser, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.13210903253828157, 1.04565, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 100.0, 20.0, 100.0, 100.0, 20.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Chifa, true, Bus(316, Chifa, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.11516991401597582, 1.04558, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 100.0, 20.0, 100.0, 100.0, 20.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Alger, true, Bus(108, Alger, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23997701256268875, 1.01024, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 171.0, 35.0, 100.0, 171.0, 35.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Agricola, true, Bus(104, Agricola, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18441393222667365, 1.01765, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 74.0, 15.0, 100.0, 74.0, 15.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Astor, true, Bus(118, Astor, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.21859498389650622, 1.05, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(17.0, 333.0, 68.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 333.0, 68.0, 100.0, 333.0, 68.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Aiken, true, Bus(105, Aiken, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18690504066804514, 1.03568, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 71.0, 14.000000000000002, 100.0, 71.0, 14.000000000000002, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Clay, true, Bus(319, Clay, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.10324303203954738, 1.03953, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(35.0, 309.0, 63.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 181.0, 37.0, 100.0, 181.0, 37.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Barlow, true, Bus(213, Barlow, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.05611408078086969, 1.03752, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(24.0, 265.0, 54.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 265.0, 54.0, 100.0, 265.0, 54.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Caine, true, Bus(304, Caine, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.21271793670626568, 1.01785, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 74.0, 15.0, 100.0, 74.0, 15.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Banks, true, Bus(210, Banks, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23526793970788284, 1.05, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(23.0, 370.0, 76.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 195.0, 40.0, 100.0, 195.0, 40.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Basov, true, Bus(216, Basov, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0820320456400603, 1.04556, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 100.0, 20.0, 100.0, 100.0, 20.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Balzac, true, Bus(209, Balzac, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.204623972300142, 1.02781, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(23.0, 370.0, 76.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 175.0, 36.0, 100.0, 175.0, 36.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Camus, true, Bus(306, Camus, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.26078796949761873, 1.0326, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 136.0, 28.000000000000004, 100.0, 136.0, 28.000000000000004, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Chain, true, Bus(314, Chain, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0559889406735017, 1.04631, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 194.0, 39.0, 100.0, 194.0, 39.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Alber, true, Bus(106, Alber, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23176995082103577, 1.03242, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 136.0, 28.000000000000004, 100.0, 136.0, 28.000000000000004, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Clark, true, Bus(318, Clark, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.19796606480255924, 1.05, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(37.0, 333.0, 68.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 333.0, 68.0, 100.0, 333.0, 68.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Attar, true, Bus(119, Attar, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.11620000734050288, 1.03962, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(15.0, 309.0, 63.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 181.0, 37.0, 100.0, 181.0, 37.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Arthur, true, Bus(115, Arthur, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.13892297247099264, 1.04335, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 317.0, 64.0, 100.0, 317.0, 64.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Cecil, true, Bus(313, Cecil, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.04215197036369065, 1.03802, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(34.0, 265.0, 54.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 265.0, 54.0, 100.0, 265.0, 54.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Beethoven, true, Bus(220, Beethoven, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.09886400094629359, 1.0438, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(25.0, 309.0, 63.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 128.0, 26.0, 100.0, 128.0, 26.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Attila, true, Bus(120, Attila, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.13509895607987307, 1.04399, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(15.0, 309.0, 63.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 128.0, 26.0, 100.0, 128.0, 26.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Abel, true, Bus(101, Abel, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.13511501310899143, 1.04777, (min = 0.95, max = 1.05), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(11.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 108.0, 22.0, 100.0, 108.0, 22.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Balch, true, Bus(208, Balch, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.2831550619936269, 1.01203, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 171.0, 35.0, 100.0, 171.0, 35.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Carter, true, Bus(309, Carter, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18232006072305607, 1.02579, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(33.0, 370.0, 76.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 175.0, 36.0, 100.0, 175.0, 36.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Clive, true, Bus(320, Clive, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.1256129170623587, 1.04389, (min = 0.95, max = 1.05), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(35.0, 309.0, 63.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 128.0, 26.0, 100.0, 128.0, 26.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Calvin, true, Bus(305, Calvin, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.2155490352859257, 1.03609, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(31.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 71.0, 14.000000000000002, 100.0, 71.0, 14.000000000000002, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Cabot, true, Bus(302, Cabot, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1646020017555852, 1.04864, (min = 0.95, max = 1.05), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 97.0, 20.0, 100.0, 97.0, 20.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Bayle, true, Bus(218, Bayle, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.17444094634785287, 1.05, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(27.0, 333.0, 68.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 333.0, 68.0, 100.0, 333.0, 68.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Bede, true, Bus(219, Bede, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.07351902768053274, 1.03946, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(25.0, 309.0, 63.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 181.0, 37.0, 100.0, 181.0, 37.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Arnold, true, Bus(114, Arnold, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.03020396990331307, 1.04401, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 194.0, 39.0, 100.0, 194.0, 39.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Baker, true, Bus(207, Baker, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.23502708427110763, 1.03973, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22.0, 529.0, 108.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 125.0, 25.0, 100.0, 125.0, 25.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Barry, true, Bus(214, Barry, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.08177199158151313, 1.04335, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26.0, 611.0, 123.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 194.0, 39.0, 100.0, 194.0, 39.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Arne, true, Bus(113, Arne, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.03943, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(14.0, 265.0, 54.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 265.0, 54.0, 100.0, 265.0, 54.0, PowerSystems.Service[], nothing, Dict{String, Any}()), PowerLoad(Baffin, true, Bus(203, Baffin, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.18281503609892163, 1.01886, (min = 0.95, max = 1.05), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(21.0, 433.0, 88.0), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 180.0, 37.0, 100.0, 180.0, 37.0, PowerSystems.Service[], nothing, Dict{String, Any}())]</code></pre></div><p>We can call <code>get_time_series_names</code> to see the names of all the time series attached to the loads</p>
+<pre><code class="julia">[names for names in get_time_series_names.(Deterministic, loads)]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"], ["max_active_power"]]</code></pre></div><fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+You can use the broadcast operator for this instead:<pre><code class="julia">get_time_series_names.(Deterministic, loads);</code></pre>
+</fieldset><p>There's a lot of time series in there that appear to have the same name.
+Let's find all unique names of the kinds of time series data that we are dealing with.</p>
+<pre><code class="julia">only(unique(Iterators.flatten(get_time_series_names.(Deterministic, loads))))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">"max_active_power"</code></pre></div><p>It looks like, in this test system, there's only one kind of time series data in all the <code>PowerLoad</code> components, i.e. the <code>max_active_power</code> time series, which makes sense for <code>Deterministic</code> loads.</p>
+<p>You may be wondering what other kinds of time series data is possible to store:</p>
+<pre><code class="julia">D3PowerSystemTypes(supertype(supertype(supertype(Deterministic))))
+# Or
+D3PowerSystemTypes(PowerSystems.TimeSeriesData)</code></pre>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.3.0/d3.min.js"
+  integrity="sha512-NMhzM2RHzbCRO0s5VPaRC+2bW6nmNXimzC9p5sp2x19M+zzuSJ2T50dEQ7hpHkNjnX1mt8nQg1NNthwRZgsoIg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-collection/0.1.0/d3-collection.min.js"
+  integrity="sha512-1/mV4cROFokbcS1RCHs3CqNdvflNQ2FMKaFbuwEPp7GjMLrgCoppAYvFF9Al7UuDj1FPw0R/DbopUV6Ik+IpiA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-zoom/0.0.1/d3-zoom.min.js"
+  integrity="sha512-YuxdfgsiwteZIurpHpCnrHq3i27yxn8FjJ7/ToX3g1DLoKUTYsiwoHVOXaVYAYAAkhLGFei901qzo9ngfOxHiw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<head>
+  <style>
+    section {
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      margin-top: 2%;
+      height: 95vh;
+      grid-auto-flow: column;
+      border: 1px solid #0f0f0f;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div id="timeseries"></div>
+  </section>
+
+  <script>
+    chart()
+
+    function chart() {
+        const width = d3.select("section").node().getBoundingClientRect().width
+        const height = d3.select("section").node().getBoundingClientRect().height
+        const dx = 10
+        const dy = width / 6
+        const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        const margin = {top: 50, right: 50, bottom: 50, left: 100}
+        const tree = d3.tree().size([width, height])
+        const excludes = [
+            "Service",
+            "Topology",
+            "RegulatorDevice",
+            "DynamicInjection",
+            "Source",
+            "StaticInjectionSubsystem",
+            "Storage",
+        ]
+
+        const tooltip = d3.select("#timeseries")
+          .append("p")
+          .style("position", "absolute")
+          .style("visibility", "hidden")
+          .style("background-color", "white")
+          .style("border", "solid")
+          .style("border-width", "1px")
+          .style("border-radius", "5px")
+          .style("padding", "10px")
+          .style("max-width", "35%")
+          .style("overflow-wrap", "break-word")
+          .style("word-wrap", "break-word")
+          .style("hyphens", "auto")
+          .text("");
+
+        const data = {"name":"InfrastructureSystems.TimeSeriesData","children":[{"name":"InfrastructureSystems.Forecast","children":[{"name":"InfrastructureSystems.AbstractDeterministic","children":[{"name":"InfrastructureSystems.Deterministic","fielddocs":["user-defined name","timestamp - scalingfactor","forecast resolution","Applicable when the time series data are scaling factors. Called on the associated component to convert the values.",""],"fieldnames":["name","data","resolution","scaling_factor_multiplier","internal"],"fieldtypes":["String","Union{DataStructures.SortedDict{Dates.DateTime, Vector{Vector{Tuple{Float64, Float64}}}}, DataStructures.SortedDict{Dates.DateTime, Vector{Float64}}, DataStructures.SortedDict{Dates.DateTime, Vector{Tuple{Float64, Float64}}}}","Dates.Period","Union{Nothing, Function}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":5},{"name":"InfrastructureSystems.DeterministicSingleTimeSeries","fielddocs":["wrapped SingleTimeSeries object","time series availability time","time step between forecast windows","number of forecast windows","length of this time series"],"fieldnames":["single_time_series","initial_timestamp","interval","count","horizon"],"fieldtypes":["InfrastructureSystems.SingleTimeSeries","Dates.DateTime","Dates.Period","Int64","Int64"],"value":5}]},{"name":"InfrastructureSystems.Probabilistic","fielddocs":["user-defined name","timestamp - scalingfactor","Percentiles for the probabilistic forecast","forecast resolution","Applicable when the time series data are scaling factors. Called on the associated component to convert the values.",""],"fieldnames":["name","data","percentiles","resolution","scaling_factor_multiplier","internal"],"fieldtypes":["String","Union{DataStructures.SortedDict{Dates.DateTime, Matrix{Vector{Tuple{Float64, Float64}}}}, DataStructures.SortedDict{Dates.DateTime, Matrix{Float64}}, DataStructures.SortedDict{Dates.DateTime, Matrix{Tuple{Float64, Float64}}}}","Vector{Float64}","Dates.Period","Union{Nothing, Function}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":6},{"name":"InfrastructureSystems.Scenarios","fielddocs":["user-defined name","timestamp - scalingfactor","Number of scenarios","forecast resolution","Applicable when the time series data are scaling factors. Called on the associated component to convert the values.",""],"fieldnames":["name","data","scenario_count","resolution","scaling_factor_multiplier","internal"],"fieldtypes":["String","Union{DataStructures.SortedDict{Dates.DateTime, Matrix{Vector{Tuple{Float64, Float64}}}}, DataStructures.SortedDict{Dates.DateTime, Matrix{Float64}}, DataStructures.SortedDict{Dates.DateTime, Matrix{Tuple{Float64, Float64}}}}","Int64","Dates.Period","Union{Nothing, Function}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":6}]},{"name":"InfrastructureSystems.StaticTimeSeries","children":[{"name":"InfrastructureSystems.SingleTimeSeries","fielddocs":["user-defined name","timestamp - scalingfactor","","Applicable when the time series data are scaling factors. Called on the associated component to convert the values.",""],"fieldnames":["name","data","resolution","scaling_factor_multiplier","internal"],"fieldtypes":["String","TimeSeries.TimeArray","Dates.Period","Union{Nothing, Function}","InfrastructureSystems.InfrastructureSystemsInternal"],"value":5}]}]};
+        const root = d3.hierarchy(data);
+
+        root.x0 = dy / 2;
+        root.y0 = 0;
+        root.descendants().forEach((d, i) => {
+          d.id = i;
+          d._children = d.children;
+          if (excludes.map(t => "PowerSystems." + t).includes(d.data.name)) {
+              d.children = null;
+          }
+          // if (d.depth && d.data.name.length !== 7) d.children = null;
+        });
+
+        const svg = d3.select("#timeseries").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [-margin.left, -margin.top, width, dx])
+            .style("font", "10px sans-serif")
+            .style("user-select", "none");
+
+        const gLink = svg.append("g")
+            .attr("fill", "none")
+            .attr("stroke", "#555")
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1.5);
+
+        const gNode = svg.append("g")
+            .attr("cursor", "pointer")
+            .attr("pointer-events", "all");
+
+        function update(source) {
+          const duration = d3.event && d3.event.altKey ? 2500 : 250;
+          const nodes = root.descendants().reverse();
+          const links = root.links();
+
+          // Compute the new tree layout.
+          tree(root);
+
+          let left = root;
+          let right = root;
+          root.eachBefore(node => {
+            if (node.x < left.x) left = node;
+            if (node.x > right.x) right = node;
+          });
+
+          const height = right.x - left.x + margin.top + margin.bottom;
+
+          const transition = svg.transition()
+              .duration(duration)
+              .attr("viewBox", [-margin.left, left.x - margin.top, width, height])
+              .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+
+          // Update the nodes…
+          const node = gNode.selectAll("g")
+            .data(nodes, d => d.id);
+
+          // Enter any new nodes at the parent's previous position.
+          const nodeEnter = node.enter().append("g")
+              .attr("transform", d => `translate(${source.y0},${source.x0})`)
+              .attr("fill-opacity", 0)
+              .attr("stroke-opacity", 0)
+              .on("click", (event, d) => {
+                d.children = d.children ? null : d._children;
+                update(d);
+              });
+
+          nodeEnter.append("circle")
+              .attr("r", 2.5)
+              .attr("fill", d => d._children ? "#555" : "#999")
+              .attr("stroke-width", 10);
+
+          nodeEnter.append("text")
+              .attr("dy", "0.31em")
+              .attr("x", d => d._children ? -6 : 6)
+              .attr("text-anchor", d => d._children ? "end" : "start")
+              .attr("font-weight", d => (d.data.fieldnames && d.data.fieldnames.length > 0) ? "bold" : "")
+              .attr("font-size", d => (d.data.fieldnames && d.data.fieldnames.length > 0) ? "1.5em" : "1.5em")
+              .text(d => d.data.name)
+              .on("mousemove", function(event, d) {
+                const x = event.x
+                const y = event.y
+                const html = (d.data.fieldnames) ?
+                    `
+                        <span style="color:green">struct</span> ${d.data.name}<br/>
+                        ${d.data.fieldnames.map(
+                            (f, i) => `
+                            &nbsp;&nbsp;${f}<span style="color:blue">::${d.data.fieldtypes[i]}</span>
+                            ${(d.data.fielddocs[i] != "") ?
+                            "<span style='color:lightgrey;font-style:italic;'>&nbsp;&nbsp;#&nbsp;" + d.data.fielddocs[i] + "</span>"
+                            : ""}
+                            `
+                        ).join('<br/>')}
+                        <br/><span style="color:green">end</span>
+                    `
+                : `
+                <span style="color:green">abstract struct</span> ${d.data.name} <span style="color:green">end</span>
+                `
+                tooltip
+                    .style("visibility", "visible")
+                    .style("top", 10 + "px")
+                    .style("left", 40 + "px")
+                    .html(html);
+              })
+            .clone(true).lower()
+              .attr("stroke-linejoin", "round")
+              .attr("stroke-width", 3)
+              .attr("stroke", "white");
+
+          // Transition nodes to their new position.
+          const nodeUpdate = node.merge(nodeEnter).transition(transition)
+              .attr("transform", d => `translate(${d.y},${d.x})`)
+              .attr("fill-opacity", 1)
+              .attr("stroke-opacity", 1);
+
+          // Transition exiting nodes to the parent's new position.
+          const nodeExit = node.exit().transition(transition).remove()
+              .attr("transform", d => `translate(${source.y},${source.x})`)
+              .attr("fill-opacity", 0)
+              .attr("stroke-opacity", 0);
+
+          // Update the links…
+          const link = gLink.selectAll("path")
+            .data(links, d => d.target.id);
+
+          // Enter any new links at the parent's previous position.
+          const linkEnter = link.enter().append("path")
+              .attr("d", d => {
+                const o = {x: source.x0, y: source.y0};
+                return diagonal({source: o, target: o});
+              });
+
+          // Transition links to their new position.
+          link.merge(linkEnter).transition(transition)
+              .attr("d", diagonal);
+
+          // Transition exiting nodes to the parent's new position.
+          link.exit().transition(transition).remove()
+              .attr("d", d => {
+                const o = {x: source.x, y: source.y};
+                return diagonal({source: o, target: o});
+              });
+
+          // Stash the old positions for transition.
+          root.eachBefore(d => {
+            d.x0 = d.x;
+            d.y0 = d.y;
+          });
+        }
+
+        update(root);
+        const zoom = d3.zoom()
+            .scaleExtent([0.25, 5])
+            .on("zoom", handleZoom);
+        d3.select("svg").on("click", () => tooltip.style("visibility", "hidden")).call(zoom)
+        function handleZoom(e) {
+            gLink.attr('transform', e.transform);
+            gNode.attr('transform', e.transform);
+        }
+    }
+  </script>
+</body>
+<p>Now that we know that there's only a <code>&quot;max_active_power&quot;</code> type of time series data.</p>
+<pre><code class="julia">data = [get_time_series_array(Deterministic, load, &quot;max_active_power&quot;) for load in loads];
+(length = length(data), type = typeof(data))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">(length = 51, type = Vector{TimeSeries.TimeArray{Float64, 1, Dates.DateTime, Vector{Float64}}})</code></pre></div><p><code>PowerGraphics</code> has some utility functions for plotting load profiles but lets do this one manually as an exercise.</p>
+<pre><code class="julia">using Plots
+p = plot(popfirst!(data), label = popfirst!(names))
+for (name, timeseries) in zip(names, data)
+  plot!(p, timeseries, label = name)
+end
+p</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/powersystems/figs-html/__autofig_10769712032055554514.svg">
+</div><fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+In Julia, by convention, functions that modify the first argument have a <code>!</code> at the end of the function name.
+For plotting, the first plot object is stored in the variable <code>p</code>, and the subsequent function calls to plot are "modifying" the same plot object.
+This is why the first function doesn't have a <code>!</code> but other calls for plotting do.
+This lets us plot all the load profiles and display them together in the same plot.
+
+</fieldset><fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+In all our code samples, we have been importing a package using the <code>using</code> keyword.
+This adds all the exported symbols to the current namespace.
+Sometimes this might not be what you want.
+You can instead import a package using the <code>import</code> keyword.<pre><code class="julia">import Plots
+p = Plots.plot(popfirst!(data), label = popfirst!(names))
+for (name, timeseries) in zip(names, data)
+  Plots.plot!(p, timeseries, label = name)
+end
+p</code></pre>
+This makes it more clearer in the code which packages the functions are coming from.
+
+</fieldset><h2 id="summary" ><a href="#summary"> Summary</a></h2><p>We explored the type hierarchy of the <code>PowerSystems.Component</code>.
+We also looked at how to use the accessor functions to get and set data.
+And finally we did some simple plots after getting time series data on the system.</p>
+<fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+Can you find the names of 10 "largest on average" loads in this system?
+<button type="button" class="collapsible"> Click to expand and view the solution </button><div class="collapsiblecontent"> We can use the standard library's <code>Statistics</code> package for the <code>mean</code> function. <pre><code class="julia">using Statistics
+ 
+ function get_largest_loads(system)
+   reverse(
+     sort(
+       collect(get_components(PowerLoad, system)),
+       by = load -&gt; mean(
+         values(
+           get_time_series_array(
+             Deterministic,
+             load,
+             &quot;max_active_power&quot;
+           )
+         )
+       )
+     )
+   )
+ end
+ 
+ get_largest_load_names(system, n = 10) =
+   get_name.(Iterators.take(get_largest_loads(system), n))
+ 
+ get_largest_load_names(system, 10)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">10-element Vector{String}:
+ "Clark"
+ "Chase"
+ "Cecil"
+ "Bayle"
+ "Barton"
+ "Astor"
+ "Arthur"
+ "Barlow"
+ "Arne"
+ "Caruso"</code></pre></div> </div>
+
+</fieldset><fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+Can you plot the network graph of the RTS system?<button type="button" class="collapsible"> Click to expand and view the solution </button><div class="collapsiblecontent"> I like using <code>Graphs.jl</code> for a light weight networks / graphs package.
+ Additionally, I like using <code>MetaGraphs</code> for storing additional metadata on the graphs. <pre><code class="julia">using Graphs, MetaGraphs
+ using GraphRecipes
+ using JSONTables
+ 
+ function create_graph(sys::PowerSystems.System)
+     buses = collect(get_components(Bus, sys))
+     n_bus = length(buses)
+     gens = collect(get_components(Generator, sys))
+     n_gen = length(gens)
+     loads = collect(get_components(PowerLoad, sys))
+     n_load = length(loads)
+     graph = MetaGraph(SimpleGraph(n_bus + n_gen + n_load))
+     from_to_buses = map(get_components(Branch, sys)) do branch
+         (
+             only(findall(x -&gt; x.name === get_arc(branch).from.name, buses)),
+             only(findall(x -&gt; x.name === get_arc(branch).to.name, buses))
+         )
+     end
+     for (f, t) in from_to_buses
+         add_edge!(graph, f, t)
+     end
+     for (i, bus) in enumerate(buses)
+         set_prop!(graph, i, :group, get_bustype(bus).value)
+         set_prop!(graph, i, :name, get_name(bus))
+     end
+     for (i, gen) in enumerate(gens)
+         gen_node = i + n_bus
+         add_edge!(graph, gen_node, only(findall(x -&gt; x.name === get_bus(gen).name, buses)))
+         set_prop!(graph, gen_node, :group, 0)
+         set_prop!(graph, gen_node, :name, get_name(gen))
+     end
+     for (i, load) in enumerate(loads)
+         load_node = i + n_bus + n_gen
+         add_edge!(graph, load_node, only(findall(x -&gt; x.name === get_bus(load).name, buses)))
+         set_prop!(graph, load_node, :group, 6)
+         set_prop!(graph, load_node, :name, get_name(load))
+         set_prop!(graph, load_node, :timeseries, arraytable(get_time_series_array(Deterministic, load, &quot;max_active_power&quot;)))
+     end
+     graph
+ end
+ 
+ function create_plot(g)
+     n = first(size(g))
+     graphplot(
+         g,
+         curves = false,
+         names = rpad.(lpad.(string.(1:n), 2), 2),
+         nodesize = 0.2,
+         nodeshape = :circle,
+         method = :sfdp,
+     )
+ end
+ 
+ create_plot(create_graph(system))</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/powersystems/figs-html/__autofig_11874172969689997457.svg">
+</div> Unfortunately, this is not very useful for larger systems.
+ We can also use D3.js to plot the graph of the system.
+ Run the following in a vscode Julia session to see an example of this. <pre><code class="julia"> include(&quot;utils.jl&quot;)
+ D3NetworkLayout(create_graph(system))
+ </code></pre>
+ </div>
+
+</fieldset>
+  <div class="page-foot">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Dheepak Krishnamurthy. 
+</div>
+
+<script>
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    });
+  }
+</script>
+
+
+
+<script src="/SIIP-Tutorial//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script></script>
+
+<script>
+(function(){
+
+	// Get the elements.
+	// - the 'pre' element.
+	// - the 'div' with the 'paste-content' id.
+
+	var pre = document.getElementsByTagName('pre');
+
+	// Add a copy button in the 'pre' element.
+	// which only has the className of 'language-'.
+
+	for (var i = 0; i < pre.length; i++) {
+		var isResult = pre[i].children[0].className.indexOf('code-result');
+		var isStdout = pre[i].children[0].className.indexOf('code-stdout');
+
+		if ( isResult !== 0 && isStdout !== 0 ) {
+			var button           = document.createElement('button');
+					button.className = 'copy-button';
+					button.textContent = 'Copy';
+
+					pre[i].prepend(button);
+		}
+	};
+
+	// Run Clipboard
+
+	var copyCode = new Clipboard('.copy-button', {
+		target: function(trigger) {
+			return trigger.nextElementSibling;
+    }
+	});
+
+	// On success:
+	// - Change the "Copy" text to "Copied".
+	// - Swap it to "Copy" in 2s.
+	// - Lead user to the "contenteditable" area with Velocity scroll.
+
+	copyCode.on('success', function(event) {
+		event.clearSelection();
+		event.trigger.textContent = 'Copied';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 2000);
+
+	});
+
+	// On error (Safari):
+	// - Change the  "Press Ctrl+C to copy"
+	// - Swap it to "Copy" in 2s.
+
+	copyCode.on('error', function(event) {
+		event.trigger.textContent = 'Press "Ctrl + C" to copy';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 5000);
+	});
+
+})();
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>

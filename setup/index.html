@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="setup" ><a href="#setup"> Setup</a></h1><p>This document describes that you'll need in your local environment to participate in this tutorial.</p>
+<h2 id="requirements" ><a href="#requirements"> Requirements</a></h2><ol>
+<li><strong>git</strong>: Download the 64 bit git installer and use the default options to install it.<ul>
+<li><a href="https://git-scm.com/">https://git-scm.com/</a></li>
+</ul>
+</li>
+<li><strong>Julia</strong>: Download the Julia 64 bit installer and use the default options to install it.<ul>
+<li><a href="https://julialang.org/downloads/">https://julialang.org/downloads/</a></li>
+</ul>
+</li>
+<li><strong>vscode</strong>: Download the vscode 64 bit installer and use the default options to install it.<ul>
+<li><a href="https://code.visualstudio.com/Download">https://code.visualstudio.com/Download</a></li>
+</ul>
+</li>
+<li><strong>vscode Julia Extension</strong>: Install the Visual Studio Julia Extension:<ul>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=julialang.language-julia">https://marketplace.visualstudio.com/items?itemName=julialang.language-julia</a></li>
+<li><a href="https://github.com/julia-vscode/julia-vscode#installing-juliavs-codevs-code-julia-extension">https://github.com/julia-vscode/julia-vscode#installing-juliavs-codevs-code-julia-extension</a></li>
+</ul>
+</li>
+<li><code>git clone https://github.com/NREL-SIIP/SIIP-Tutorial.git</code><ul>
+<li>After installing vscode, use <code>git</code> to clone this repository anywhere you choose.</li>
+<li>On MacOS, I like to clone it into <code>~/gitrepos/SIIP-Tutorial</code></li>
+<li>On Windows, I like to clone it into <code>C:\gitrepos\SIIP-Tutorial</code><ul>
+<li>On Windows, you might have to use <code>Git Bash</code> to clone the repository.</li>
+</ul>
+</li>
+<li>Use vscode to open this folder.</li>
+</ul>
+</li>
+</ol>
+<fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+Explore other extensions in the vscode Extension tab.
+
+</fieldset><h2 id="instantiate" ><a href="#instantiate"> Instantiate</a></h2><p>For the tutorial, we want to install some packages in a isolated, reproducible environment.</p>
+<p>This repository contains a <code>Project.toml</code> and a <code>Manifest.toml</code> file.
+The "environment" defined by these files is all you'll need for this tutorial today.</p>
+<fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+Julia environments are useful for providing reproducible environments for running your analysis.
+Make sure you check in your <code>Project.toml</code> and <code>Manifest.toml</code> file as part of your analysis script.
+
+</fieldset><p>You can read more about Julia's package manager in the official documentation: <a href="https://docs.julialang.org/en/v1/stdlib/Pkg/">https://docs.julialang.org/en/v1/stdlib/Pkg/</a>.</p>
+<p>In order to instantiate our environment, we want to run <code>instantiate</code> in the Package mode in the Julia REPL. Follow the steps below to do this using vscode.</p>
+<fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+If you are doing this for the first time, it may take 15 minutes or more to download and precompile all the packages.
+
+</fieldset><ol>
+<li>On Windows, hit:<ul>
+<li><code>Ctrl</code> + <code>Shift</code> + <code>P</code> to open the vscode command palette.</li>
+</ul>
+</li>
+<li>On Mac, hit:<ul>
+<li><code>Cmd</code> + <code>Shift</code> + <code>P</code> to open the vscode command palette.</li>
+</ul>
+</li>
+<li>You'll see a command palette. Type "Julia Start REPL" and hit enter:</li>
+<li>You should see a REPL open inside vscode.</li>
+<li>Hit <code>]</code> to open the Pkg mode.</li>
+<li>Type <code>instantiate</code> and hit enter.</li>
+<li>Type <code>status</code> in the package manager mode to see whether the current environment was instantiated correctly:</li>
+</ol>
+<fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+vscode's command palette is a powerful feature.
+Try to experiment with other actions in the command palette.
+Can you change the color theme of your vscode editor using the command palette?
+Choose your favorite theme for your editor before proceeding.
+
+</fieldset><p>If you want to do this from your terminal instead, you can run the following from the root of the repository.</p>
+<pre><code class="bash">julia --project -e &quot;using Pkg; Pkg.instantiate()&quot;</code></pre>
+<p>Once you have your environment instantiated correctly you are ready to go.</p>
+<h2 id="using_external_terminal_(optional)" ><a href="#using_external_terminal_(optional)"> Using external terminal (<em>optional</em>)</a></h2><p>Alternatively, you can run <code>julia --project</code> in a terminal from the root directory of this repository.</p>
+<p>In vscode, open the command palette and type "Julia: Connect external REPL".
+You should see a pop up open at the bottom right of your screen.</p>
+<p>If you hit the Copy Code button, you can then paste it in a terminal of your choice.</p>
+
+  <div class="page-foot">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Dheepak Krishnamurthy. 
+</div>
+
+<script>
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    });
+  }
+</script>
+
+
+
+<script src="/SIIP-Tutorial//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script></script>
+
+<script>
+(function(){
+
+	// Get the elements.
+	// - the 'pre' element.
+	// - the 'div' with the 'paste-content' id.
+
+	var pre = document.getElementsByTagName('pre');
+
+	// Add a copy button in the 'pre' element.
+	// which only has the className of 'language-'.
+
+	for (var i = 0; i < pre.length; i++) {
+		var isResult = pre[i].children[0].className.indexOf('code-result');
+		var isStdout = pre[i].children[0].className.indexOf('code-stdout');
+
+		if ( isResult !== 0 && isStdout !== 0 ) {
+			var button           = document.createElement('button');
+					button.className = 'copy-button';
+					button.textContent = 'Copy';
+
+					pre[i].prepend(button);
+		}
+	};
+
+	// Run Clipboard
+
+	var copyCode = new Clipboard('.copy-button', {
+		target: function(trigger) {
+			return trigger.nextElementSibling;
+    }
+	});
+
+	// On success:
+	// - Change the "Copy" text to "Copied".
+	// - Swap it to "Copy" in 2s.
+	// - Lead user to the "contenteditable" area with Velocity scroll.
+
+	copyCode.on('success', function(event) {
+		event.clearSelection();
+		event.trigger.textContent = 'Copied';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 2000);
+
+	});
+
+	// On error (Safari):
+	// - Change the  "Press Ctrl+C to copy"
+	// - Swap it to "Copy" in 2s.
+
+	copyCode.on('error', function(event) {
+		event.trigger.textContent = 'Press "Ctrl + C" to copy';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 5000);
+	});
+
+})();
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>

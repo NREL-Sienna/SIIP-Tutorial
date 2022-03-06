@@ -1,0 +1,128 @@
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.3.0/d3.min.js"
+  integrity="sha512-NMhzM2RHzbCRO0s5VPaRC+2bW6nmNXimzC9p5sp2x19M+zzuSJ2T50dEQ7hpHkNjnX1mt8nQg1NNthwRZgsoIg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-collection/0.1.0/d3-collection.min.js"
+  integrity="sha512-1/mV4cROFokbcS1RCHs3CqNdvflNQ2FMKaFbuwEPp7GjMLrgCoppAYvFF9Al7UuDj1FPw0R/DbopUV6Ik+IpiA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-zoom/0.0.1/d3-zoom.min.js"
+  integrity="sha512-YuxdfgsiwteZIurpHpCnrHq3i27yxn8FjJ7/ToX3g1DLoKUTYsiwoHVOXaVYAYAAkhLGFei901qzo9ngfOxHiw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<head>
+  <style>
+    section {
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      margin-top: 2%;
+      height: 95vh;
+      grid-auto-flow: column;
+      border: 1px solid #0f0f0f;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div id="graph"></div>
+  </section>
+
+  <script>
+    const data = <span style="color:red;">[FAILED:]&gt;&lbrace;&lbrace; data&rbrace;&rbrace;&lt;</span>;
+
+    const width = d3.select("section").node().getBoundingClientRect().width
+    const height = d3.select("section").node().getBoundingClientRect().height
+    const margin = {top: 50, right: 0, bottom: 10, left: 50}
+    const dx = 10
+    const dy = width / 6
+    const svg = d3.select("#graph")
+            .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .style("font", "10px sans-serif")
+                .style("user-select", "none")
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top}) scale(0.8)`);
+
+    function dataMungeRow(row) {
+        return row.map(
+            (d) => { return {date: d3.timeParse("%Y-%m-%dT%H:%M:%S.0")(d.timestamp), value: d.A} }
+        )
+    }
+
+    for (const k of Object.keys(data)) {
+        data[k] = dataMungeRow(data[k])
+    }
+    const firstRow = data[Object.keys(data)[0]]
+    const x = d3.scaleTime()
+      .domain(d3.extent(firstRow, function(d) { return d.date; }))
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(d3.axisBottom(x));
+
+    let m = 0
+    for (const k of Object.keys(data)) {
+        const row = data[k]
+        m = Math.max(m, d3.max(row, function(d) { return +d.value; }))
+    }
+
+    const y = d3.scaleLinear()
+      .domain([0, m])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    svg.append("path")
+    .datum(firstRow)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .style("stroke-dasharray", ("3, 3"))
+    .attr("stroke-width", 1.5)
+    .attr("d", d3.line()
+        .x(function(d) { return x(d.date) })
+        .y(function(d) { return y(1) })
+        )
+
+    for (const k of Object.keys(data)) {
+        // Add the line
+        svg.append("path")
+        .datum(data[k])
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(function(d) { return x(d.date) })
+            .y(function(d) { return y(d.value) })
+            )
+        .on("mouseover", function() {
+          d3.select(this).attr("stroke-width", 3)
+          d3.select("#text-" + k)
+            .style("fill", "darkOrange")
+            .attr("font-weight", "bold")
+            .attr("dx", "5em")
+        })
+        .on("mouseout", function() {
+          d3.select(this).attr("stroke-width", 1.5)
+          d3.select("#text-" + k)
+            .style("fill", "black")
+            .attr("font-weight", "normal")
+            .attr("dx", "")
+        })
+        const lastelem = data[k][data[k].length - 1]
+        svg.append("text")
+          .attr("id", "text-" + k)
+          .attr("x", x(lastelem.date))
+          .attr("y", y(lastelem.value))
+          .attr("dy", "0.35em")
+          .text(k)
+    }
+  </script>
+</body>

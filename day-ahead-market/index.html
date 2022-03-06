@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="solve_a_day_ahead_market_scheduling_problem_using_siip" ><a href="#solve_a_day_ahead_market_scheduling_problem_using_siip"> Solve a Day Ahead Market Scheduling Problem using SIIP</a></h1><p>In this tutorial, you will create and solve a day ahead market scheduling problem using SIIP.</p>
+<p>Once you have completed this tutorial, you will have a basic understanding of a simple workflow in Julia when using packages under the SIIP umbrella.</p>
+<div class="toc"><ol><li><a href="#setup"> Setup</a></li><li><a href="#create_a_script.jl_file"> Create a <code>script.jl</code> file</a></li><li><a href="#verify_project_environment"> Verify Project Environment</a></li><li><a href="#loading_powersystems_data"> Loading PowerSystems Data</a></li><li><a href="#building_a_optimization_problem"> Building a Optimization Problem</a></li><li><a href="#solving_the_optimization_model"> Solving the Optimization Model</a></li><li><a href="#getting_results_from_the_model"> Getting Results from the Model</a></li><li><a href="#plotting_results"> Plotting Results</a></li><li><a href="#summary"> Summary</a></li></ol></div><p>If you are already familiar with this or want to jump ahead, you may want to check out the tutorial on <a href="/SIIP-Tutorial/powersystems">manipulating data in <code>PowerSystems.System</code></a>.</p>
+<h2 id="setup" ><a href="#setup"> Setup</a></h2><p>If you haven't done so already, you will need to set up your <a href="/SIIP-Tutorial/setup">local development environment</a>.</p>
+<h2 id="create_a_script.jl_file" ><a href="#create_a_script.jl_file"> Create a <code>script.jl</code> file</a></h2><p>Using vscode, you can create a new file in <code>src/script.jl</code>.</p>
+<p>SIIP is a collection of packages written in Julia that enable among other things production cost modeling.
+Any file that has the extension <code>.jl</code> is a Julia file.</p>
+<p>In order to run this file, we will use a vscode's feature. First type <code>println(&quot;hello world&quot;)</code> in the <code>script.jl</code> file.</p>
+<p>Open the command palette:</p>
+<ul>
+<li><code>Ctrl</code> + <code>Shift</code> + <code>P</code> on Windows</li>
+<li><code>Cmd</code> + <code>Shift</code> + <code>P</code> on Mac</li>
+</ul>
+<p>And type "Julia execute active file" and hit enter. You should see a terminal with a Julia REPL open up in the bottom half of your screen with the words <code>hello world</code> printed.</p>
+<h2 id="verify_project_environment" ><a href="#verify_project_environment"> Verify Project Environment</a></h2><p>We will go over environments in more detail in a next tutorial.
+For now, it is sufficient to know that if you cloned the repo and opened the Julia REPL from within the git repository's root directly, you are currently in a Julia environment set up for this tutorial.</p>
+<p>To verify this, type <code>]</code> in the Julia REPL to enter the REPL's Pkg (Package) mode, and type <code>status</code>.</p>
+<p>If the Pkg mode prompts you to instantiate, type <code>instantiate</code> and hit enter.
+This may take a few minutes while it precompiles all the packages on your machine locally.</p>
+<p>To exit the Pkg REPL mode, hit <code>Backspace</code>.
+You'll return back to a Julia REPL.</p>
+<p>Type the following in the REPL to ensure that your environment is loaded correctly.</p>
+<pre><code class="julia">using PowerSystems</code></pre>
+<h2 id="loading_powersystems_data" ><a href="#loading_powersystems_data"> Loading PowerSystems Data</a></h2><p>A good way to think about Production Cost Modeling is in 3 steps.</p>
+<ol>
+<li>Loading input data into memory</li>
+<li>Building a optimization problem that you'd like to solve:<ul>
+<li>What is the objective function?</li>
+<li>What are the constraints?</li>
+</ul>
+</li>
+<li>Running the built optimization problem using the data loaded</li>
+<li>Storing / visualizing results</li>
+</ol>
+<p>Let's start with loading data.</p>
+<p>For now, we are going to use an existing data set to get started but in a later tutorial, we'll walk through how to bring your own data set into a PCM with SIIP.</p>
+<p>In the <code>script.jl</code> file, add the following:</p>
+<pre><code class="julia">using PowerSystems
+using PowerSystemCaseBuilder
+
+# uses RTS Test System with Time Series data
+@time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;; force_build = true, skip_serialization = true)</code></pre>
+<p>The code above builds a system using the <code>modified_RTS_GMLC_DA_sys</code> test system from the library of cases.</p>
+<fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+Any text following a <code>#</code> in the same line is a comment and will be ignored.
+
+</fieldset><p>Once you have added the code to the <code>script.jl</code> file, run the file using the <code>Julia: Execute active file in REPL</code> command palette option.</p>
+<p>Vscode also has a button at the top right that you can click to execute the active file in the REPL, but I like using the command palette option because it is more flexible and more general purpose.
+Any functionality available in vscode can be accessed using the command palette.</p>
+<p>The Julia extension also has a feature that lets you run the current line in the REPL using <code>Ctrl + Enter</code>.
+You can also run the visually selected lines in the REPL, although there may not be a key mapping for that by default.</p>
+<fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+Using the command palette, run the action to <code>Open Keyboard Shortcuts</code> and add <code>Ctrl + Shift + Enter</code> as a keyboard shortcut for <code>Julia: Send Current Line or Selection to REPL</code>.
+
+</fieldset><p>Once the <code>build_system</code> function is completed, you should see a summary of the system loaded in the Julia REPL like so.</p>
+<img src="/SIIP-Tutorial/assets/system.png"><fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+You can use the <code>Logging</code> package in Julia to add log messages to your code.For example, modify the above script to use the <code>Logging</code> package and add a <code>@info</code> statement.<pre><code class="julia">using Logging
+@info &quot;Building the RTS test system&quot;
+
+using PowerSystems
+using PowerSystemCaseBuilder
+
+# uses RTS Test System with Time Series data
+@time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)</code></pre>
+You should see the following in your terminal before the output of running the script.<pre><code class="julia">[ Info: Building the RTS test system</code></pre>
+</fieldset><p>Going forward in this tutorial, I'm going to show the output of the terminal on this webpage, instead of screenshots of the vscode terminal, for the clarity of presentation. For example, the output of the <code>system</code> will be as follows:</p>
+<div class="code-output"><pre><code class="code-stdout language-plaintext"> 89.818058 seconds (133.27 M allocations: 6.553 GiB, 3.72% gc time, 87.03% compilation time)
+System
+┌───────────────────┬─────────────┐
+│ Property          │ Value       │
+├───────────────────┼─────────────┤
+│ System Units Base │ SYSTEM_BASE │
+│ Base Power        │ 100.0       │
+│ Base Frequency    │ 60.0        │
+│ Num Components    │ 497         │
+└───────────────────┴─────────────┘
+
+Static Components
+┌───────────────────────────────────────────┬───────┬────────────────────────┬───────────────┐
+│ Type                                      │ Count │ Has Static Time Series │ Has Forecasts │
+├───────────────────────────────────────────┼───────┼────────────────────────┼───────────────┤
+│ Arc                                       │ 109   │ false                  │ false         │
+│ Area                                      │ 3     │ true                   │ true          │
+│ Bus                                       │ 73    │ false                  │ false         │
+│ HydroDispatch                             │ 1     │ true                   │ true          │
+│ Line                                      │ 105   │ false                  │ false         │
+│ LoadZone                                  │ 21    │ false                  │ false         │
+│ PowerLoad                                 │ 51    │ true                   │ true          │
+│ RenewableDispatch                         │ 29    │ true                   │ true          │
+│ RenewableFix                              │ 31    │ true                   │ true          │
+│ TapTransformer                            │ 15    │ false                  │ false         │
+│ ThermalStandard                           │ 54    │ false                  │ false         │
+│ VariableReserve{PowerSystems.ReserveDown} │ 1     │ true                   │ true          │
+│ VariableReserve{PowerSystems.ReserveUp}   │ 4     │ true                   │ true          │
+└───────────────────────────────────────────┴───────┴────────────────────────┴───────────────┘
+
+Time Series Summary
+┌──────────────────────────────────┬─────────────────────┐
+│ Property                         │ Value               │
+├──────────────────────────────────┼─────────────────────┤
+│ Components with time series data │ 120                 │
+│ Total StaticTimeSeries           │ 121                 │
+│ Total Forecasts                  │ 121                 │
+│ Resolution                       │ 60 minutes          │
+│ First initial time               │ 2020-01-01T00:00:00 │
+│ Last initial time                │ 2020-12-30T00:00:00 │
+│ Horizon                          │ 48                  │
+│ Interval                         │ 1440 minutes        │
+│ Forecast window count            │ 365                 │
+└──────────────────────────────────┴─────────────────────┘
+</code></pre></div><p>The summary shows us that this system has 3 areas, 73 buses, and a mix of renewable and thermal generation.</p>
+<fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+You'll notice that it took about 60 seconds to create the system for me.The first time you run any Julia code, it is going to be slower than future runs in the same REPL.
+This is because Julia compiles your code just before running it the first time. The second time onwards, it uses your compiled code.
+The following is the output of the same <code>build_system</code> function 3 more times, and it only takes about a second each time.<pre><code class="julia">@time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
+   force_build = true, skip_serialization = true);
+@time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
+   force_build = true, skip_serialization = true);
+@time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
+   force_build = true, skip_serialization = true);</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.161437 seconds (13.10 M allocations: 618.120 MiB, 17.99% gc time)
+  1.038223 seconds (13.10 M allocations: 618.120 MiB, 10.46% gc time)
+  1.087634 seconds (13.10 M allocations: 618.120 MiB, 15.31% gc time)
+</code></pre></div>There are ways to decrease the "first time to run" for Julia code but we'll cover that in a more advanced session.
+For now, it is enough to just be aware of this quirk of the language.
+
+</fieldset><p>Also, notice that we ran the function <code>build_system</code> and stored the returned value in a variable called <code>system</code>.
+We can see the <code>type</code> of any value by calling the <code>typeof</code> function.
+You can type the following in the Julia REPL.</p>
+<pre><code class="julia">typeof(system)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System</code></pre></div><p>This is a <code>PowerSystems.System</code> type.
+Here <code>PowerSystems</code> is the Julia <code>Module</code> i.e. Package where the <code>type</code> is defined.
+<code>System</code> is the type.</p>
+<p>This <code>PowerSystems.System</code> <code>struct</code> contains all the data for our 73 bus test system.</p>
+<fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+The value of the last expression in the Julia script that is being executed is displayed in the REPL.
+If you want to suppress this output, you can either add a <code>;</code> to the end of the last expression or add a <code>nothing</code> to the last line.i.e.<pre><code class="julia">typeof(system);</code></pre>
+OR<pre><code class="julia">typeof(system)
+nothing</code></pre>
+</fieldset><p><code>PowerSystemCaseBuilder</code> comes with a large number of other test systems.</p>
+<pre><code class="julia">using PowerSystemCaseBuilder
+show_categories()</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">PowerSystemCaseBuilder.MatPowerTestSystems
+PowerSystemCaseBuilder.PSITestSystems
+PowerSystemCaseBuilder.PSSETestSystems
+PowerSystemCaseBuilder.PSYTestSystems
+PowerSystemCaseBuilder.SIIPExampleSystems
+</code></pre></div><p>We will discuss more about these other systems, and how this data can be accessed or modified in a later part of this tutorial.</p>
+<h2 id="building_a_optimization_problem" ><a href="#building_a_optimization_problem"> Building a Optimization Problem</a></h2><p>Let's solve a day ahead unit commitment problem.
+First, we need to define the list of constraints that define a unit commitment problem.
+Fortunately, <code>PowerSimulations</code> has a <code>template</code> for just that.</p>
+<pre><code class="julia">using PowerSimulations
+
+@info &quot;Building a template for unit commitment&quot;
+template = template_unit_commitment()</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">
+Operations Problem Specification
+============================================
+Transmission: PowerSimulations.CopperPlatePowerModel
+============================================
+Devices Models: 
+
+	Type: PowerSystems.ThermalStandard
+ 	Formulation: PowerSimulations.ThermalBasicUnitCommitment
+
+	Type: PowerSystems.HydroEnergyReservoir
+ 	Formulation: PowerSimulations.HydroDispatchRunOfRiver
+
+	Type: PowerSystems.RenewableDispatch
+ 	Formulation: PowerSimulations.RenewableFullDispatch
+
+	Type: PowerSystems.PowerLoad
+ 	Formulation: PowerSimulations.StaticPowerLoad
+
+	Type: PowerSystems.InterruptibleLoad
+ 	Formulation: PowerSimulations.InterruptiblePowerLoad
+
+	Type: PowerSystems.RenewableFix
+ 	Formulation: PowerSimulations.FixedOutput
+
+	Type: PowerSystems.HydroDispatch
+ 	Formulation: PowerSimulations.HydroDispatchRunOfRiver
+
+============================================
+Branches Models: 
+
+	Type: PowerSystems.Transformer2W
+ 	Formulation: PowerSimulations.StaticBranch
+
+	Type: PowerSystems.Line
+ 	Formulation: PowerSimulations.StaticBranch
+
+	Type: PowerSystems.HVDCLine
+ 	Formulation: PowerSimulations.HVDCDispatch
+
+	Type: PowerSystems.TapTransformer
+ 	Formulation: PowerSimulations.StaticBranch
+
+============================================
+Services Models:
+
+	Type: PowerSystems.VariableReserve{PowerSystems.ReserveUp}
+ 	Formulation: PowerSimulations.RangeReserve
+
+	Name specific Model
+
+	Type: PowerSystems.VariableReserve{PowerSystems.ReserveDown}
+ 	Formulation: PowerSimulations.RangeReserve
+
+	Name specific Model
+
+============================================
+</code></pre></div><p>This template is like a blueprint or recipe for what optimization problem we'd like to solve.</p>
+<p>Note that this printout shows that this template defines the recipe for how to assemble device, branch and service models.
+And under device models, for the various kinds of components, there are various formulations assigned to them.
+All of this is configurable, but for now we are going to stick with the defaults.
+We will discuss the various kinds of device formulations in a later tutorial.</p>
+<p>Next, we want to choose a solver that can solve mixed integer linear programming (MILP) problems.
+<code>GLPK</code>, <code>Cbc</code>, <code>Gurobi</code>, <code>CPLEX</code>, <code>Xpress</code> etc are all valid options here.
+For this tutorial we are going to use <code>HiGHS</code>.</p>
+<pre><code class="julia">using HiGHS
+
+optimizer = optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.05)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">MathOptInterface.OptimizerWithAttributes(HiGHS.Optimizer, Pair{MathOptInterface.AbstractOptimizerAttribute, Any}[MathOptInterface.RawOptimizerAttribute("mip_rel_gap") => 0.05])</code></pre></div><p>Note that the pair <code>&quot;mip_rel_gap&quot; =&gt; 0.05</code> argument passed to this function is a solver option of HiGHS.
+If you are using a different solver, you may need to look up the options in the solver interface in the corresponding Julia package.
+For example, if you wanted to use <code>Cbc</code>, you could replace <code>HiGHS.Optimizer</code> with <code>Cbc.Optimizer</code> and add the corresponding attributes for the <code>Cbc</code> solver.
+For more information on this, check out <a href="https://jump.dev/">the <code>JuMP</code> documentation</a>.</p>
+<p>In order to build a model, we can create an instance of a <code>DecisionModel</code> using the <code>template</code> that defines the optimization problem and the <code>system</code> that contains the input data.
+We also pass in additional options for the optimizer and the horizon in this case.</p>
+<pre><code class="julia">model = DecisionModel(
+   template,
+   system;
+   optimizer = optimizer,
+   horizon = 24,
+)
+build!(model, output_dir = mktempdir())</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.BuildStatusModule.BuildStatus.BUILT = 0</code></pre></div><p>Note that the <code>build!</code> function uses the data in the <code>system</code> to assemble the optimization model (create all the variables, constraints, objective function etc, defined in the template) that we can pass to the solver.</p>
+<fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+If you've been paying close attention, you might notice that this is unlike other production cost modeling software or other hand rolled approaches to solving this problem.
+Specifically, although the <code>template</code> defines ahead of time what variables and constraints will be assembled into the optimization model, the actual assembly of the model occurs only when the <code>build!</code> function is called.
+This allows for a declarative approach to defining the formulations for various models.
+If this does not make sense at the moment, don't worry. We will be going through all this in more detail in the next session.
+
+</fieldset><h2 id="solving_the_optimization_model" ><a href="#solving_the_optimization_model"> Solving the Optimization Model</a></h2><p>The <code>build!</code> function is where most of the heavy lifting is done.
+Now that the model is built, we can solve the model by calling <code>solve!</code>.</p>
+<pre><code class="julia">solve!(model)</code></pre>
+<p>This sends the <code>JuMP</code> model to the solver, in our case <code>HiGHS</code>, and solves an optimization problem.
+When this successfully completes, you should see the following status message being printed out to your terminal.</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.RunStatusModule.RunStatus.SUCCESSFUL = 0</code></pre></div><h2 id="getting_results_from_the_model" ><a href="#getting_results_from_the_model"> Getting Results from the Model</a></h2><p>Now that we've built and solved the model, we can get results from it.</p>
+<p><code>PowerSimulations</code> has some helper functionality to this end.</p>
+<pre><code class="julia">results = ProblemResults(model)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">ProblemResults:
+  Base power: 100.0
+  Variables: PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("")
+  Duals: 
+  Parameters: PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("")
+</code></pre></div><p>For example, if you are interested in getting the objection function value, you can use the <code>get_objective_value</code> function:</p>
+<pre><code class="julia">get_objective_value(results)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">1.5371547080667508e6</code></pre></div><p>There are a lot of other helper functions available to get results from the model.
+In order to find what functions are available on to call, you can refer to <a href="https://nrel-siip.github.io/PowerSimulations.jl/latest/api/PowerSimulations/#PowerSimulations.ProblemResults-Tuple%7BAbstractString%7D">the API reference documentation of <code>PowerSimulations</code></a>.
+Searching for <code>res::ProblemResults</code> on this page can help you find a method that you are interested in.</p>
+<fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+Sometimes you might want a quick way to see what methods are available without switching to a browser. You can use the <code>methodswith</code> function and pass in the type that you are interested in:<pre><code class="julia">for method in methodswith(ProblemResults)
+   println(method)
+end</code></pre>
+You won't usually need this but it can come in handy in a pinch.
+
+</fieldset><h2 id="plotting_results" ><a href="#plotting_results"> Plotting Results</a></h2><p>In addition to getting results as values, we would also like to visualize the results.
+The <code>PowerGraphics</code> package gets data from a <code>ProblemResults</code> instance and visualizes it using the <code>Plots</code> package.</p>
+<p>Try running the following code in your REPL:</p>
+<pre><code class="julia">using PowerGraphics
+
+p = plot_fuel(results)</code></pre>
+<img src="/SIIP-Tutorial/assets/plotly/plot_11.png"><fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+If you wish to use PlotlyJS for interactive plots, you can by modifying the above code to the following:<pre><code class="julia">using Plots
+
+plotlyjs()
+
+using PowerGraphics
+
+p = plot_fuel(results)</code></pre>
+In this code, the call to <code>plotlyjs()</code> changes the backend of <code>Plots</code> (which is what <code>PowerGraphics</code>) uses.
+You can change it back to the default backend by calling <code>gr()</code>.
+
+</fieldset><h2 id="summary" ><a href="#summary"> Summary</a></h2><p>At the end of this tutorial, you should have a file that look something like this:</p>
+<pre><code class="julia">using Logging
+
+@info &quot;Building the RTS test system&quot;
+using PowerSystems
+using PowerSystemCaseBuilder
+
+# uses RTS Test System with Time Series data
+system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
+
+@info &quot;Building a template for unit commitment&quot;
+using PowerSimulations
+
+template = template_unit_commitment()
+
+@info &quot;Creating a solver&quot;
+using HiGHS
+
+optimizer = optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.05)
+
+@info &quot;Create a model&quot;
+model = DecisionModel(
+   template,
+   system;
+   optimizer = optimizer,
+   horizon = 24,
+)
+
+@info &quot;Build the model&quot;
+build!(model, output_dir = mktempdir())
+
+@info &quot;Solve the model&quot;
+solve!(model)
+
+@info &quot;Get results&quot;
+results = ProblemResults(model)
+
+using PowerGraphics
+
+p = plot_fuel(results)</code></pre>
+<p>In this basic tutorial, we created a system using <code>PowerSystemCaseBuilder</code>, created the default unit commitment template, built and solved a model using an optimization solver for a 24 hours horizon, and plotted some results.</p>
+<p>In the next tutorial, we will cover how to manipulate the input data, how to customize the formulation template and more.</p>
+<p>Before we end, let's refactor our code in preparation for the next session. We will do 2 things:</p>
+<ol>
+<li>Move all imports to the top of the file</li>
+<li>Create functions for individual steps</li>
+</ol>
+<pre><code class="julia">using Logging
+
+using HiGHS
+using PowerGraphics
+using PowerSimulations
+using PowerSystemCaseBuilder
+using PowerSystems
+
+
+function get_system()
+   @info &quot;Building the RTS test system&quot;
+   # uses RTS Test System with Time Series data
+   build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
+end
+
+
+function get_template()
+   @info &quot;Building a template for unit commitment&quot;
+   template_unit_commitment()
+end
+
+
+function get_solver()
+   @info &quot;Creating a solver&quot;
+   optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.05)
+end
+
+
+function get_unit_commitment_model()
+   system = get_system()
+   template = get_template()
+   optimizer = get_optimizer()
+
+   @info &quot;Create a model&quot;
+   model = DecisionModel(
+      template,
+      system;
+      optimizer = optimizer,
+      horizon = 24,
+   )
+
+   build!(model, output_dir = mktempdir())
+   model
+end
+
+
+function plot_results(model)
+   r = ProblemResults(model)
+   plot_fuel(r)
+end
+
+
+function main()
+   @info &quot;Build the model&quot;
+   model = get_unit_commitment_model()
+   @info &quot;Solve the model&quot;
+   solve!(model)
+   @info &quot;Get results&quot;
+   plot_results(model)
+end
+
+main()</code></pre>
+<p>One advantage of functions is that it makes our code reusable.
+Another advantage is that it plays well with a Julia package called <a href="https://github.com/timholy/Revise.jl"><code>Revise</code></a>.
+For our current workflow however, we won't need to deal with <code>Revise</code> just yet.</p>
+
+  <div class="page-foot">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Dheepak Krishnamurthy. 
+</div>
+
+<script>
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    });
+  }
+</script>
+
+
+
+<script src="/SIIP-Tutorial//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script></script>
+
+<script>
+(function(){
+
+	// Get the elements.
+	// - the 'pre' element.
+	// - the 'div' with the 'paste-content' id.
+
+	var pre = document.getElementsByTagName('pre');
+
+	// Add a copy button in the 'pre' element.
+	// which only has the className of 'language-'.
+
+	for (var i = 0; i < pre.length; i++) {
+		var isResult = pre[i].children[0].className.indexOf('code-result');
+		var isStdout = pre[i].children[0].className.indexOf('code-stdout');
+
+		if ( isResult !== 0 && isStdout !== 0 ) {
+			var button           = document.createElement('button');
+					button.className = 'copy-button';
+					button.textContent = 'Copy';
+
+					pre[i].prepend(button);
+		}
+	};
+
+	// Run Clipboard
+
+	var copyCode = new Clipboard('.copy-button', {
+		target: function(trigger) {
+			return trigger.nextElementSibling;
+    }
+	});
+
+	// On success:
+	// - Change the "Copy" text to "Copied".
+	// - Swap it to "Copy" in 2s.
+	// - Lead user to the "contenteditable" area with Velocity scroll.
+
+	copyCode.on('success', function(event) {
+		event.clearSelection();
+		event.trigger.textContent = 'Copied';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 2000);
+
+	});
+
+	// On error (Safari):
+	// - Change the  "Press Ctrl+C to copy"
+	// - Swap it to "Copy" in 2s.
+
+	copyCode.on('error', function(event) {
+		event.trigger.textContent = 'Press "Ctrl + C" to copy';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 5000);
+	});
+
+})();
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>

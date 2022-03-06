@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="siip_tutorial" ><a href="#siip_tutorial"> SIIP Tutorial</a></h1><p>The goal of this tutorial is to walk the reader by hand through a series of steps to successfully solve a day ahead market scheduling problem using package under the SIIP umbrella.</p>
+<p>More concretely, as part of this tutorial, you will</p>
+<ol>
+<li><a href="/SIIP-Tutorial/setup">Setup your local development environment</a></li>
+<li><a href="/SIIP-Tutorial/day-ahead-market">Solve a Day Ahead Market Scheduling Problem using SIIP</a></li>
+<li><a href="/SIIP-Tutorial/powersystems">Add, remove, and update data on <code>PowerSystems.System</code> struct</a></li>
+</ol>
+<p>As part of this tutorial, you will learn one of the possible workflows with Julia, SIIP and vscode.</p>
+<h2 id="about_this_tutorial" ><a href="#about_this_tutorial"> About this tutorial</a></h2><p>This tutorial is structured as a self-paced learning exercise.
+It is most useful if you follow along with a setup on your local development environment.
+All the software used is free and open source.</p>
+<p>This tutorial uses the Julia programming language.
+There are <a href="/SIIP-Tutorial/setup">instructions available</a> on how to set it up on your local machine.</p>
+<p>If you see a code block like the one below, unless otherwise specified it is a snippet of Julia code.
+Below the snippet, you may see the output of the snippet itself.
+If you run the snippet in a Julia REPL, you should see the same or a very similar output.</p>
+<pre><code class="julia">println(&quot;hello world&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">hello world
+</code></pre></div><p>As part of this tutorial, you may also see a few callouts.</p>
+<fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+This is a tip about some useful information.
+
+</fieldset><fieldset class="note"><legend class="note-legend">📝 Note</legend>
+
+This is a note about something important.
+
+</fieldset><fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
+
+This is an exercise to the reader.
+For example, can you find the source markdown page for this webpage?
+
+</fieldset><p>If you have any feedback or questions, feel free to contact us on the SIIP team.</p>
+<h2 id="authors" ><a href="#authors"> Authors</a></h2><ul>
+<li>Clayton Barrows</li>
+<li>Dan Thom</li>
+<li>Dheepak Krishnamurthy</li>
+<li>Jose Daniel Lara</li>
+<li>Sourabh Dalvi</li>
+</ul>
+
+  <div class="page-foot">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Dheepak Krishnamurthy. 
+</div>
+
+<script>
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    });
+  }
+</script>
+
+
+
+<script src="/SIIP-Tutorial//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script></script>
+
+<script>
+(function(){
+
+	// Get the elements.
+	// - the 'pre' element.
+	// - the 'div' with the 'paste-content' id.
+
+	var pre = document.getElementsByTagName('pre');
+
+	// Add a copy button in the 'pre' element.
+	// which only has the className of 'language-'.
+
+	for (var i = 0; i < pre.length; i++) {
+		var isResult = pre[i].children[0].className.indexOf('code-result');
+		var isStdout = pre[i].children[0].className.indexOf('code-stdout');
+
+		if ( isResult !== 0 && isStdout !== 0 ) {
+			var button           = document.createElement('button');
+					button.className = 'copy-button';
+					button.textContent = 'Copy';
+
+					pre[i].prepend(button);
+		}
+	};
+
+	// Run Clipboard
+
+	var copyCode = new Clipboard('.copy-button', {
+		target: function(trigger) {
+			return trigger.nextElementSibling;
+    }
+	});
+
+	// On success:
+	// - Change the "Copy" text to "Copied".
+	// - Swap it to "Copy" in 2s.
+	// - Lead user to the "contenteditable" area with Velocity scroll.
+
+	copyCode.on('success', function(event) {
+		event.clearSelection();
+		event.trigger.textContent = 'Copied';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 2000);
+
+	});
+
+	// On error (Safari):
+	// - Change the  "Press Ctrl+C to copy"
+	// - Swap it to "Copy" in 2s.
+
+	copyCode.on('error', function(event) {
+		event.trigger.textContent = 'Press "Ctrl + C" to copy';
+		window.setTimeout(function() {
+			event.trigger.textContent = 'Copy';
+		}, 5000);
+	});
+
+})();
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>

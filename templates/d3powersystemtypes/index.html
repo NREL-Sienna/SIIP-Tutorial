@@ -1,0 +1,234 @@
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.3.0/d3.min.js"
+  integrity="sha512-NMhzM2RHzbCRO0s5VPaRC+2bW6nmNXimzC9p5sp2x19M+zzuSJ2T50dEQ7hpHkNjnX1mt8nQg1NNthwRZgsoIg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-collection/0.1.0/d3-collection.min.js"
+  integrity="sha512-1/mV4cROFokbcS1RCHs3CqNdvflNQ2FMKaFbuwEPp7GjMLrgCoppAYvFF9Al7UuDj1FPw0R/DbopUV6Ik+IpiA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/d3-zoom/0.0.1/d3-zoom.min.js"
+  integrity="sha512-YuxdfgsiwteZIurpHpCnrHq3i27yxn8FjJ7/ToX3g1DLoKUTYsiwoHVOXaVYAYAAkhLGFei901qzo9ngfOxHiw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<head>
+  <style>
+    section {
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      margin-top: 2%;
+      height: 95vh;
+      grid-auto-flow: column;
+      border: 1px solid #0f0f0f;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div id="<span style="color:red;">[FAILED:]&gt;&lbrace;&lbrace; id&rbrace;&rbrace;&lt;</span>"></div>
+  </section>
+
+  <script>
+    chart()
+
+    function chart() {
+        const width = d3.select("section").node().getBoundingClientRect().width
+        const height = d3.select("section").node().getBoundingClientRect().height
+        const dx = 10
+        const dy = width / 6
+        const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        const margin = {top: 50, right: 50, bottom: 50, left: 100}
+        const tree = d3.tree().size([width, height])
+        const excludes = [
+            "Service",
+            "Topology",
+            "RegulatorDevice",
+            "DynamicInjection",
+            "Source",
+            "StaticInjectionSubsystem",
+            "Storage",
+        ]
+
+        const tooltip = d3.select("#<span style="color:red;">[FAILED:]&gt;&lbrace;&lbrace; id&rbrace;&rbrace;&lt;</span>")
+          .append("p")
+          .style("position", "absolute")
+          .style("visibility", "hidden")
+          .style("background-color", "white")
+          .style("border", "solid")
+          .style("border-width", "1px")
+          .style("border-radius", "5px")
+          .style("padding", "10px")
+          .style("max-width", "35%")
+          .style("overflow-wrap", "break-word")
+          .style("word-wrap", "break-word")
+          .style("hyphens", "auto")
+          .text("");
+
+        const data = <span style="color:red;">[FAILED:]&gt;&lbrace;&lbrace; data&rbrace;&rbrace;&lt;</span>;
+        const root = d3.hierarchy(data);
+
+        root.x0 = dy / 2;
+        root.y0 = 0;
+        root.descendants().forEach((d, i) => {
+          d.id = i;
+          d._children = d.children;
+          if (excludes.map(t => "PowerSystems." + t).includes(d.data.name)) {
+              d.children = null;
+          }
+          // if (d.depth && d.data.name.length !== 7) d.children = null;
+        });
+
+        const svg = d3.select("#<span style="color:red;">[FAILED:]&gt;&lbrace;&lbrace; id&rbrace;&rbrace;&lt;</span>").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [-margin.left, -margin.top, width, dx])
+            .style("font", "10px sans-serif")
+            .style("user-select", "none");
+
+        const gLink = svg.append("g")
+            .attr("fill", "none")
+            .attr("stroke", "#555")
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1.5);
+
+        const gNode = svg.append("g")
+            .attr("cursor", "pointer")
+            .attr("pointer-events", "all");
+
+        function update(source) {
+          const duration = d3.event && d3.event.altKey ? 2500 : 250;
+          const nodes = root.descendants().reverse();
+          const links = root.links();
+
+          // Compute the new tree layout.
+          tree(root);
+
+          let left = root;
+          let right = root;
+          root.eachBefore(node => {
+            if (node.x < left.x) left = node;
+            if (node.x > right.x) right = node;
+          });
+
+          const height = right.x - left.x + margin.top + margin.bottom;
+
+          const transition = svg.transition()
+              .duration(duration)
+              .attr("viewBox", [-margin.left, left.x - margin.top, width, height])
+              .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+
+          // Update the nodes…
+          const node = gNode.selectAll("g")
+            .data(nodes, d => d.id);
+
+          // Enter any new nodes at the parent's previous position.
+          const nodeEnter = node.enter().append("g")
+              .attr("transform", d => `translate(${source.y0},${source.x0})`)
+              .attr("fill-opacity", 0)
+              .attr("stroke-opacity", 0)
+              .on("click", (event, d) => {
+                d.children = d.children ? null : d._children;
+                update(d);
+              });
+
+          nodeEnter.append("circle")
+              .attr("r", 2.5)
+              .attr("fill", d => d._children ? "#555" : "#999")
+              .attr("stroke-width", 10);
+
+          nodeEnter.append("text")
+              .attr("dy", "0.31em")
+              .attr("x", d => d._children ? -6 : 6)
+              .attr("text-anchor", d => d._children ? "end" : "start")
+              .attr("font-weight", d => (d.data.fieldnames && d.data.fieldnames.length > 0) ? "bold" : "")
+              .attr("font-size", d => (d.data.fieldnames && d.data.fieldnames.length > 0) ? "1.5em" : "1.5em")
+              .text(d => d.data.name)
+              .on("mousemove", function(event, d) {
+                const x = event.x
+                const y = event.y
+                const html = (d.data.fieldnames) ?
+                    `
+                        <span style="color:green">struct</span> ${d.data.name}<br/>
+                        ${d.data.fieldnames.map(
+                            (f, i) => `
+                            &nbsp;&nbsp;${f}<span style="color:blue">::${d.data.fieldtypes[i]}</span>
+                            ${(d.data.fielddocs[i] != "") ?
+                            "<span style='color:lightgrey;font-style:italic;'>&nbsp;&nbsp;#&nbsp;" + d.data.fielddocs[i] + "</span>"
+                            : ""}
+                            `
+                        ).join('<br/>')}
+                        <br/><span style="color:green">end</span>
+                    `
+                : `
+                <span style="color:green">abstract struct</span> ${d.data.name} <span style="color:green">end</span>
+                `
+                tooltip
+                    .style("visibility", "visible")
+                    .style("top", 10 + "px")
+                    .style("left", 40 + "px")
+                    .html(html);
+              })
+            .clone(true).lower()
+              .attr("stroke-linejoin", "round")
+              .attr("stroke-width", 3)
+              .attr("stroke", "white");
+
+          // Transition nodes to their new position.
+          const nodeUpdate = node.merge(nodeEnter).transition(transition)
+              .attr("transform", d => `translate(${d.y},${d.x})`)
+              .attr("fill-opacity", 1)
+              .attr("stroke-opacity", 1);
+
+          // Transition exiting nodes to the parent's new position.
+          const nodeExit = node.exit().transition(transition).remove()
+              .attr("transform", d => `translate(${source.y},${source.x})`)
+              .attr("fill-opacity", 0)
+              .attr("stroke-opacity", 0);
+
+          // Update the links…
+          const link = gLink.selectAll("path")
+            .data(links, d => d.target.id);
+
+          // Enter any new links at the parent's previous position.
+          const linkEnter = link.enter().append("path")
+              .attr("d", d => {
+                const o = {x: source.x0, y: source.y0};
+                return diagonal({source: o, target: o});
+              });
+
+          // Transition links to their new position.
+          link.merge(linkEnter).transition(transition)
+              .attr("d", diagonal);
+
+          // Transition exiting nodes to the parent's new position.
+          link.exit().transition(transition).remove()
+              .attr("d", d => {
+                const o = {x: source.x, y: source.y};
+                return diagonal({source: o, target: o});
+              });
+
+          // Stash the old positions for transition.
+          root.eachBefore(d => {
+            d.x0 = d.x;
+            d.y0 = d.y;
+          });
+        }
+
+        update(root);
+        const zoom = d3.zoom()
+            .scaleExtent([0.25, 5])
+            .on("zoom", handleZoom);
+        d3.select("svg").on("click", () => tooltip.style("visibility", "hidden")).call(zoom)
+        function handleZoom(e) {
+            gLink.attr('transform', e.transform);
+            gNode.attr('transform', e.transform);
+        }
+    }
+  </script>
+</body>
