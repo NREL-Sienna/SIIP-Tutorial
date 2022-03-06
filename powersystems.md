@@ -84,6 +84,7 @@ What about the following?
 numbers = [1.,2,3,4]
 typeof(numbers)
 ```
+
 }
 
 We can count the number of buses by getting the `length` of the `Vector{Bus}` instance.
@@ -111,12 +112,13 @@ Julia has a package as part of the standard library for testing.
 using Test
 @test length(buses) == 73
 ```
+
 }
 
 \exercise{
 How many "areas" are in this test system? Can you find the answer programmatically?
 
-  \collapse{Click to expand and view the solution}{
+\collapse{Click to expand and view the solution}{
 
 We can use the `Area` type, the `get_components` function and the `length` to get the number of areas.
 
@@ -126,7 +128,7 @@ length(get_components(Area, system))
 
 Note that we did not need to call `collect` to get the length.
 
-  }
+}
 }
 
 ## Get attributes
@@ -185,7 +187,7 @@ This should show a list of autocompletion options for the `get_` accessor functi
 Can you print the names of all the `Bus` components in the RTS test system?
 How many unique base voltage levels are there in the RTS test system?
 
-  \collapse{Click to expand and view the solution}{
+\collapse{Click to expand and view the solution}{
 
 We can get the names using Julia's broadcasting operator.
 
@@ -200,7 +202,7 @@ We can use Julia's `unique` function for this:
 unique(get_base_voltage.(get_components(Bus, system)))
 ```
 
-  }
+}
 }
 
 Another reason to use `get_*` accessor functions is that data can be transformed appropriately when using these functions.
@@ -256,6 +258,7 @@ This function takes a `PowerSystems.System` and a `PowerSystems.Component`.
 Let's create a battery storage and attach it to a bus.
 
 ```!
+loads = collect(get_components(PowerLoad, system)) # hide
 try # hide
   remove_component!(system, get_component(GenericBattery, system, "battery")) # hide
 catch # hide
@@ -301,7 +304,6 @@ During the next session, we will explore building a formulation that includes ba
 Let's say we wanted to retrieve the load profile data.
 First, we can get all the `PowerLoad` components.
 
-
 ```!
 loads = collect(get_components(PowerLoad, system))
 ```
@@ -319,8 +321,8 @@ You can use the broadcast operator for this instead:
 ```
 get_time_series_names.(Deterministic, loads);
 ```
-}
 
+}
 
 There's a lot of time series in there that appear to have the same name.
 Let's find all unique names of the kinds of time series data that we are dealing with.
@@ -329,7 +331,7 @@ Let's find all unique names of the kinds of time series data that we are dealing
 only(unique(Iterators.flatten(get_time_series_names.(Deterministic, loads))))
 ```
 
-It looks like, in this test system, there's only one kind of time series data in all the `PowerLoad` components, i.e.  the `max_active_power` time series, which makes sense for `Deterministic` loads.
+It looks like, in this test system, there's only one kind of time series data in all the `PowerLoad` components, i.e. the `max_active_power` time series, which makes sense for `Deterministic` loads.
 
 You may be wondering what other kinds of time series data is possible to store:
 
@@ -339,9 +341,7 @@ D3PowerSystemTypes(supertype(supertype(supertype(Deterministic))))
 D3PowerSystemTypes(PowerSystems.TimeSeriesData)
 ```
 
-
 {{ d3types_timeseries }}
-
 
 Now that we know that there's only a `"max_active_power"` type of time series data.
 
@@ -387,7 +387,6 @@ This makes it more clearer in the code which packages the functions are coming f
 
 }
 
-
 ## Summary
 
 We explored the type hierarchy of the `PowerSystems.Component`.
@@ -396,10 +395,9 @@ And finally we did some simple plots after getting time series data on the syste
 
 \exercise{
 Can you find the names of 10 "largest on average" loads in this system?
-  \collapse{Click to expand and view the solution}{
+\collapse{Click to expand and view the solution}{
 
 We can use the standard library's `Statistics` package for the `mean` function.
-
 
 ```!
 using Statistics
@@ -430,7 +428,7 @@ v = get_largest_load_names(system, 10) # hide
 show(stdout, "text/plain", v) # hide
 ```
 
-  }
+}
 }
 
 \exercise{
