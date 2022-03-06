@@ -22,6 +22,7 @@ jobs:
           version: 1.7
       - name: Building website 🚧
         run: julia -e '
+          using Pkg;
           Pkg.add(
             url="https://github.com/tlienart/Xranklin.jl",
             rev="main"
