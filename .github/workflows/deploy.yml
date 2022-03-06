@@ -15,7 +15,6 @@ jobs:
           BASE_URL_PREFIX: 'SIIP-Tutorial'
 
           PYTHON_LIBS: 'matplotlib pandas ansi2html'
-          PLOTS: 'xvfb-run'
           LATEX: true
           GNUPLOT: true
 
