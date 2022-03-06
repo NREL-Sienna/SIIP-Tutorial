@@ -38,7 +38,7 @@ This is a note about something important.
 }
 
 \exercise{
-This is an exercise to the reader.
+This is an exercise for the reader.
 For example, can you find the source markdown page for this webpage?
 }
 
