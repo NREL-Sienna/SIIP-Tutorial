@@ -114,7 +114,7 @@ using PowerSystemCaseBuilder
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)</code></pre>
 You should see the following in your terminal before the output of running the script.<pre><code class="julia">[ Info: Building the RTS test system</code></pre>
 </fieldset><p>Going forward in this tutorial, I'm going to show the output of the terminal on this webpage, instead of screenshots of the vscode terminal, for the clarity of presentation. For example, the output of the <code>system</code> will be as follows:</p>
-<div class="code-output"><pre><code class="code-stdout language-plaintext"> 89.818058 seconds (133.27 M allocations: 6.553 GiB, 3.72% gc time, 87.03% compilation time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">103.291900 seconds (131.19 M allocations: 6.421 GiB, 3.57% gc time, 88.12% compilation time)
 System
 ┌───────────────────┬─────────────┐
 │ Property          │ Value       │
@@ -169,9 +169,9 @@ The following is the output of the same <code>build_system</code> function 3 mor
    force_build = true, skip_serialization = true);
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
    force_build = true, skip_serialization = true);</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.161437 seconds (13.10 M allocations: 618.120 MiB, 17.99% gc time)
-  1.038223 seconds (13.10 M allocations: 618.120 MiB, 10.46% gc time)
-  1.087634 seconds (13.10 M allocations: 618.120 MiB, 15.31% gc time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.336737 seconds (13.10 M allocations: 618.120 MiB, 18.34% gc time)
+  1.269534 seconds (13.10 M allocations: 618.187 MiB, 11.12% gc time)
+  1.304361 seconds (13.10 M allocations: 618.120 MiB, 15.12% gc time)
 </code></pre></div>There are ways to decrease the "first time to run" for Julia code but we'll cover that in a more advanced session.
 For now, it is enough to just be aware of this quirk of the language.
 
@@ -304,9 +304,9 @@ When this successfully completes, you should see the following status message be
 <pre><code class="julia">results = ProblemResults(model)</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">ProblemResults:
   Base power: 100.0
-  Variables: PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("")
+  Variables: PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("")
   Duals: 
-  Parameters: PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("")
+  Parameters: PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1")
 </code></pre></div><p>For example, if you are interested in getting the objection function value, you can use the <code>get_objective_value</code> function:</p>
 <pre><code class="julia">get_objective_value(results)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">1.5371547080667508e6</code></pre></div><p>There are a lot of other helper functions available to get results from the model.
@@ -451,89 +451,86 @@ Another advantage is that it plays well with a Julia package called <a href="htt
 For our current workflow however, we won't need to deal with <code>Revise</code> just yet.</p>
 
   <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Dheepak Krishnamurthy. 
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Dheepak Krishnamurthy. 
 </div>
 
 <script>
-  var coll = document.getElementsByClassName("collapsible");
-  var i;
+  var coll = document.getElementsByClassName('collapsible')
+  var i
 
   for (i = 0; i < coll.length; i++) {
-    coll[i].addEventListener("click", function() {
-      this.classList.toggle("active");
-      var content = this.nextElementSibling;
-      if (content.style.display === "block") {
-        content.style.display = "none";
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
       } else {
-        content.style.display = "block";
+        content.style.display = 'block'
       }
-    });
+    })
   }
 </script>
 
 
 
-<script src="/SIIP-Tutorial//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
 
 <script>
-(function(){
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
 
-	// Get the elements.
-	// - the 'pre' element.
-	// - the 'div' with the 'paste-content' id.
+    var pre = document.getElementsByTagName('pre')
 
-	var pre = document.getElementsByTagName('pre');
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
 
-	// Add a copy button in the 'pre' element.
-	// which only has the className of 'language-'.
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
 
-	for (var i = 0; i < pre.length; i++) {
-		var isResult = pre[i].children[0].className.indexOf('code-result');
-		var isStdout = pre[i].children[0].className.indexOf('code-stdout');
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
 
-		if ( isResult !== 0 && isStdout !== 0 ) {
-			var button           = document.createElement('button');
-					button.className = 'copy-button';
-					button.textContent = 'Copy';
-
-					pre[i].prepend(button);
-		}
-	};
-
-	// Run Clipboard
-
-	var copyCode = new Clipboard('.copy-button', {
-		target: function(trigger) {
-			return trigger.nextElementSibling;
+        pre[i].prepend(button)
+      }
     }
-	});
 
-	// On success:
-	// - Change the "Copy" text to "Copied".
-	// - Swap it to "Copy" in 2s.
-	// - Lead user to the "contenteditable" area with Velocity scroll.
+    // Run Clipboard
 
-	copyCode.on('success', function(event) {
-		event.clearSelection();
-		event.trigger.textContent = 'Copied';
-		window.setTimeout(function() {
-			event.trigger.textContent = 'Copy';
-		}, 2000);
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
 
-	});
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
 
-	// On error (Safari):
-	// - Change the  "Press Ctrl+C to copy"
-	// - Swap it to "Copy" in 2s.
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
 
-	copyCode.on('error', function(event) {
-		event.trigger.textContent = 'Press "Ctrl + C" to copy';
-		window.setTimeout(function() {
-			event.trigger.textContent = 'Copy';
-		}, 5000);
-	});
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
 
-})();
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
 </script>
 
 </div>
