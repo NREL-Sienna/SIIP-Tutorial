@@ -50,7 +50,7 @@ If I were starting a fresh project for an analysis, I would run `generate Analys
 This way, I can place the functions I'm using in the package, i.e. in `src/AnalysisProjectFoo.jl` and write very simple function calls in `./scripts/script-name.jl`.
 
 But for this tutorial, we are not going to worry about that.
-You can create a `script.jl` file anywhere in this folder.
+You can create a entry point script file anywhere in this folder.
 I've created a placeholder file in `./scripts/unit-commitment.jl` for this tutorial that you may use if you'd like.
 
 SIIP is a collection of packages written in Julia that enable among other things production cost modeling.
@@ -99,7 +99,7 @@ Let's start with loading data.
 
 For now, we are going to use an existing data set to get started but in a later tutorial, we'll walk through how to bring your own data set into a PCM with SIIP.
 
-In the `script.jl` file, add the following:
+In your file, add the following:
 
 ```julia:pcm1
 using PowerSystems
@@ -116,7 +116,7 @@ The code above builds a system using the `modified_RTS_GMLC_DA_sys` test system 
 Any text following a `#` in the same line is a comment and will be ignored.
 }
 
-Once you have added the code to the `script.jl` file, run the file using the `Julia: Execute active file in REPL` command palette option.
+Once you have added the code to your file, run the file using the `Julia: Execute active file in REPL` command palette option.
 
 Vscode also has a button at the top right that you can click to execute the active file in the REPL, but I like using the command palette option because it is more flexible and more general purpose.
 Any functionality available in vscode can be accessed using the command palette.
