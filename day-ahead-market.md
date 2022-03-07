@@ -12,14 +12,51 @@ If you are already familiar with this or want to jump ahead, you may want to che
 
 If you haven't done so already, you will need to set up your [local development environment](/setup).
 
-## Create a `script.jl` file
+## Create a entry point script file
 
-Using vscode, you can create a new file in `src/script.jl`.
+Using vscode, you can create a new file anywhere in this folder.
+
+I personally like to make all my scripts a Julia package.
+For creating this repository, I did the following:
+
+```julia
+(@v1.9) pkg> generate SIIP_Tutorial
+```
+
+Then I ran the following:
+
+```bash
+cd SIIP_Tutorial
+julia --project
+```
+
+\tip{
+
+You can pass an argument to the `--project` flag to use an environment located anywhere locally on your computer.
+
+```bash
+julia --project="/path/to/any/julia-environment-folder/"
+```
+
+Just to recall, any folder that contains a valid `Project.toml` is a Julia environment.
+
+Then in the package REPL mode, I run `add PowerSystems PowerSimulations ...`
+
+If you wanted to create an environment for your own analysis, this is what you'd do.
+
+}
+
+If I were starting a fresh project for an analysis, I would run `generate AnalysisProjectFoo` and then place my scripts in `./scripts/script-name.jl`, and run `using AnalysisProjectFoo` in the first line.
+This way, I can place the functions I'm using in the package, i.e. in `src/AnalysisProjectFoo.jl` and write very simple function calls in `./scripts/script-name.jl`.
+
+But for this tutorial, we are not going to worry about that.
+You can create a `script.jl` file anywhere in this folder.
+I've created a placeholder file in `./scripts/unit-commitment.jl` for this tutorial that you may use if you'd like.
 
 SIIP is a collection of packages written in Julia that enable among other things production cost modeling.
 Any file that has the extension `.jl` is a Julia file.
 
-In order to run this file, we will use a vscode's feature. First type `println("hello world")` in the `script.jl` file.
+In order to run this file, we will use a vscode's feature. First type `println("hello world")` in the `unit-commitment.jl` file.
 
 Open the command palette:
 
