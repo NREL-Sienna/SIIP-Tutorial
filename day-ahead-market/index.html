@@ -47,12 +47,28 @@
 <div class="franklin-content" >
   <h1 id="solve_a_day_ahead_market_scheduling_problem_using_siip" ><a href="#solve_a_day_ahead_market_scheduling_problem_using_siip"> Solve a Day Ahead Market Scheduling Problem using SIIP</a></h1><p>In this tutorial, you will create and solve a day ahead market scheduling problem using SIIP.</p>
 <p>Once you have completed this tutorial, you will have a basic understanding of a simple workflow in Julia when using packages under the SIIP umbrella.</p>
-<div class="toc"><ol><li><a href="#setup"> Setup</a></li><li><a href="#create_a_script.jl_file"> Create a <code>script.jl</code> file</a></li><li><a href="#verify_project_environment"> Verify Project Environment</a></li><li><a href="#loading_powersystems_data"> Loading PowerSystems Data</a></li><li><a href="#building_a_optimization_problem"> Building a Optimization Problem</a></li><li><a href="#solving_the_optimization_model"> Solving the Optimization Model</a></li><li><a href="#getting_results_from_the_model"> Getting Results from the Model</a></li><li><a href="#plotting_results"> Plotting Results</a></li><li><a href="#summary"> Summary</a></li></ol></div><p>If you are already familiar with this or want to jump ahead, you may want to check out the tutorial on <a href="/SIIP-Tutorial/powersystems">manipulating data in <code>PowerSystems.System</code></a>.</p>
+<div class="toc"><ol><li><a href="#setup"> Setup</a></li><li><a href="#create_a_entry_point_script_file"> Create a entry point script file</a></li><li><a href="#verify_project_environment"> Verify Project Environment</a></li><li><a href="#loading_powersystems_data"> Loading PowerSystems Data</a></li><li><a href="#building_a_optimization_problem"> Building a Optimization Problem</a></li><li><a href="#solving_the_optimization_model"> Solving the Optimization Model</a></li><li><a href="#getting_results_from_the_model"> Getting Results from the Model</a></li><li><a href="#plotting_results"> Plotting Results</a></li><li><a href="#summary"> Summary</a></li></ol></div><p>If you are already familiar with this or want to jump ahead, you may want to check out the tutorial on <a href="/SIIP-Tutorial/powersystems">manipulating data in <code>PowerSystems.System</code></a>.</p>
 <h2 id="setup" ><a href="#setup"> Setup</a></h2><p>If you haven't done so already, you will need to set up your <a href="/SIIP-Tutorial/setup">local development environment</a>.</p>
-<h2 id="create_a_script.jl_file" ><a href="#create_a_script.jl_file"> Create a <code>script.jl</code> file</a></h2><p>Using vscode, you can create a new file in <code>src/script.jl</code>.</p>
+<h2 id="create_a_entry_point_script_file" ><a href="#create_a_entry_point_script_file"> Create a entry point script file</a></h2><p>Using vscode, you can create a new file anywhere in this folder.</p>
+<p>I personally like to make all my scripts a Julia package.
+For creating this repository, I did the following:</p>
+<pre><code class="julia">(@v1.9) pkg&gt; generate SIIP_Tutorial</code></pre>
+<p>Then I ran the following:</p>
+<pre><code class="bash">cd SIIP_Tutorial
+julia --project</code></pre>
+<fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+
+You can pass an argument to the <code>--project</code> flag to use an environment located anywhere locally on your computer.<pre><code class="bash">julia --project=&quot;/path/to/any/julia-environment-folder/&quot;</code></pre>
+Just to recall, any folder that contains a valid <code>Project.toml</code> is a Julia environment.Then in the package REPL mode, I run <code>add PowerSystems PowerSimulations ...</code>If you wanted to create an environment for your own analysis, this is what you'd do.
+
+</fieldset><p>If I were starting a fresh project for an analysis, I would run <code>generate AnalysisProjectFoo</code> and then place my scripts in <code>./scripts/script-name.jl</code>, and run <code>using AnalysisProjectFoo</code> in the first line.
+This way, I can place the functions I'm using in the package, i.e. in <code>src/AnalysisProjectFoo.jl</code> and write very simple function calls in <code>./scripts/script-name.jl</code>.</p>
+<p>But for this tutorial, we are not going to worry about that.
+You can create a <code>script.jl</code> file anywhere in this folder.
+I've created a placeholder file in <code>./scripts/unit-commitment.jl</code> for this tutorial that you may use if you'd like.</p>
 <p>SIIP is a collection of packages written in Julia that enable among other things production cost modeling.
 Any file that has the extension <code>.jl</code> is a Julia file.</p>
-<p>In order to run this file, we will use a vscode's feature. First type <code>println(&quot;hello world&quot;)</code> in the <code>script.jl</code> file.</p>
+<p>In order to run this file, we will use a vscode's feature. First type <code>println(&quot;hello world&quot;)</code> in the <code>unit-commitment.jl</code> file.</p>
 <p>Open the command palette:</p>
 <ul>
 <li><code>Ctrl</code> + <code>Shift</code> + <code>P</code> on Windows</li>
@@ -114,7 +130,7 @@ using PowerSystemCaseBuilder
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)</code></pre>
 You should see the following in your terminal before the output of running the script.<pre><code class="julia">[ Info: Building the RTS test system</code></pre>
 </fieldset><p>Going forward in this tutorial, I'm going to show the output of the terminal on this webpage, instead of screenshots of the vscode terminal, for the clarity of presentation. For example, the output of the <code>system</code> will be as follows:</p>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">106.388867 seconds (131.43 M allocations: 6.439 GiB, 3.15% gc time, 88.40% compilation time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext"> 89.056251 seconds (130.73 M allocations: 6.384 GiB, 3.40% gc time, 86.39% compilation time)
 System
 ┌───────────────────┬─────────────┐
 │ Property          │ Value       │
@@ -169,9 +185,9 @@ The following is the output of the same <code>build_system</code> function 3 mor
    force_build = true, skip_serialization = true);
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
    force_build = true, skip_serialization = true);</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.330161 seconds (13.10 M allocations: 618.120 MiB, 13.44% gc time)
-  1.338053 seconds (13.10 M allocations: 618.187 MiB, 16.50% gc time)
-  1.346363 seconds (13.10 M allocations: 618.120 MiB, 15.19% gc time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.142911 seconds (13.10 M allocations: 618.187 MiB, 18.52% gc time)
+  1.080071 seconds (13.10 M allocations: 618.120 MiB, 14.44% gc time)
+  0.989321 seconds (13.10 M allocations: 618.187 MiB, 10.06% gc time)
 </code></pre></div>There are ways to decrease the "first time to run" for Julia code but we'll cover that in a more advanced session.
 For now, it is enough to just be aware of this quirk of the language.
 
@@ -304,9 +320,9 @@ When this successfully completes, you should see the following status message be
 <pre><code class="julia">results = ProblemResults(model)</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">ProblemResults:
   Base power: 100.0
-  Variables: PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("")
+  Variables: PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3")
   Duals: 
-  Parameters: PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up")
+  Parameters: PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down")
 </code></pre></div><p>For example, if you are interested in getting the objection function value, you can use the <code>get_objective_value</code> function:</p>
 <pre><code class="julia">get_objective_value(results)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">1.5371547080667508e6</code></pre></div><p>There are a lot of other helper functions available to get results from the model.
