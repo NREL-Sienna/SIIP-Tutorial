@@ -1,26 +1,12 @@
-# SIIP Tutorial
+# SIIP Tutorials
 
-The goal of this tutorial is to walk the reader by hand through a series of steps to successfully solve a day ahead market scheduling problem using package under the SIIP umbrella.
+This website offers tutorials for SIIP related packages.
 
-More concretely, as part of this tutorial, you will
+These tutorials use the Julia programming language.
 
-1. [Setup your local development environment](/setup/)
-1. [Introduction to Julia](/introduction-to-julia/)
-1. [Solve a Day Ahead Market Scheduling Problem using SIIP](/day-ahead-market/)
-1. [Add, remove, and update data on `PowerSystems.System` struct](/powersystems/)
+If you'd like a place to start, check out the [fundamentals walkthrough](/fundamentals).
 
-As part of this tutorial, you will learn one of the possible workflows with Julia, SIIP and vscode.
-
-Check out the [How To Guides](/how-to/) for more specific how to guides on various things related to SIIP.
-
-## About this tutorial
-
-This tutorial is structured as a self-paced learning exercise.
-It is most useful if you follow along with a setup on your local development environment.
-All the software used is free and open source.
-
-This tutorial uses the Julia programming language.
-There are [instructions available](/setup) on how to set it up on your local machine.
+## Notes
 
 If you see a code block like the one below, unless otherwise specified it is a snippet of Julia code.
 Below the snippet, you may see the output of the snippet itself.
