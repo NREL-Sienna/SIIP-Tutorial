@@ -250,7 +250,7 @@ isimmutable(1) = true
 </code></pre></div><h3 id="using_packages_and_the_package_manager" ><a href="#using_packages_and_the_package_manager"> Using Packages and the Package Manager</a></h3><p>No matter how wonderful Julia's base language is, at some point you will want to use an extension package. Some of these are built-in, for example random number generation is available in the <code>Random</code> package in the standard library. These packages are loaded with the commands <code>using</code> and <code>import</code>.</p>
 <pre><code class="julia">using Random
 [rand() for i in 1:10]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[0.567967715065214, 0.15671290314713682, 0.8257243692167048, 0.09378701565526193, 0.9482770688602261, 0.7350225291627304, 0.6007094775430332, 0.3428618800168802, 0.6284045341053943, 0.7995406874880004]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.10051672998246441, 0.7718247383394835, 0.8835656115518108, 0.6462824940636106, 0.19088382306293938, 0.044482339967070184, 0.03712398626286695, 0.8297204943879432, 0.8137223954878191, 0.5632114776815453]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
 <p>For example the following can be used to install JuMP,</p>
 <pre><code class="julia">using Pkg
 Pkg.add(&quot;JuMP&quot;)</code></pre>
@@ -273,7 +273,7 @@ Pkg.instantiate()</code></pre>
 Closest candidates are:
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}, !Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}) at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:184
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod, Dates.TimeType}, !Matched::Type{P}) where P<:Dates.Period at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:286
-  ceil(!Matched::ForwardDiff.Dual) at ~/.julia/packages/ForwardDiff/PBzup/src/dual.jl:279
+  ceil(!Matched::FixedPointNumbers.Normed{T, f}) where {T, f} at ~/.julia/packages/FixedPointNumbers/HAGk2/src/normed.jl:258
   ...
 Stacktrace:
 </code></pre></div>
