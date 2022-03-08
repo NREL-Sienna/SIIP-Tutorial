@@ -192,7 +192,7 @@ end</code></pre>
 <pre><code class="julia">function print_hello()
   println(&quot;hello&quot;)
 end</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">Main.__FRANKLIN_6985143.print_hello</code></pre></div><pre><code class="julia">print_hello()</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Main.__FRANKLIN_1453561.print_hello</code></pre></div><pre><code class="julia">print_hello()</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">hello
 </code></pre></div><p>Arguments can be added to a function,</p>
 <pre><code class="julia">function print_it(x)
@@ -250,7 +250,7 @@ isimmutable(1) = true
 </code></pre></div><h3 id="using_packages_and_the_package_manager" ><a href="#using_packages_and_the_package_manager"> Using Packages and the Package Manager</a></h3><p>No matter how wonderful Julia's base language is, at some point you will want to use an extension package. Some of these are built-in, for example random number generation is available in the <code>Random</code> package in the standard library. These packages are loaded with the commands <code>using</code> and <code>import</code>.</p>
 <pre><code class="julia">using Random
 [rand() for i in 1:10]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[0.10070104661129164, 0.8633575988978303, 0.5583238769518247, 0.3206036067425835, 0.19079240535486142, 0.9036512324637801, 0.6174290946701866, 0.13849313887824133, 0.8831365753093958, 0.4187561829937756]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.18274327368303245, 0.9370400080710412, 0.27756660666261157, 0.6269671713841327, 0.6209628682274444, 0.6774542132748287, 0.7417589163908235, 0.42321968076232996, 0.8922945573114313, 0.12521896773193386]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
 <p>For example the following can be used to install JuMP,</p>
 <pre><code class="julia">using Pkg
 Pkg.add(&quot;JuMP&quot;)</code></pre>
@@ -273,7 +273,7 @@ Pkg.instantiate()</code></pre>
 Closest candidates are:
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}, !Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}) at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:184
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod, Dates.TimeType}, !Matched::Type{P}) where P<:Dates.Period at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:286
-  ceil(!Matched::FixedPointNumbers.Fixed{T, f}) where {T, f} at ~/.julia/packages/FixedPointNumbers/HAGk2/src/fixed.jl:131
+  ceil(!Matched::ForwardDiff.Dual) at ~/.julia/packages/ForwardDiff/PBzup/src/dual.jl:279
   ...
 Stacktrace:
 </code></pre></div>
