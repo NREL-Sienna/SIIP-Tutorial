@@ -42,6 +42,8 @@ This is an exercise for the reader.
 For example, can you find the source markdown page for this webpage?
 }
 
+You can find the source for this web page here: https://github.com/NREL-SIIP/SIIP-Tutorial
+
 If you have any feedback or questions, feel free to contact us on the SIIP team.
 
 ## Authors
