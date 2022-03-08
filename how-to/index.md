@@ -1,3 +1,3 @@
 # How to guides
 
-- [Parse MATPOWER files](/how-to/parse-matpower)
+- [Parse MATPOWER files](/how-to/parse-matpower/)
