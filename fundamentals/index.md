@@ -18,7 +18,7 @@ It is most useful if you follow along with a setup on your local development env
 All the software used is free and open source.
 
 This walkthrough uses the Julia programming language.
-There are [instructions available here](/fundamentals/setup) on how to set it up on your local machine.
+There are [instructions available here](/fundamentals/setup/) on how to set it up on your local machine.
 
 If you have any feedback or questions, feel free to contact us on the SIIP team.
 
