@@ -107,9 +107,15 @@ html {
     TITLES
 ================================================================== */
 
-.franklin-content h1 { font-size: 24px; }
-.franklin-content h2 { font-size: 22px; }
-.franklin-content h3 { font-size: 20px; }
+.franklin-content h1 {
+  font-size: 24px;
+}
+.franklin-content h2 {
+  font-size: 22px;
+}
+.franklin-content h3 {
+  font-size: 20px;
+}
 
 .franklin-content h1,
 h2,
@@ -134,18 +140,42 @@ h6 {
   margin-bottom: 1em;
 }
 
-.franklin-content h1 a { color: inherit; }
-.franklin-content h1 a:hover { text-decoration: none; }
-.franklin-content h2 a { color: inherit; }
-.franklin-content h2 a:hover { text-decoration: none; }
-.franklin-content h3 a { color: inherit; }
-.franklin-content h3 a:hover { text-decoration: none; }
-.franklin-content h4 a { color: inherit; }
-.franklin-content h4 a:hover { text-decoration: none; }
-.franklin-content h5 a { color: inherit; }
-.franklin-content h5 a:hover { text-decoration: none; }
-.franklin-content h6 a { color: inherit; }
-.franklin-content h6 a:hover { text-decoration: none; }
+.franklin-content h1 a {
+  color: inherit;
+}
+.franklin-content h1 a:hover {
+  text-decoration: none;
+}
+.franklin-content h2 a {
+  color: inherit;
+}
+.franklin-content h2 a:hover {
+  text-decoration: none;
+}
+.franklin-content h3 a {
+  color: inherit;
+}
+.franklin-content h3 a:hover {
+  text-decoration: none;
+}
+.franklin-content h4 a {
+  color: inherit;
+}
+.franklin-content h4 a:hover {
+  text-decoration: none;
+}
+.franklin-content h5 a {
+  color: inherit;
+}
+.franklin-content h5 a:hover {
+  text-decoration: none;
+}
+.franklin-content h6 a {
+  color: inherit;
+}
+.franklin-content h6 a:hover {
+  text-decoration: none;
+}
 
 .franklin-content table {
   margin-left: auto;
@@ -199,8 +229,12 @@ td {
     HYPERREFS AND FOOTNOTES
 ================================================================== */
 
-.franklin-content .eqref a { color: green; }
-.franklin-content .bibref a { color: green; }
+.franklin-content .eqref a {
+  color: green;
+}
+.franklin-content .bibref a {
+  color: green;
+}
 
 .franklin-content sup {
   font-size: 70%;
@@ -256,9 +290,13 @@ td {
     KATEX
 ================================================================== */
 
-body { counter-reset: eqnum; }
+body {
+  counter-reset: eqnum;
+}
 
-.katex { font-size: 1em !important; }
+.katex {
+  font-size: 1em !important;
+}
 
 .katex-display .katex {
   /* Overwrite KaTeX settings. */
@@ -270,7 +308,7 @@ body { counter-reset: eqnum; }
 
 .katex-display::after {
   counter-increment: eqnum;
-  content: "(" counter(eqnum) ")";
+  content: '(' counter(eqnum) ')';
   position: relative;
   float: right;
   padding-right: 5px;
@@ -278,7 +316,7 @@ body { counter-reset: eqnum; }
 
 .nonumber .katex-display::after {
   counter-increment: nothing;
-  content: "";
+  content: '';
 }
 
 /* ==================================================================
@@ -314,13 +352,21 @@ code {
 
 .hljs-meta,
 .hljs-metas,
-.hljs-metap { font-weight: bold; }
+.hljs-metap {
+  font-weight: bold;
+}
 
-.hljs-meta { color: rgb(25, 179, 51); }
+.hljs-meta {
+  color: rgb(25, 179, 51);
+}
 
-.hljs-metas { color: red; }
+.hljs-metas {
+  color: red;
+}
 
-.hljs-metap { color: rgb(51, 131, 231); }
+.hljs-metap {
+  color: rgb(51, 131, 231);
+}
 
 .code-output {
   background: var(--output-background);
@@ -332,7 +378,8 @@ code {
   font-size: var(--text-sm);
 }
 
-.code-result,.code-stdout {
+.code-result,
+.code-stdout {
   background-color: #e3edf2;
 }
 
@@ -354,7 +401,7 @@ code {
 }
 
 /* Style the button that is used to open and close the collapsible content */
- .collapsible {
+.collapsible {
   cursor: pointer;
   padding: 18px;
   width: 100%;
@@ -365,7 +412,8 @@ code {
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover {
+.active,
+.collapsible:hover {
 }
 
 /* Style the collapsible content. Note: hidden by default */
@@ -397,6 +445,15 @@ fieldset {
 .copy-button:hover,
 .copy-button:focus,
 .copy-button:active {
-	outline: 0;
-	background-color: #eee9e6;
+  outline: 0;
+  background-color: #eee9e6;
+}
+
+.full-width {
+  width: 80vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -40vw;
+  margin-right: -40vw;
 }
