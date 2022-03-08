@@ -250,7 +250,7 @@ isimmutable(1) = true
 </code></pre></div><h3 id="using_packages_and_the_package_manager" ><a href="#using_packages_and_the_package_manager"> Using Packages and the Package Manager</a></h3><p>No matter how wonderful Julia's base language is, at some point you will want to use an extension package. Some of these are built-in, for example random number generation is available in the <code>Random</code> package in the standard library. These packages are loaded with the commands <code>using</code> and <code>import</code>.</p>
 <pre><code class="julia">using Random
 [rand() for i in 1:10]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[0.10051672998246441, 0.7718247383394835, 0.8835656115518108, 0.6462824940636106, 0.19088382306293938, 0.044482339967070184, 0.03712398626286695, 0.8297204943879432, 0.8137223954878191, 0.5632114776815453]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.9444861612578905, 0.7657582562333795, 0.3745313440432221, 0.8891479480366475, 0.3278898168537462, 0.9424612259891959, 0.08105644407900925, 0.7267931460856192, 0.7809338807969172, 0.8721647356540517]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
 <p>For example the following can be used to install JuMP,</p>
 <pre><code class="julia">using Pkg
 Pkg.add(&quot;JuMP&quot;)</code></pre>
