@@ -4,9 +4,10 @@ The goal of this tutorial is to walk the reader by hand through a series of step
 
 More concretely, as part of this tutorial, you will
 
-1. [Setup your local development environment](/setup)
-2. [Solve a Day Ahead Market Scheduling Problem using SIIP](/day-ahead-market)
-3. [Add, remove, and update data on `PowerSystems.System` struct](/powersystems)
+1. [Setup your local development environment](/setup/)
+1. [Introduction to Julia](/introduction-to-julia/)
+1. [Solve a Day Ahead Market Scheduling Problem using SIIP](/day-ahead-market/)
+1. [Add, remove, and update data on `PowerSystems.System` struct](/powersystems/)
 
 As part of this tutorial, you will learn one of the possible workflows with Julia, SIIP and vscode.
 
@@ -42,7 +43,7 @@ This is an exercise for the reader.
 For example, can you find the source markdown page for this webpage?
 }
 
-You can find the source for this web page here: https://github.com/NREL-SIIP/SIIP-Tutorial
+You can find the source for this web page here: <https://github.com/NREL-SIIP/SIIP-Tutorial>
 
 If you have any feedback or questions, feel free to contact us on the SIIP team.
 
