@@ -12,12 +12,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: tlienart/xranklin-build-action@v1.7
         with:
-          BASE_URL_PREFIX: 'SIIP-Tutorial'
+          SITE_FOLDER: ""
+          BASE_URL_PREFIX: "NREL-SIIP/SIIP-Tutorial"
 
-          PYTHON_LIBS: 'matplotlib pandas ansi2html'
+          PYTHON_LIBS: 'matplotlib'
+          # set to xvfb for plots.jl
           PLOTS: 'xvfb-run'
-          LATEX: true
-          GNUPLOT: true
+          # following two should be false, no use of pgfplots or gnuplot
+          LATEX: false
+          GNUPLOT: false
 
           # ===================================================================
           # DON'T CHANGE THE FOLLOWING UNLESS YOU HAVE GOOD REASONS TO
