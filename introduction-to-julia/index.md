@@ -31,8 +31,12 @@ Floating point numbers
 typeof(1.2 - 2.3)
 ```
 
-There are also some cool things like an irrational representation of π. To make π
-(and most other greek letters), type \pi and then press [TAB].
+There are also some cool things like an irrational representation of `π`.
+To make `π` (and most other greek letters), type `\pi` and then press `TAB`.
+
+```julia
+\pi<TAB>
+```
 
 ```!
 π
@@ -80,7 +84,7 @@ Even math involving complex numbers
 (2 + 1im) \* (1 - 2im)
 ```
 
-We can also write things like the following using √ (\sqrt)
+We can also write things like the following using `√` i.e. `\sqrt`
 
 ```!
 sin(2π / 3) == √3 / 2
@@ -92,7 +96,7 @@ Wait. What???
 sin(2π / 3) - √3 / 2
 ```
 
-Let's try again using ≈ (\approx).
+Let's try again using `≈` i.e. `\approx`.
 
 ```!
 sin(2π / 3) ≈ √3 / 2
@@ -423,11 +427,9 @@ For a complete list of registed Julia packages see the package listing at https:
 From time to you may wish to use a Julia package that is not registered. In this case a git repository URL can be used to install the package.
 
 ```julia
-
 using Pkg
 
 Pkg.add("https://github.com/user-name/MyPackage.jl.git")
-
 ```
 
 Note that for clarity this example uses the package manager `Pkg`. Julia includes an interactive package manager that can be accessed using `]`. [This video](https://youtu.be/76KL8aSz0Sg) gives an overview of using the interactive package manager environment.
@@ -435,13 +437,11 @@ Note that for clarity this example uses the package manager `Pkg`. Julia include
 The state of installed packages can also be saved in two files: `Project.toml` and `Manifest.toml`. If these files are stored in the same directory than a notebook, the state of the packages can be recovered by running
 
 ```julia
-
 import Pkg
 
 Pkg.activate(@**DIR**)
 
 Pkg.instantiate()
-
 ```
 
 ### HELP!
