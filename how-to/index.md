@@ -1,4 +1,4 @@
 # How to guides
 
 - [Parse MATPOWER files](/how-to/parse-matpower/)
-- [Understanding PowerSystems.jl Components](/how-to/power-system-components/)
+- [Understanding PowerSystems.jl Components](/how-to/understanding-powersystem-components/)

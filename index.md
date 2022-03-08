@@ -12,7 +12,7 @@ If you'd like a place to start, check out the [fundamentals walkthrough](/fundam
 
 ## How To Guides
 
-- [Understanding PowerSystem Components](/how-to/power-system-components/)
+- [Understanding PowerSystem Components](/how-to/understanding-powersystem-components/)
 - [Parse MATPOWER files](/how-to/parse-matpower/)
 
 ## Notes
