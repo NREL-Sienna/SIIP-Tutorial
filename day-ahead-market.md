@@ -352,13 +352,11 @@ The `PowerGraphics` package gets data from a `ProblemResults` instance and visua
 
 Try running the following code in your REPL:
 
-```julia:pcm9
+```julia
 using PowerGraphics
 
 p = plot_fuel(results)
 ```
-
-\show{pcm9}
 
 ![](/assets/plotly/plot_11.png)
 
