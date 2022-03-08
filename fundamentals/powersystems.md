@@ -25,8 +25,8 @@ However, we can use the parsers in `PowerSystems` to load other systems as well.
 Here's an example of loading the 24 bus system from MATPOWER.
 
 ```!
-System("./data/case24_ieee_rts.m")
-show(stdout, "text/plain", System("./data/case24_ieee_rts.m")) # hide
+System("./data/case5.m")
+show(stdout, "text/plain", System("./data/case5.m")) # hide
 ```
 
 `PowerSystems` has similar parsing features for PSSE, CSV and other data formats.
