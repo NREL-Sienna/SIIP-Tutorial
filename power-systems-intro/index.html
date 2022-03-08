@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="powersystems.jl_introduction" ><a href="#powersystems.jl_introduction"> PowerSystems.jl Introduction</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows and Jose Daniel Lara</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>This notebook is intended to show a power system data specification framework that exploits the
+capabilities of Julia to improve performance and allow modelers to develop modular software
+to create problems with different complexities and enable large scale analysis. The
+<a href="https://nrel-siip.github.io/PowerSystems.jl/stable/">PowerSystems documentation</a> is also
+an excellent resource.</p>
+<h3 id="objective" ><a href="#objective"> Objective</a></h3><p>PowerSystems.jl provides a type specification for bulk power system data.
+The objective is to exploit Julia's integration of dynamic types to enable efficient data
+handling and enable functional dispatch in modeling and analysis applications
+As explained in Julia's documentation:</p>
+<p>"Julia’s type system is dynamic, but gains some of the advantages of static type systems
+by making it possible to indicate that certain values are of specific types. This can be
+of great assistance in generating efficient code, but even more significantly, it allows
+method dispatch on the types of function arguments to be deeply integrated with the language."</p>
+<p>For more details on Julia types, refer to the <a href="https://docs.julialang.org/en/v1/">documentation</a>.</p>
+<h2 id="environment_and_packages" ><a href="#environment_and_packages"> Environment and packages</a></h2><p>PowerSystems.jl relies on a framework for data handling established in
+<a href="https://github.com/NREL-SIIP/InfrastructureSystems.jl">InfrastructureSystems.jl</a>.
+Users of PowerSystems.jl should not need to interact directly with InfrastructureSystems.jl.
+However, it's worth recognizing that InfrastructureSystems provides much of the back end
+code for managing and accessing data, especially time series data.</p>
+<pre><code class="julia">using PowerSystems;</code></pre>
+<p>Normally, I'd add the following two lines to configure logging behavior, but something about
+Literate.jl makes this fail, so these examples only work with the default log configuration.</p>
+<pre><code class="julia">using Logging
+logger = configure_logging(console_level = Logging.Error, file_level = Logging.Info, filename = &quot;ex.log&quot;)</code></pre>
+<h2 id="types_in_powersystems" ><a href="#types_in_powersystems"> Types in PowerSystems</a></h2><p>PowerSystems.jl provides a type hierarchy for specifying power system data. Data that
+describes infrastructure components is held in <code>struct</code>s. For example, a <code>Bus</code> is defined
+as follows with fields for the parameters required to describe a bus (along with an
+<code>internal</code> field used by InfrastructureSystems to improve the efficiency of handling data).</p>
+<pre><code class="julia">using AbstractTrees
+using InteractiveUtils
+using Base
+using TimeSeries
+AbstractTrees.children(x::Type) = subtypes(x)
+
+&quot;&quot;&quot;
+`print_struct()`
+Prints the definition of a struct.
+&quot;&quot;&quot;
+function print_struct(type)
+    mutable = ismutable(type) ? &quot;mutable&quot; : &quot;&quot;
+    println(&quot;$mutable struct $type&quot;)
+    for (fn, ft) in zip(fieldnames(type), fieldtypes(type))
+        println(&quot;  $fn::$ft&quot;)
+    end
+    println(&quot;end&quot;)
+end
+
+print_struct(Bus)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">mutable struct PowerSystems.Bus
+  number::Int64
+  name::String
+  bustype::Union{Nothing, PowerSystems.BusTypesModule.BusTypes}
+  angle::Union{Nothing, Float64}
+  magnitude::Union{Nothing, Float64}
+  voltage_limits::Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}
+  base_voltage::Union{Nothing, Float64}
+  area::Union{Nothing, PowerSystems.Area}
+  load_zone::Union{Nothing, PowerSystems.LoadZone}
+  ext::Dict{String, Any}
+  internal::InfrastructureSystems.InfrastructureSystemsInternal
+end
+</code></pre></div><h3 id="type_hierarchy" ><a href="#type_hierarchy"> Type Hierarchy</a></h3><p>PowerSystems is intended to organize data containers by the behavior of the devices that
+the data represents. To that end, a type hierarchy has been defined with several levels of
+abstract types starting with <code>InfrastructureSystemsType</code>. There are a bunch of subtypes of
+<code>InfrastructureSystemsType</code>, but the important ones to know about are:</p>
+<ul>
+<li><code>Component</code>: includes all elements of power system data<ul>
+<li><code>Topology</code>: includes non physical elements describing network connectivity</li>
+<li><code>Service</code>: includes descriptions of system requirements (other than energy balance)</li>
+<li><code>Device</code>: includes descriptions of all the physical devices in a power system</li>
+</ul>
+</li>
+<li><code>InfrastructureSystems.DeviceParameter</code>: includes structs that hold data describing the
+ dynamic, or economic capabilities of <code>Device</code>.</li>
+<li><code>TimeSeriesData</code>: Includes all time series types<ul>
+<li><code>Forecast</code>: includes structs to define time series of forecasted data where multiple
+values can represent each time stamp</li>
+<li><code>StaticTimeSeries</code>: includes structs to define time series with a single value for each
+time stamp</li>
+</ul>
+</li>
+<li><code>System</code>: collects all of the <code>Component</code>s</li>
+</ul>
+<pre><code class="julia">print_tree(PowerSystems.IS.InfrastructureSystemsType)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">InfrastructureSystemsType
+├─ DeviceParameter
+│  ├─ ActivePowerControl
+│  │  ├─ ActivePowerDroop
+│  │  ├─ ActivePowerPI
+│  │  ├─ ActiveRenewableControllerAB
+│  │  └─ VirtualInertia
+│  ├─ DynamicComponent
+│  │  ├─ DynamicGeneratorComponent
+│  │  │  ├─ AVR
+│  │  │  │  ├─ AVRFixed
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ AVRSimple
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ AVRTypeI
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ AVRTypeII
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESAC1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESAC6A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESDC1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESDC2A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESST1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESST4B
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXAC1
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXAC1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXAC2
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXPIC1
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ IEEET1
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SCRX
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ SEXS
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Machine
+│  │  │  │  ├─ AndersonFouadMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ BaseMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ FullMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ MarconatoMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ OneDOneQMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RoundRotorExponential
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RoundRotorMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RoundRotorQuadratic
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SalientPoleExponential
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SalientPoleMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SalientPoleQuadratic
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SimpleAFMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SimpleFullMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ SimpleMarconatoMachine
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ PSS
+│  │  │  │  ├─ IEEEST
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ PSSFixed
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ PSSSimple
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Shaft
+│  │  │  │  ├─ FiveMassShaft
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ SingleMass
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  └─ TurbineGov
+│  │  │     ├─ GasTG
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ GeneralGovModel
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ HydroTurbineGov
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ IEEETurbineGov1
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ SteamTurbineGov1
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ TGFixed
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ TGTypeI
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     └─ TGTypeII
+│  │  │        ⋮
+│  │  │        
+│  │  ├─ DynamicInverterComponent
+│  │  │  ├─ Converter
+│  │  │  │  ├─ AverageConverter
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ RenewableEnergyConverterTypeA
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ DCSource
+│  │  │  │  ├─ FixedDCSource
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ ZeroOrderBESS
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Filter
+│  │  │  │  ├─ LCFilter
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ LCLFilter
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ RLFilter
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ FrequencyEstimator
+│  │  │  │  ├─ FixedFrequency
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ KauraPLL
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ ReducedOrderPLL
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ InnerControl
+│  │  │  │  ├─ CurrentModeControl
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RECurrentControlB
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ VoltageModeControl
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  └─ OuterControl
+│  │  └─ InverterComponent
+│  ├─ OperationalCost
+│  │  ├─ MarketBidCost
+│  │  ├─ MultiStartCost
+│  │  ├─ StorageManagementCost
+│  │  ├─ ThreePartCost
+│  │  └─ TwoPartCost
+│  └─ ReactivePowerControl
+│     ├─ ReactivePowerDroop
+│     ├─ ReactivePowerPI
+│     └─ ReactiveRenewableControllerAB
+├─ ForecastParameters
+├─ InfrastructureSystemsComponent
+│  ├─ AdditionalTestComponent
+│  ├─ TestComponent
+│  ├─ TimeSeriesData
+│  │  ├─ Forecast
+│  │  │  ├─ AbstractDeterministic
+│  │  │  │  ├─ Deterministic
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ DeterministicSingleTimeSeries
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Probabilistic
+│  │  │  └─ Scenarios
+│  │  └─ StaticTimeSeries
+│  │     └─ SingleTimeSeries
+│  └─ Component
+│     ├─ Device
+│     │  ├─ Branch
+│     │  │  ├─ ACBranch
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  └─ DCBranch
+│     │  │     ⋮
+│     │  │     
+│     │  ├─ DynamicInjection
+│     │  │  ├─ DynamicGenerator
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  ├─ DynamicInverter
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  └─ PeriodicVariableSource
+│     │  │     ⋮
+│     │  │     
+│     │  ├─ RegulationDevice
+│     │  └─ StaticInjection
+│     │     ├─ ElectricLoad
+│     │     │  ⋮
+│     │     │  
+│     │     ├─ Generator
+│     │     │  ⋮
+│     │     │  
+│     │     ├─ Source
+│     │     │  ⋮
+│     │     │  
+│     │     ├─ StaticInjectionSubsystem
+│     │     │  ⋮
+│     │     │  
+│     │     └─ Storage
+│     │        ⋮
+│     │        
+│     ├─ Service
+│     │  ├─ AGC
+│     │  ├─ AbstractReserve
+│     │  │  ├─ Reserve
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  └─ ReserveNonSpinning
+│     │  │     ⋮
+│     │  │     
+│     │  ├─ StaticReserveGroup
+│     │  └─ Transfer
+│     └─ Topology
+│        ├─ AggregationTopology
+│        │  ├─ Area
+│        │  │  ⋮
+│        │  │  
+│        │  └─ LoadZone
+│        │     ⋮
+│        │     
+│        ├─ Arc
+│        └─ Bus
+├─ InfrastructureSystemsInternal
+├─ SystemData
+├─ TimeSeriesKey
+├─ TimeSeriesMetadata
+│  ├─ ForecastMetadata
+│  │  ├─ DeterministicMetadata
+│  │  ├─ ProbabilisticMetadata
+│  │  └─ ScenariosMetadata
+│  └─ StaticTimeSeriesMetadata
+│     └─ SingleTimeSeriesMetadata
+├─ TimeSeriesParameters
+├─ PowerSystemCaseBuilderType
+│  ├─ SystemBuildStats
+│  ├─ SystemCategory
+│  │  ├─ MatPowerTestSystems
+│  │  ├─ PSIDTestSystems
+│  │  ├─ PSITestSystems
+│  │  ├─ PSSETestSystems
+│  │  ├─ PSYTestSystems
+│  │  └─ SIIPExampleSystems
+│  └─ SystemDescriptor
+└─ System
+</code></pre></div><h3 id="timeseriesdata" ><a href="#timeseriesdata"> <code>TimeSeriesData</code></a></h3><p><a href="https://nrel-siip.github.io/PowerSystems.jl/stable/modeler_guide/time_series/"><em>Read the Docs!</em></a>
+Every <code>Component</code> has a <code>time_series_container::InfrastructureSystems.TimeSeriesContainer</code>
+field. <code>TimeSeriesData</code> are used to hold time series information that describes the
+temporally dependent data of fields within the same struct. For example, the
+<code>ThermalStandard.time_series_container</code> field can
+describe other fields in the struct (<code>available</code>, <code>activepower</code>, <code>reactivepower</code>).</p>
+<p><code>TimeSeriesData</code>s themselves can take the form of the following:</p>
+<pre><code class="julia">print_tree(TimeSeriesData)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">TimeSeriesData
+├─ Forecast
+│  ├─ AbstractDeterministic
+│  │  ├─ Deterministic
+│  │  └─ DeterministicSingleTimeSeries
+│  ├─ Probabilistic
+│  └─ Scenarios
+└─ StaticTimeSeries
+   └─ SingleTimeSeries
+</code></pre></div><p>In each case, the time series contains fields for <code>scaling_factor_multiplier</code> and <code>data</code>
+to identify the details of  th <code>Component</code> field that the time series describes, and the
+time series <code>data</code>. For example: we commonly want to use a time series to
+describe the maximum active power capability of a renewable generator. In this case, we
+can create a <code>SingleTimeSeries</code> with a <code>TimeArray</code> and an accessor function to the
+maximum active power field in the struct describing the generator. In this way, we can
+store a scaling factor time series that will get multiplied by the maximum active power
+rather than the magnitudes of the maximum active power time series.</p>
+<pre><code class="julia">print_struct(Deterministic)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">mutable struct InfrastructureSystems.Deterministic
+  name::String
+  data::Union{DataStructures.SortedDict{Dates.DateTime, Vector{Vector{Tuple{Float64, Float64}}}}, DataStructures.SortedDict{Dates.DateTime, Vector{Float64}}, DataStructures.SortedDict{Dates.DateTime, Vector{Tuple{Float64, Float64}}}}
+  resolution::Dates.Period
+  scaling_factor_multiplier::Union{Nothing, Function}
+  internal::InfrastructureSystems.InfrastructureSystemsInternal
+end
+</code></pre></div><p>Examples of how to create and add time series to system can be found in the
+<a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/05_add_forecasts.ipynb">Add Time Series Example</a></p>
+<h3 id="system" ><a href="#system"> System</a></h3><p>The <code>System</code> object collects all of the individual components into a single struct along
+with some metadata about the system itself (e.g. <code>base_power</code>)</p>
+<pre><code class="julia">print_struct(System)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">mutable struct PowerSystems.System
+  data::InfrastructureSystems.SystemData
+  frequency::Float64
+  bus_numbers::Set{Int64}
+  runchecks::Base.RefValue{Bool}
+  units_settings::InfrastructureSystems.SystemUnitsSettings
+  internal::InfrastructureSystems.InfrastructureSystemsInternal
+end
+</code></pre></div><h2 id="basic_example" ><a href="#basic_example"> Basic example</a></h2><p>PowerSystems contains a few basic data files (mostly for testing and demonstration).</p>
+<pre><code class="julia">BASE_DIR = abspath(joinpath(dirname(Base.find_package(&quot;PowerSystems&quot;)), &quot;..&quot;))
+module _testmodule
+end
+Base.include(_testmodule, joinpath(BASE_DIR, &quot;test&quot;, &quot;data_5bus_pu.jl&quot;)) #.jl file containing 5-bus system data
+thermal_generators5 = _testmodule.thermal_generators5
+renewable_generators5 = _testmodule.renewable_generators5
+loads5 = _testmodule.loads5
+branches5 = _testmodule.branches5
+load_timeseries_DA = _testmodule.load_timeseries_DA
+nodes_5 = _testmodule.nodes5() # function to create 5-bus buses</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.Bus[Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())]</code></pre></div><h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><pre><code class="julia">sys = System(
+    100.0,
+    nodes_5,
+    vcat(thermal_generators5(nodes_5), renewable_generators5(nodes_5)),
+    loads5(nodes_5),
+    branches5(nodes_5),
+)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(RenewableDispatch(WindBusB, true, Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 2.0, 1.0, 1.2, PowerSystems.PrimeMoversModule.PrimeMovers.WT = 22, (min = 0.0, max = 0.0), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(22.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
+RenewableDispatch(WindBusC, true, Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 1.0, 0.0, 1.2, PowerSystems.PrimeMoversModule.PrimeMovers.WT = 22, (min = -0.8, max = 0.8), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(22.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
+RenewableDispatch(WindBusA, true, Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 2.0, 1.0, 1.2, PowerSystems.PrimeMoversModule.PrimeMovers.WT = 22, (min = 0.0, max = 0.0), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(22.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
+PowerLoad(Bus2, true, Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
+PowerLoad(Bus3, true, Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
+PowerLoad(Bus4, true, Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 4.0, 1.3147, 100.0, 4.0, 1.3147, PowerSystems.Service[], nothing, Dict{String, Any}())
+Line(4, true, 0.0, 0.0, Arc(Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00108, 0.0108, (from = 0.00926, to = 0.00926), 11.148, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
+Line(1, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00281, 0.0281, (from = 0.00356, to = 0.00356), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
+Line(5, true, 0.0, 0.0, Arc(Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00297, 0.0297, (from = 0.00337, to = 0.00337), 40.53, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
+Line(2, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00304, 0.0304, (from = 0.00329, to = 0.00329), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
+
+***Omitted 19 components***
+
+
+
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([5, 4, 2, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("848d1a79-e0f5-4164-99f5-8a04950903d3"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
+the intended approach to accessing data expressed using PowerSystems.</p>
+<p>PowerSystems enforces unique <code>name</code> fields between components of a particular concrete type.
+So, in order to retrieve a specific component, the user must specify the type of the component
+along with the name and system</p>
+<h4 id="accessing_components" ><a href="#accessing_components"> Accessing components</a></h4><pre><code class="julia">@show get_component(Bus, sys, &quot;nodeA&quot;)
+@show get_component(Line, sys, &quot;1&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">get_component(Bus, sys, "nodeA") = Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())
+get_component(Line, sys, "1") = Line(1, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00281, 0.0281, (from = 0.00356, to = 0.00356), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
+</code></pre></div><p>Similarly, you can access all the components of a particular type: <em>note: the return type
+of get</em>components is a <code>FlattenIteratorWrapper</code>, so call <code>collect</code> to get an <code>Array</code></p>
+<pre><code class="julia">get_components(Bus, sys) |&gt; collect</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.Bus[Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())]</code></pre></div><p><code>get_components</code> also works on abstract types:</p>
+<pre><code class="julia">get_components(Branch, sys) |&gt; collect</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.Branch[Line(4, true, 0.0, 0.0, Arc(Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00108, 0.0108, (from = 0.00926, to = 0.00926), 11.148, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}()), Line(1, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00281, 0.0281, (from = 0.00356, to = 0.00356), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}()), Line(5, true, 0.0, 0.0, Arc(Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00297, 0.0297, (from = 0.00337, to = 0.00337), 40.53, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}()), Line(2, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00304, 0.0304, (from = 0.00329, to = 0.00329), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}()), Line(6, true, 0.0, 0.0, Arc(Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00297, 0.0297, (from = 0.00337, to = 0.00337), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}()), Line(3, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00064, 0.0064, (from = 0.01563, to = 0.01563), 18.812, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())]</code></pre></div><p>The fields within a component can be accessed using the <code>get_*</code> functions:
+<em>It's highly recommended that users avoid using the <code>.</code> to access fields since we make no
+guarantees on the stability field names and locations. We do however promise to keep the
+accessor functions stable.</em></p>
+<pre><code class="julia">bus1 = get_component(Bus, sys, &quot;nodeA&quot;)
+@show get_name(bus1);
+@show get_magnitude(bus1);</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">get_name(bus1) = "nodeA"
+get_magnitude(bus1) = 1.0
+</code></pre></div><h4 id="accessing_timeseries" ><a href="#accessing_timeseries"> Accessing <code>TimeSeries</code></a></h4><p>First we need to add some time series to the <code>System</code></p>
+<pre><code class="julia">loads = collect(get_components(PowerLoad, sys))
+for (l, ts) in zip(loads, load_timeseries_DA[2])
+    add_time_series!(
+        sys,
+        l,
+        Deterministic(
+            &quot;activepower&quot;,
+            Dict(TimeSeries.timestamp(load_timeseries_DA[2][1])[1] =&gt; ts),
+        ),
+    )
+end</code></pre>
+<p>If we want to access a specific time series for a specific component, we need to specify:</p>
+<ul>
+<li>time series type</li>
+<li><code>component</code></li>
+<li>initial_time</li>
+<li>label</li>
+</ul>
+<p>We can find the initial time of all the time series in the system:</p>
+<pre><code class="julia">get_forecast_initial_times(sys)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[Dates.DateTime("2024-01-02T00:00:00")]</code></pre></div><p>We can find the names of all time series attached to a component:</p>
+<pre><code class="julia">ts_names = get_time_series_names(Deterministic, loads[1])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">["activepower"]</code></pre></div><p>We can access a specific time series for a specific component:</p>
+<pre><code class="julia">ta = get_time_series_array(Deterministic, loads[1], ts_names[1])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">24×1 TimeSeries.TimeArray{Float64, 1, Dates.DateTime, SubArray{Float64, 1, Vector{Float64}, Tuple{UnitRange{Int64}}, true}} 2024-01-02T00:00:00 to 2024-01-02T23:00:00
+│                     │ A      │
+├─────────────────────┼────────┤
+│ 2024-01-02T00:00:00 │ 0.8516 │
+│ 2024-01-02T01:00:00 │ 0.7726 │
+│ 2024-01-02T02:00:00 │ 0.7286 │
+│ 2024-01-02T03:00:00 │ 0.7318 │
+│ 2024-01-02T04:00:00 │ 0.7454 │
+│ 2024-01-02T05:00:00 │ 0.7624 │
+│ 2024-01-02T06:00:00 │ 0.7796 │
+│ 2024-01-02T07:00:00 │ 0.7297 │
+│ ⋮                   │ ⋮      │
+│ 2024-01-02T17:00:00 │ 0.967  │
+│ 2024-01-02T18:00:00 │ 1.0121 │
+│ 2024-01-02T19:00:00 │ 1.0304 │
+│ 2024-01-02T20:00:00 │ 1.0574 │
+│ 2024-01-02T21:00:00 │ 1.0511 │
+│ 2024-01-02T22:00:00 │ 0.9502 │
+│ 2024-01-02T23:00:00 │ 0.9242 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
+<pre><code class="julia">ts = get_time_series_values(Deterministic, loads[1], ts_names[1])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.8515994329190224, 0.7725811795369283, 0.7285646021055885, 0.7317610013282965, 0.7454492972081949, 0.7624048753937246, 0.7796271209712425, 0.7297102245407769, 0.8280083922826654, 0.8821038567333273, 0.9152465706609482, 0.8949792094353903, 0.8539150572123184, 0.8480928489746389, 0.8955329009651445, 0.9060239068994376, 0.8728274222109128, 0.9669503728062596, 1.0120961698203135, 1.03035895089837, 1.0573629506469864, 1.0511425094539881, 0.9501502702400952, 0.9242022890857557]</code></pre></div>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  Dheepak Krishnamurthy.  Last modified: March 8, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>
