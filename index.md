@@ -4,7 +4,7 @@ This website offers tutorials for SIIP related packages.
 
 These tutorials use the Julia programming language.
 
-If you'd like a place to start, check out the [fundamentals walkthrough](/fundamentals).
+If you'd like a place to start, check out the [fundamentals walkthrough](/fundamentals/).
 
 ## Notes
 
