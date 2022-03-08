@@ -90,7 +90,7 @@ We can also write things like the following using `√` i.e. `\sqrt`
 sin(2π / 3) == √3 / 2
 ```
 
-Wait. What???
+Wait. What?
 
 ```!
 sin(2π / 3) - √3 / 2
@@ -342,11 +342,11 @@ print_it(1.234)
 print_it(1.234, prefix = "val:")
 ```
 
-# The keyword `return` is used to specify the return values of a function.
+The keyword `return` is used to specify the return values of a function.
 
 ```!
 function mult(x; y = 2.0)
-  return x \* y
+  return x * y
 end
 mult(4.0)
 ```
