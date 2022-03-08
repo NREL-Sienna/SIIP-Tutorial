@@ -1,4 +1,4 @@
-import HTTP
+using Literate
 using Plots
 using Graphs, MetaGraphs
 using GraphRecipes
@@ -13,6 +13,7 @@ using Base64
 using REPL
 using Markdown
 using JSONTables
+import Literate
 
 export D3PowerSystemTypes
 export D3NetworkLayout
