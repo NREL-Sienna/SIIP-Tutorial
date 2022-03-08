@@ -10,17 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: tlienart/xranklin-build-action@v1.7
+      - uses: tlienart/xranklin-build-action@v1.8
         with:
-          SITE_FOLDER: ""
           BASE_URL_PREFIX: "SIIP-Tutorial"
 
           PYTHON_LIBS: 'matplotlib'
           # set to xvfb for plots.jl
           PLOTS: 'xvfb-run'
-          # following two should be false, no use of pgfplots or gnuplot
-          LATEX: false
-          GNUPLOT: false
 
           # ===================================================================
           # DON'T CHANGE THE FOLLOWING UNLESS YOU HAVE GOOD REASONS TO
