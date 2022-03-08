@@ -458,7 +458,7 @@ function get_template()
 end
 
 
-function get_solver()
+function get_optimizer()
    @info "Creating a solver"
    optimizer_with_attributes(HiGHS.Optimizer, "mip_rel_gap" => 0.05)
 end
