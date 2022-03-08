@@ -47,9 +47,8 @@ using PowerSystems;
 # `internal` field used by InfrastructureSystems to improve the efficiency of handling data).
 
 using AbstractTrees
-using InteractiveUtils
-using Base
-using TimeSeries
+using InteractiveUtils # hide
+using Base # hide
 AbstractTrees.children(x::Type) = subtypes(x)
 
 """
@@ -90,7 +89,8 @@ print_tree(PowerSystems.IS.InfrastructureSystemsType)
 
 # ### `TimeSeriesData`
 
-# [_Read the Docs!_](https://nrel-siip.github.io/PowerSystems.jl/stable/modeler_guide/time_series/)
+# [Read the Docs!](https://nrel-siip.github.io/PowerSystems.jl/stable/modeler_guide/time_series/)
+#
 # Every `Component` has a `time_series_container::InfrastructureSystems.TimeSeriesContainer`
 # field. `TimeSeriesData` are used to hold time series information that describes the
 # temporally dependent data of fields within the same struct. For example, the
@@ -125,15 +125,17 @@ print_struct(System)
 # PowerSystems contains a few basic data files (mostly for testing and demonstration).
 
 BASE_DIR = abspath(joinpath(dirname(Base.find_package("PowerSystems")), ".."))
-module _testmodule
-end
-Base.include(_testmodule, joinpath(BASE_DIR, "test", "data_5bus_pu.jl")) #.jl file containing 5-bus system data
-thermal_generators5 = _testmodule.thermal_generators5
-renewable_generators5 = _testmodule.renewable_generators5
-loads5 = _testmodule.loads5
-branches5 = _testmodule.branches5
-load_timeseries_DA = _testmodule.load_timeseries_DA
-nodes_5 = _testmodule.nodes5() # function to create 5-bus buses
+module _testmodule # hide
+end # hide
+Base.include(_testmodule, joinpath(BASE_DIR, "test", "data_5bus_pu.jl")) # hide
+thermal_generators5 = _testmodule.thermal_generators5 # hide
+renewable_generators5 = _testmodule.renewable_generators5 # hide
+loads5 = _testmodule.loads5 # hide
+branches5 = _testmodule.branches5 # hide
+load_timeseries_DA = _testmodule.load_timeseries_DA # hide
+nodes_5 = _testmodule.nodes5() # hide
+include(joinpath(BASE_DIR, "test", "data_5bus_pu.jl")) # mock # .jl file containing 5-bus system data
+nodes_5 = nodes5() # mock # function to create 5-bus buses
 
 # ### Create a `System`
 
@@ -178,6 +180,7 @@ bus1 = get_component(Bus, sys, "nodeA")
 # #### Accessing `TimeSeries`
 
 # First we need to add some time series to the `System`
+using TimeSeries
 loads = collect(get_components(PowerLoad, sys))
 for (l, ts) in zip(loads, load_timeseries_DA[2])
     add_time_series!(
