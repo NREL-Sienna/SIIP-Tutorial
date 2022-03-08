@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="introduction_to_julia" ><a href="#introduction_to_julia"> Introduction to Julia</a></h1><p><strong>Originally Contributed by</strong>: Juan Pablo Vielma</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>Since JuMP is embedded in Julia, knowing some basic Julia is important
+for learning JuMP. This notebook is designed to provide a minimalist
+crash course in the basics of Julia. You can find resources that provide
+a more comprehensive introduction to Julia <a href="https://julialang.org/learning/">here</a>.</p>
+<h3 id="how_to_print" ><a href="#how_to_print"> How to Print</a></h3><p>In Julia, we usually use <code>println()</code> to print</p>
+<pre><code class="julia">println(&quot;Hello, World!&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">Hello, World!
+</code></pre></div><h3 id="basic_data_types" ><a href="#basic_data_types"> Basic Data Types</a></h3><p>Integers</p>
+<pre><code class="julia">typeof(1 + -2)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Int64</code></pre></div><p>Floating point numbers</p>
+<pre><code class="julia">typeof(1.2 - 2.3)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Float64</code></pre></div><p>There are also some cool things like an irrational representation of <code>π</code>.
+To make <code>π</code> (and most other greek letters), type <code>\pi</code> and then press <code>TAB</code>.</p>
+<pre><code class="julia">\pi&lt;TAB&gt;</code></pre>
+<pre><code class="julia">π</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">π</code></pre></div><pre><code class="julia">typeof(π)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Irrational{:π}</code></pre></div><p>Julia has native support for complex numbers:</p>
+<pre><code class="julia">typeof(2 + 3im)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Complex{Int64}</code></pre></div><p>Double quotes are used for strings</p>
+<pre><code class="julia">typeof(&quot;This is Julia&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">String</code></pre></div><p>Unicode is fine in strings</p>
+<pre><code class="julia">typeof(&quot;π is about 3.1415&quot;)</code></pre>
+<p>Julia symbols provide a way to make human readable unique identifiers.</p>
+<pre><code class="julia">typeof(:my_id)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Symbol</code></pre></div><h3 id="arithmetic_and_equality_testing" ><a href="#arithmetic_and_equality_testing"> Arithmetic and Equality Testing</a></h3><p>Julia is great for math</p>
+<pre><code class="julia">1 + 1</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">2</code></pre></div><p>Even math involving complex numbers</p>
+<pre><code class="julia">(2 + 1im) \* (1 - 2im)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: space before "(" not allowed in "* (" at string:1
+Stacktrace:
+</code></pre></div><p>We can also write things like the following using <code>√</code> i.e. <code>\sqrt</code></p>
+<pre><code class="julia">sin(2π / 3) == √3 / 2</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">false</code></pre></div><p>Wait. What?</p>
+<pre><code class="julia">sin(2π / 3) - √3 / 2</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">1.1102230246251565e-16</code></pre></div><p>Let's try again using <code>≈</code> i.e. <code>\approx</code>.</p>
+<pre><code class="julia">sin(2π / 3) ≈ √3 / 2</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">true</code></pre></div><p>Note that this time we used ≈ instead of ==. That is because computers don't use
+real numbers. They use a discrete representation called floating point. If you aren't
+careful, this can throw up all manner of issues. For example:</p>
+<pre><code class="julia">1 + 1e-16 == 1</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">true</code></pre></div><p>It even turns out that floating point numbers aren't associative!</p>
+<pre><code class="julia">(1 + 1e-16) - 1e-16 == 1 + (1e-16 - 1e-16)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">false</code></pre></div><h3 id="vectors,_matrices_and_arrays" ><a href="#vectors,_matrices_and_arrays"> Vectors, Matrices and Arrays</a></h3><p>Similar to Matlab, Julia has native support for vectors, matrices and tensors; all of which are represented by arrays of different dimensions.</p>
+<p>Vectors are constructed by comma-separated elements surrounded by square brackets:</p>
+<pre><code class="julia">b = [5, 6]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[5, 6]</code></pre></div><p>Matrices can by constructed with spaces separating the columns, and semicolons separating the rows:</p>
+<pre><code class="julia">A = [1 2; 3 4]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[1 2; 3 4]</code></pre></div><p>We can do linear algebra:</p>
+<pre><code class="julia">x = A \ b</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[-3.9999999999999987, 4.499999999999999]</code></pre></div><pre><code class="julia">A \* x</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: "*" is not a unary operator
+Stacktrace:
+</code></pre></div><pre><code class="julia">A \* x == b</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: "*" is not a unary operator
+Stacktrace:
+</code></pre></div><p>Note that when multiplying vectors and matrices, dimensions matter. For example, you can't multiply a vector by a vector:</p>
+<pre><code class="julia">b \* b</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: "*" is not a unary operator
+Stacktrace:
+</code></pre></div><p>But multiplying transposes works:</p>
+<pre><code class="julia">@show b' _ b
+@show b _ b';</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: all-underscore identifier used as rvalue around show.jl:1047
+Stacktrace:
+</code></pre></div><h3 id="tuples" ><a href="#tuples"> Tuples</a></h3><p>Julia makes extensive use of a simple data structure called Tuples. Tuples are immutable collections of values.</p>
+<p>For example,</p>
+<pre><code class="julia">t = (&quot;hello&quot;, 1.2, :foo)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">("hello", 1.2, :foo)</code></pre></div><pre><code class="julia">typeof(t)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Tuple{String, Float64, Symbol}</code></pre></div><p>Tuples can be accessed by index, similar to arrays,</p>
+<pre><code class="julia">t[2]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">1.2</code></pre></div><p>And can be "unpacked" like so,</p>
+<pre><code class="julia">a, b, c = t
+b</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">1.2</code></pre></div><p>The values can also be given names, which is a convenient way of making light-weight data structures.</p>
+<pre><code class="julia">t = (word = &quot;hello&quot;, num = 1.2, sym = :foo)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">(word = "hello", num = 1.2, sym = :foo)</code></pre></div><p>Then values can be accessed using a dot syntax,</p>
+<pre><code class="julia">t.word</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">"hello"</code></pre></div><h3 id="dictionaries" ><a href="#dictionaries"> Dictionaries</a></h3><p>Similar to Python, Julia has native support for dictionaries. Dictionaries provide a very generic way of mapping keys to values. For example, a map of integers to strings,</p>
+<pre><code class="julia">d1 = Dict(1 =&gt; &quot;A&quot;, 2 =&gt; &quot;B&quot;, 4 =&gt; &quot;D&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict(4 => "D", 2 => "B", 1 => "A")</code></pre></div><p>Looking up a values uses the bracket syntax,</p>
+<pre><code class="julia">d1[2]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">"B"</code></pre></div><p>Dictionaries support non-integer keys and can mix data types,</p>
+<pre><code class="julia">Dict(&quot;A&quot; =&gt; 1, &quot;B&quot; =&gt; 2.5, &quot;D&quot; =&gt; 2 - 3im)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict{String, Number}("B" => 2.5, "A" => 1, "D" => 2 - 3im)</code></pre></div><p>Dictionaries can be nested</p>
+<pre><code class="julia">d2 = Dict(&quot;A&quot; =&gt; 1, &quot;B&quot; =&gt; 2, &quot;D&quot; =&gt; Dict(:foo =&gt; 3, :bar =&gt; 4))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict{String, Any}("B" => 2, "A" => 1, "D" => Dict(:bar => 4, :foo => 3))</code></pre></div><pre><code class="julia">d2[&quot;B&quot;]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">2</code></pre></div><pre><code class="julia">d2[&quot;D&quot;][:foo]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">3</code></pre></div><h3 id="for_each_loops" ><a href="#for_each_loops"> For-Each Loops</a></h3><p>Julia has native support for for-each style loops with the syntax <code>for &lt;value&gt; in &lt;collection&gt; end</code>.</p>
+<pre><code class="julia">for i in 1:5
+  println(i)
+end</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">1
+2
+3
+4
+5
+</code></pre></div><pre><code class="julia">for i in [1.2, 2.3, 3.4, 4.5, 5.6]
+  println(i)
+end</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">1.2
+2.3
+3.4
+4.5
+5.6
+</code></pre></div><p>This for-each loop also works with dictionaries.</p>
+<pre><code class="julia">for (key, value) in Dict(&quot;A&quot; =&gt; 1, &quot;B&quot; =&gt; 2.5, &quot;D&quot; =&gt; 2 - 3im)
+  println(&quot;$key: $value&quot;)
+end</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">B: 2.5
+A: 1
+D: 2 - 3im
+</code></pre></div><p>Note that in contrast to vector languages like Matlab and R, loops do not result in a significant performance degradation in Julia.</p>
+<h3 id="control_flow" ><a href="#control_flow"> Control Flow</a></h3><p>Julia control flow is similar to Matlab, using the keywords <code>if-elseif-else-end</code>, and the logical operators <code>||</code> and <code>&amp;&amp;</code> for <em>or</em> and <em>and</em> respectively.</p>
+<pre><code class="julia">i = 10
+for i in 0:3:15
+  if i &lt; 5
+    println(&quot;$(i) is less than 5&quot;)
+  elseif i &lt; 10
+    println(&quot;$(i) is less than 10&quot;)
+  else
+    if i == 10
+      println(&quot;the value is 10&quot;)
+    else
+      println(&quot;$(i) is bigger than 10&quot;)
+    end
+  end
+end</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">0 is less than 5
+3 is less than 5
+6 is less than 10
+9 is less than 10
+12 is bigger than 10
+15 is bigger than 10
+</code></pre></div><h3 id="comprehensions" ><a href="#comprehensions"> Comprehensions</a></h3><p>Similar to languages like Haskell and Python, Julia supports the use of simple loops in the construction of arrays and dictionaries, called comprehenions.</p>
+<p>A list of increasing integers,</p>
+<pre><code class="julia">[i for i in 1:5]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[1, 2, 3, 4, 5]</code></pre></div><p>Matrices can be built by including multiple indices,</p>
+<pre><code class="julia">[i * j for i in 1:5, j in 5:10]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[5 6 7 8 9 10; 10 12 14 16 18 20; 15 18 21 24 27 30; 20 24 28 32 36 40; 25 30 35 40 45 50]</code></pre></div><p>Conditional statements can be used to filter out some values,</p>
+<pre><code class="julia">[i for i in 1:10 if i % 2 == 1]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[1, 3, 5, 7, 9]</code></pre></div><p>A similar syntax can be used for building dictionaries</p>
+<pre><code class="julia">Dict(&quot;$i&quot; =&gt; i for i in 1:10 if i % 2 == 1)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict("1" => 1, "5" => 5, "7" => 7, "9" => 9, "3" => 3)</code></pre></div><h3 id="functions" ><a href="#functions"> Functions</a></h3><p>A simple function is defined as follows,</p>
+<pre><code class="julia">function print_hello()
+  println(&quot;hello&quot;)
+end</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Main.__FRANKLIN_6985143.print_hello</code></pre></div><pre><code class="julia">print_hello()</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">hello
+</code></pre></div><p>Arguments can be added to a function,</p>
+<pre><code class="julia">function print_it(x)
+  println(x)
+end
+print_it(&quot;hello&quot;)
+print_it(1.234)
+print_it(:my_id)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">hello
+1.234
+my_id
+</code></pre></div><p>Optional keyword arguments are also possible</p>
+<pre><code class="julia">function print_it(x; prefix = &quot;value:&quot;)
+  println(&quot;$(prefix) $x&quot;)
+end
+print_it(1.234)
+print_it(1.234, prefix = &quot;val:&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">value: 1.234
+val: 1.234
+</code></pre></div><p>The keyword <code>return</code> is used to specify the return values of a function.</p>
+<pre><code class="julia">function mult(x; y = 2.0)
+  return x * y
+end
+mult(4.0)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">8.0</code></pre></div><pre><code class="julia">mult(4.0, y = 5.0)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">20.0</code></pre></div><h3 id="other_notes_on_types" ><a href="#other_notes_on_types"> Other notes on types</a></h3><p>Usually, specifing types is not required to use Julia. However, it can be helpful to understand the basics of Julia types for debugging.</p>
+<p>For example this list has a type of <code>Array&lbrace;Int64,1&rbrace;</code> indicating that it is a one dimensional array of integer values.</p>
+<pre><code class="julia">[1, 5, -2, 7]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[1, 5, -2, 7]</code></pre></div><p>In this example, the decimal values lead to a one dimensional array of floating point values, i.e. <code>Array&lbrace;Float64,1&rbrace;</code>. Notice that the integer <code>7</code> is promoted to a <code>Float64</code>, because all elements in the array need share a common type.</p>
+<pre><code class="julia">[1.0, 5.2, -2.1, 7]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[1.0, 5.2, -2.1, 7.0]</code></pre></div><h3 id="mutable_vs_immutable_objects" ><a href="#mutable_vs_immutable_objects"> Mutable vs immutable objects</a></h3><p>Some types in Julia are <em>mutable</em>, which means you can change the values inside them. A good example is an array. You can modify the contents of an array without having to make a new array.</p>
+<p>In contrast, types like <code>Float64</code> are <em>immutable</em>. You can't modify the contents of a <code>Float64</code>.</p>
+<p>This is something to be aware of when passing types into functions. For example:</p>
+<pre><code class="julia">function mutability_example!(mutable_type::Vector&lbrace;Int&rbrace;, immutable_type::Int)
+  mutable_type[1] += 1
+  immutable_type += 1
+  return nothing
+end
+
+mutable_type = [1, 2, 3]
+immutable_type = 1
+
+mutability_example!(mutable_type, immutable_type)
+
+println(&quot;mutable_type: $(mutable_type)&quot;)
+println(&quot;immutable_type: $(immutable_type)&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">mutable_type: [2, 2, 3]
+immutable_type: 1
+</code></pre></div><p>Because <code>Vector&lbrace;Int&rbrace;</code> is a mutable type, modifying the variable inside the function changed the value outside of the function. In constrast, the change to <code>immutable_type</code> didn't modify the value outside the function.</p>
+<p>You can check mutability with the <code>isimmutable</code> function.</p>
+<pre><code class="julia">@show isimmutable([1, 2, 3])
+@show isimmutable(1);</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">isimmutable([1, 2, 3]) = false
+isimmutable(1) = true
+</code></pre></div><h3 id="using_packages_and_the_package_manager" ><a href="#using_packages_and_the_package_manager"> Using Packages and the Package Manager</a></h3><p>No matter how wonderful Julia's base language is, at some point you will want to use an extension package. Some of these are built-in, for example random number generation is available in the <code>Random</code> package in the standard library. These packages are loaded with the commands <code>using</code> and <code>import</code>.</p>
+<pre><code class="julia">using Random
+[rand() for i in 1:10]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.9901176029631039, 0.5972682763580532, 0.16314311005903936, 0.8405079855080572, 0.28135097135631393, 0.1955266755783276, 0.046489918954541576, 0.08510324270143355, 0.04559224874904422, 0.17238876111433543]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+<p>For example the following can be used to install JuMP,</p>
+<pre><code class="julia">using Pkg
+Pkg.add(&quot;JuMP&quot;)</code></pre>
+<p>For a complete list of registed Julia packages see the package listing at https://pkg.julialang.org/.</p>
+<p>From time to you may wish to use a Julia package that is not registered. In this case a git repository URL can be used to install the package.</p>
+<pre><code class="julia">using Pkg
+
+Pkg.add(&quot;https://github.com/user-name/MyPackage.jl.git&quot;)</code></pre>
+<p>Note that for clarity this example uses the package manager <code>Pkg</code>. Julia includes an interactive package manager that can be accessed using <code>]</code>. <a href="https://youtu.be/76KL8aSz0Sg">This video</a> gives an overview of using the interactive package manager environment.</p>
+<p>The state of installed packages can also be saved in two files: <code>Project.toml</code> and <code>Manifest.toml</code>. If these files are stored in the same directory than a notebook, the state of the packages can be recovered by running</p>
+<pre><code class="julia">import Pkg
+
+Pkg.activate(@**DIR**)
+
+Pkg.instantiate()</code></pre>
+<h3 id="help!" ><a href="#help!"> HELP!</a></h3><p>Julia includes a help mode that can be accessed using <code>?</code>. Entering any object (e.g. function, type, struct, ...) into the help mode will show its documentation, if any is available.</p>
+<h3 id="some_common_gotchas" ><a href="#some_common_gotchas"> Some Common Gotchas</a></h3><h4 id="methoderror" ><a href="#methoderror"> MethodError</a></h4><p>A common error in Julia is <code>MethodError</code>, which indicates that the function is not defined for the given value. For example, by default the <code>ceil</code> function is not defined for complex numbers. The "closest candidates" list suggest some Julia types that the function is defined for.</p>
+<pre><code class="julia">ceil(1.2 + 2.3im)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: MethodError: no method matching ceil(::ComplexF64)
+Closest candidates are:
+  ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}, !Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}) at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:184
+  ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod, Dates.TimeType}, !Matched::Type{P}) where P<:Dates.Period at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:286
+  ceil(!Matched::FixedPointNumbers.Fixed{T, f}) where {T, f} at ~/.julia/packages/FixedPointNumbers/HAGk2/src/fixed.jl:131
+  ...
+Stacktrace:
+</code></pre></div>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  Dheepak Krishnamurthy.  Last modified: March 8, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>
