@@ -11,6 +11,8 @@ More concretely, as part of this tutorial, you will
 
 As part of this tutorial, you will learn one of the possible workflows with Julia, SIIP and vscode.
 
+Check out the [How To Guides](/how-to/) for more specific how to guides on various things related to SIIP.
+
 ## About this tutorial
 
 This tutorial is structured as a self-paced learning exercise.
