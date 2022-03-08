@@ -57,33 +57,31 @@ system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;);</co
 
 Up until now, we have been using <code>PowerSystemCaseBuilder</code> to load a system.
 However, we can use the parsers in <code>PowerSystems</code> to load other systems as well.
-Here's an example of loading the 24 bus system from MATPOWER.<pre><code class="julia">System(&quot;./data/case24_ieee_rts.m&quot;)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: SystemError: opening file "./data/case24_ieee_rts.m": No such file or directory
-Stacktrace:
-  [1] systemerror(p::String, errno::Int32; extrainfo::Nothing)
-    @ Base ./error.jl:174
-  [2] #systemerror#68
-    @ ./error.jl:173 [inlined]
-  [3] systemerror
-    @ ./error.jl:173 [inlined]
-  [4] open(fname::String; lock::Bool, read::Nothing, write::Nothing, create::Nothing, truncate::Nothing, append::Nothing)
-    @ Base ./iostream.jl:293
-  [5] open
-    @ ./iostream.jl:282 [inlined]
-  [6] open(f::PowerSystems.var"#323#324"{Bool, Bool, String}, args::String; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
-    @ Base ./io.jl:328
-  [7] open
-    @ ./io.jl:328 [inlined]
-  [8] #parse_file#322
-    @ ~/.julia/packages/PowerSystems/M5MJB/src/parsers/pm_io/common.jl:9 [inlined]
-  [9] PowerSystems.PowerModelsData(file::String; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
-    @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/parsers/power_models_data.jl:14
- [10] PowerModelsData
-    @ ~/.julia/packages/PowerSystems/M5MJB/src/parsers/power_models_data.jl:12 [inlined]
- [11] PowerSystems.System(file_path::String; assign_new_uuids::Bool, kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
-    @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/base.jl:171
- [12] PowerSystems.System(file_path::String)
-    @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/base.jl:168</code></pre></div><code>PowerSystems</code> has similar parsing features for PSSE, CSV and other data formats.
+Here's an example of loading the 24 bus system from MATPOWER.<pre><code class="julia">System(&quot;./data/case5.m&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">System
+┌───────────────────┬─────────────┐
+│ Property          │ Value       │
+├───────────────────┼─────────────┤
+│ System Units Base │ SYSTEM_BASE │
+│ Base Power        │ 100.0       │
+│ Base Frequency    │ 60.0        │
+│ Num Components    │ 27          │
+└───────────────────┴─────────────┘
+
+Static Components
+┌─────────────────┬───────┬────────────────────────┬───────────────┐
+│ Type            │ Count │ Has Static Time Series │ Has Forecasts │
+├─────────────────┼───────┼────────────────────────┼───────────────┤
+│ Arc             │ 6     │ false                  │ false         │
+│ Area            │ 1     │ false                  │ false         │
+│ Bus             │ 5     │ false                  │ false         │
+│ Line            │ 6     │ false                  │ false         │
+│ LoadZone        │ 1     │ false                  │ false         │
+│ PowerLoad       │ 3     │ false                  │ false         │
+│ ThermalStandard │ 5     │ false                  │ false         │
+└─────────────────┴───────┴────────────────────────┴───────────────┘
+
+</code></pre></div><code>PowerSystems</code> has similar parsing features for PSSE, CSV and other data formats.
 
 </fieldset><p>In a <code>PowerSystems.System</code>, there may be a bunch of <code>PowerSystems.Component</code> types.
 <code>PowerSystems.Component</code> is a parent abstract type, and has a number of children.
