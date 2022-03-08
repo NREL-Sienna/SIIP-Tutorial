@@ -6,6 +6,15 @@ These tutorials use the Julia programming language.
 
 If you'd like a place to start, check out the [fundamentals walkthrough](/fundamentals/).
 
+## Tutorials
+
+- [Fundamentals](/fundamentals/)
+
+## How To Guides
+
+- [Understanding PowerSystem Components](/how-to/power-system-components/)
+- [Parse MATPOWER files](/how-to/parse-matpower/)
+
 ## Notes
 
 If you see a code block like the one below, unless otherwise specified it is a snippet of Julia code.
