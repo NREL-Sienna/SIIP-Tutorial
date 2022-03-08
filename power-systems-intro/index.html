@@ -488,16 +488,16 @@ Line(5, true, 0.0, 0.0, Arc(Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.P
 Line(2, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00304, 0.0304, (from = 0.00329, to = 0.00329), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
 Line(6, true, 0.0, 0.0, Arc(Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00297, 0.0297, (from = 0.00337, to = 0.00337), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
 Line(3, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00064, 0.0064, (from = 0.01563, to = 0.01563), 18.812, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
-ThermalStandard(Solitude, true, true, Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 5.2, 1.0, 5.2, (min = 0.0, max = 5.2), (min = -3.9, max = 3.9), (up = 3.0, down = 2.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 3000.0)), 0.0, 3.0, 1.5), 100.0, (up = 0.012, down = 0.012), PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.COAL = 1, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
-ThermalStandard(Park City, true, true, Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 1.7, 0.2, 2.2125, (min = 0.0, max = 1.7), (min = -1.275, max = 1.275), (up = 2.0, down = 1.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 1500.0)), 0.0, 1.5, 0.75), 100.0, (up = 0.02, down = 0.02), PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.COAL = 1, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
-ThermalStandard(Alta, true, true, Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 0.4, 0.01, 0.5, (min = 0.0, max = 0.4), (min = -0.3, max = 0.3), nothing, PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 1400.0)), 0.0, 4.0, 2.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.COAL = 1, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
-ThermalStandard(Brighton, true, true, Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 6.0, 1.5, 0.75, (min = 0.0, max = 6.0), (min = -4.5, max = 4.5), (up = 5.0, down = 3.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 1000.0)), 0.0, 1.5, 0.75), 100.0, (up = 0.015, down = 0.015), PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.COAL = 1, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+Arc(Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
 
 ***Omitted 19 components***
 
 
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([5, 4, 2, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("72fe02f0-e4ea-4f9d-b434-33305613cb4d"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([5, 4, 2, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("b3c2e727-f119-471a-abdf-1401f67103b2"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
 the intended approach to accessing data expressed using PowerSystems.</p>
 <p>PowerSystems enforces unique <code>name</code> fields between components of a particular concrete type.
 So, in order to retrieve a specific component, the user must specify the type of the component
@@ -549,24 +549,24 @@ end</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">24×1 TimeSeries.TimeArray{Float64, 1, Dates.DateTime, SubArray{Float64, 1, Vector{Float64}, Tuple{UnitRange{Int64}}, true}} 2024-01-02T00:00:00 to 2024-01-02T23:00:00
 │                     │ A      │
 ├─────────────────────┼────────┤
-│ 2024-01-02T00:00:00 │ 0.8862 │
-│ 2024-01-02T01:00:00 │ 0.7332 │
-│ 2024-01-02T02:00:00 │ 0.7263 │
-│ 2024-01-02T03:00:00 │ 0.703  │
-│ 2024-01-02T04:00:00 │ 0.7375 │
-│ 2024-01-02T05:00:00 │ 0.7223 │
-│ 2024-01-02T06:00:00 │ 0.7387 │
-│ 2024-01-02T07:00:00 │ 0.7551 │
+│ 2024-01-02T00:00:00 │ 0.8692 │
+│ 2024-01-02T01:00:00 │ 0.7413 │
+│ 2024-01-02T02:00:00 │ 0.7943 │
+│ 2024-01-02T03:00:00 │ 0.7588 │
+│ 2024-01-02T04:00:00 │ 0.7433 │
+│ 2024-01-02T05:00:00 │ 0.7115 │
+│ 2024-01-02T06:00:00 │ 0.7627 │
+│ 2024-01-02T07:00:00 │ 0.7794 │
 │ ⋮                   │ ⋮      │
-│ 2024-01-02T17:00:00 │ 0.954  │
-│ 2024-01-02T18:00:00 │ 0.9923 │
-│ 2024-01-02T19:00:00 │ 1.005  │
-│ 2024-01-02T20:00:00 │ 1.0793 │
-│ 2024-01-02T21:00:00 │ 1.0079 │
-│ 2024-01-02T22:00:00 │ 1.0025 │
-│ 2024-01-02T23:00:00 │ 0.8422 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
+│ 2024-01-02T17:00:00 │ 0.9632 │
+│ 2024-01-02T18:00:00 │ 0.9999 │
+│ 2024-01-02T19:00:00 │ 1.0446 │
+│ 2024-01-02T20:00:00 │ 1.0695 │
+│ 2024-01-02T21:00:00 │ 0.9828 │
+│ 2024-01-02T22:00:00 │ 0.9976 │
+│ 2024-01-02T23:00:00 │ 0.8813 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
 <pre><code class="julia">ts = get_time_series_values(Deterministic, loads[1], ts_names[1])</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[0.886241530876537, 0.7332290967602022, 0.7262734320521868, 0.7030497099559458, 0.7375264207507591, 0.7222924165603235, 0.7387183997220442, 0.7551142161051457, 0.7630971060644375, 0.8629779863034504, 0.8704420079960357, 0.8592342375214151, 0.8894231797441242, 0.8665324550135787, 0.8897006833778125, 0.8734846887684717, 0.8632731337840491, 0.9540353810525504, 0.9922573985516152, 1.0049522576932763, 1.0793162580901625, 1.0078992473378792, 1.002521050964109, 0.8421608885201753]</code></pre></div>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.8692487501281021, 0.7413353034280914, 0.794328669735531, 0.7587649493977574, 0.7433465615245262, 0.7115125539205404, 0.7627231303134522, 0.7794401315178737, 0.7630039480955537, 0.858527106051475, 0.9132083742090195, 0.8593618322429634, 0.8966230413774845, 0.8955795928045658, 0.9185094437918754, 0.822384900284358, 0.8872158630915403, 0.9632396896340557, 0.9999377675677313, 1.0445969100053163, 1.0695211422067847, 0.9828371732983829, 0.9976227798431044, 0.8812748527158317]</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 8, 2022. Website built with
