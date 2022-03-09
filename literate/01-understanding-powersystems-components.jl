@@ -1,12 +1,8 @@
-#jl #! format: off
-# # Understanding [PowerSystems.jl](https://github.com/NREL-SIIP/PowerSystems.jl) Components
-#
-
 # **Originally Contributed by**: Clayton Barrows and Jose Daniel Lara
 
 # ## Introduction
 
-# This notebook is intended to show a power system data specification framework that exploits the
+# This how to guide is intended to show a power system data specification framework that exploits the
 # capabilities of Julia to improve performance and allow modelers to develop modular software
 # to create problems with different complexities and enable large scale analysis. The
 # [PowerSystems documentation](https://nrel-siip.github.io/PowerSystems.jl/stable/) is also
@@ -92,7 +88,7 @@ print_tree(PowerSystems.IS.InfrastructureSystemsType)
 
 # ### `TimeSeriesData`
 
-# [Read the Docs!](https://nrel-siip.github.io/PowerSystems.jl/stable/modeler_guide/time_series/)
+# The time series documentation can be found [here](https://nrel-siip.github.io/PowerSystems.jl/stable/modeler_guide/time_series/).
 #
 # Every `Component` has a `time_series_container::InfrastructureSystems.TimeSeriesContainer`
 # field. `TimeSeriesData` are used to hold time series information that describes the

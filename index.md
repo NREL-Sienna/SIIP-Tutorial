@@ -10,10 +10,9 @@ If you'd like a place to start, check out the [fundamentals walkthrough](/fundam
 
 - [Fundamentals](/fundamentals/)
 
-## How To Guides
+See [How To Guides](/how-to/) for more information.
 
-- [Understanding PowerSystem Components](/how-to/understanding-powersystems-components/)
-- [Parse MATPOWER files](/how-to/parse-matpower/)
+\textinput{how-to/index.md}
 
 ## Notes
 
