@@ -14,10 +14,10 @@
 # handling and enable functional dispatch in modeling and analysis applications
 # As explained in Julia's documentation:
 #
-# "Julia’s type system is dynamic, but gains some of the advantages of static type systems
+# > Julia’s type system is dynamic, but gains some of the advantages of static type systems
 # by making it possible to indicate that certain values are of specific types. This can be
 # of great assistance in generating efficient code, but even more significantly, it allows
-# method dispatch on the types of function arguments to be deeply integrated with the language."
+# method dispatch on the types of function arguments to be deeply integrated with the language.
 #
 # For more details on Julia types, refer to the [documentation](https://docs.julialang.org/en/v1/).
 #
