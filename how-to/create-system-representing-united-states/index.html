@@ -51,8 +51,8 @@
 <a href="https://arxiv.org/abs/2002.06155">Xu, et. al.</a>. We'll use the same tabular data parsing
 capability <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/04_parse_tabulardata.ipynb">demonstrated on the RTS-GMLC dataset</a>.</p>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">  Activating project at `~/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states`
-   Installed Mocking ─────────────── v0.7.3
    Installed WeakRefStrings ──────── v1.4.2
+   Installed Mocking ─────────────── v0.7.3
    Installed Tables ──────────────── v1.7.0
    Installed JSON3 ───────────────── v1.9.3
    Installed LogExpFunctions ─────── v0.3.7
@@ -81,7 +81,7 @@ Precompiling project...
 [33m  ✓ [39mDataFrames
 [33m  ✓ [39m[90mInfrastructureSystems[39m
 [33m  ✓ [39mPowerSystems
-  18 dependencies successfully precompiled in 124 seconds (68 already precompiled)
+  18 dependencies successfully precompiled in 127 seconds (68 already precompiled)
   [33m18[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
 </code></pre></div><pre><code class="julia">using PowerSystems
 using TimeSeries
@@ -127,12 +127,262 @@ Stacktrace:
 Let's download the test data.</p>
 <pre><code class="julia">println(&quot;downloading data...&quot;)
 datadir = joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states/data&quot;)
-mkpath(datadir)
-tempfilename = download(&quot;https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1&quot;)
-unzip(SIIPExamples.os, tempfilename, datadir)</code></pre>
+if !isdir(datadir)
+  mkpath(datadir)
+  tempfilename = download(&quot;https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1&quot;)
+  unzip(SIIPExamples.os, tempfilename, datadir)
+  siip_data = joinpath(datadir, &quot;SIIP&quot;)
+  mkpath(siip_data)
+end
+
+config_dir = joinpath(
+    joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states&quot;)
+    &quot;config&quot;,
+)</code></pre>
 <div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: SIIPExamples not defined
 Stacktrace:
-</code></pre></div>
+</code></pre></div><h3 id="data_formatting" ><a href="#data_formatting"> Data Formatting</a></h3><p>This is a big dataset. Typically one would only want to include one of the interconnects
+available. Lets use Texas to start. You can set <code>interconnect = nothing</code> if you want everything.</p>
+<pre><code class="julia">interconnect = &quot;Texas&quot;
+timezone = FixedTimeZone(&quot;UTC-6&quot;)
+initial_time = ZonedDateTime(DateTime(&quot;2016-01-01T00:00:00&quot;), timezone)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">TimeZones.ZonedDateTime(2016, 1, 1, tz"UTC-06:00")</code></pre></div><p>There are a few minor incompatibilities between the data and the supported tabular data
+format. We can resolve those here.</p>
+<p>First, PowerSystems.jl only supports parsing piecewise linear generator costs from tabular
+data. So, we can sample the quadratic polynomial cost curves and provide PWL points.</p>
+<pre><code class="julia">println(&quot;formatting data ...&quot;)
+!isnothing(interconnect) &amp;&amp; println(&quot;filtering data to include $interconnect ...&quot;)
+gen = DataFrame(CSV.File(joinpath(datadir, &quot;plant.csv&quot;)))
+filter!(row -&gt; row[:interconnect] == interconnect, gen)
+gencost = DataFrame(CSV.File(joinpath(datadir, &quot;gencost.csv&quot;)))
+gen = innerjoin(gen, gencost, on = :plant_id, makeunique = true, validate = (false, false))
+
+function make_pwl(gen::DataFrame, traunches = 2)
+    output_pct_cols = [&quot;output_point_&quot; * string(i) for i in 0:traunches]
+    hr_cols = [&quot;heat_rate_incr_&quot; * string(i) for i in 1:traunches]
+    pushfirst!(hr_cols, &quot;heat_rate_avg_0&quot;)
+    columns =
+        NamedTuple&lbrace;Tuple(Symbol.(vcat(output_pct_cols, hr_cols)))&rbrace;(repeat([Float64[]], 6))
+    pwl = DataFrame(columns)
+    for row in eachrow(gen)
+        traunch_len = (1.0 - row.Pmin / row.Pmax) / traunches
+        pct = [row.Pmin / row.Pmax + i * traunch_len for i in 0:traunches]
+        #c(pct) = pct * row.Pmax * (row.GenIOB + row.GenIOC^2 + row.GenIOD^3)
+        c(pct) = pct * row.Pmax * (row.c1 + row.c2^2) + row.c0 #this formats the &quot;c&quot; columns to hack the heat rate parser in PSY
+        hr = [c(pct[1])]
+        [push!(hr, c(pct[i + 1]) - hr[i]) for i in 1:traunches]
+        push!(pwl, vcat(pct, hr))
+    end
+    return hcat(gen, pwl)
+end
+
+gen = make_pwl(gen);
+
+gen[!, &quot;fuel_price&quot;] .= 1000.0;  #this formats the &quot;c&quot; columns to hack the heat rate parser in PSY</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/plant.csv" is not a valid file or doesn't exist
+Stacktrace:
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [2] #File#25
+    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+  [3] CSV.File(source::String)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+</code></pre></div><p>There are some incomplete aspects of this dataset. Here, I've assigned some approximate
+minimum up/down times, and some minor adjustments to categories. There are better
+ways to do this, but this works for this script...</p>
+<pre><code class="julia">gen[:, :unit_type] .= &quot;OT&quot;
+gen[:, :min_up_time] .= 0.0
+gen[:, :min_down_time] .= 0.0
+gen[:, :ramp_30] .= gen[:, :ramp_30] ./ 30.0 # we need ramp rates in MW/min
+[
+    gen[gen.type .== &quot;wind&quot;, col] .= [&quot;Wind&quot;, 0.0, 0.0][ix] for
+    (ix, col) in enumerate([:unit_type, :min_up_time, :min_down_time])
+]
+[
+    gen[gen.type .== &quot;solar&quot;, col] .= [&quot;PV&quot;, 0.0, 0.0][ix] for
+    (ix, col) in enumerate([:unit_type, :min_up_time, :min_down_time])
+]
+[
+    gen[gen.type .== &quot;hydro&quot;, col] .= [&quot;HY&quot;, 0.0, 0.0][ix] for
+    (ix, col) in enumerate([:unit_type, :min_up_time, :min_down_time])
+]
+[
+    gen[gen.type .== &quot;ng&quot;, col] .= [4.5, 8][ix] for
+    (ix, col) in enumerate([:min_up_time, :min_down_time])
+]
+[
+    gen[gen.type .== &quot;coal&quot;, col] .= [24, 48][ix] for
+    (ix, col) in enumerate([:min_up_time, :min_down_time])
+]
+[
+    gen[gen.type .== &quot;nuclear&quot;, col] .= [72, 72][ix] for
+    (ix, col) in enumerate([:min_up_time, :min_down_time])
+]</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: gen not defined
+Stacktrace:
+</code></pre></div><p>At the moment, PowerSimulations can't do unit commitment with generators that have Pmin = 0.0</p>
+<pre><code class="julia">idx_zero_pmin = [
+    g.type in [&quot;ng&quot;, &quot;coal&quot;, &quot;hydro&quot;, &quot;nuclear&quot;] &amp;&amp; g.Pmin &lt;= 0 for
+    g in eachrow(gen[:, [:type, :Pmin]])
+]
+gen[idx_zero_pmin, :Pmin] = gen[idx_zero_pmin, :Pmax] .* 0.05
+
+gen[:, :name] = &quot;gen&quot; .* string.(gen.plant_id)
+CSV.write(joinpath(siip_data, &quot;gen.csv&quot;), gen)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: gen not defined
+Stacktrace:
+</code></pre></div><p>Let's also merge the zone.csv with the bus.csv and identify bus types</p>
+<pre><code class="julia">bus = DataFrame(CSV.File(joinpath(datadir, &quot;bus.csv&quot;)))
+!isnothing(interconnect) &amp;&amp; filter!(row -&gt; row[:interconnect] == interconnect, bus)
+zone = DataFrame(CSV.File(joinpath(datadir, &quot;zone.csv&quot;)))
+bus = leftjoin(bus, zone, on = :zone_id)
+bustypes = Dict(1 =&gt; &quot;PV&quot;, 2 =&gt; &quot;PQ&quot;, 3 =&gt; &quot;REF&quot;, 4 =&gt; &quot;ISOLATED&quot;)
+bus.bustype = [bustypes[b] for b in bus.type]
+filter!(row -&gt; row[:bustype] != PowerSystems.BusTypes.ISOLATED, bus)
+bus.name = &quot;bus&quot; .* string.(bus.bus_id)
+CSV.write(joinpath(siip_data, &quot;bus.csv&quot;), bus)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/bus.csv" is not a valid file or doesn't exist
+Stacktrace:
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [2] #File#25
+    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+  [3] CSV.File(source::String)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+</code></pre></div><p>We need branch names as strings</p>
+<pre><code class="julia">branch = DataFrame(CSV.File(joinpath(datadir, &quot;branch.csv&quot;)))
+branch = leftjoin(
+  branch,
+  DataFrames.rename!(bus[:, [:bus_id, :baseKV]], [:from_bus_id, :from_baseKV]),
+  on = :from_bus_id,
+)
+branch = leftjoin(
+  branch,
+  DataFrames.rename!(bus[:, [:bus_id, :baseKV]], [:to_bus_id, :to_baseKV]),
+  on = :to_bus_id,
+)
+!isnothing(interconnect) &amp;&amp; filter!(row -&gt; row[:interconnect] == interconnect, branch)
+branch.name = &quot;branch&quot; .* string.(branch.branch_id)
+branch.tr_ratio = branch.from_baseKV ./ branch.to_baseKV
+CSV.write(joinpath(siip_data, &quot;branch.csv&quot;), branch)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/branch.csv" is not a valid file or doesn't exist
+Stacktrace:
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [2] #File#25
+    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+  [3] CSV.File(source::String)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+</code></pre></div><p>The PowerSystems parser expects the files to be named a certain way.</p>
+<p>And, we need a "control<em>mode" column in dc-line data<pre><code class="julia">dcbranch = DataFrame(CSV.File(joinpath(datadir, &quot;dcline.csv&quot;)))
+!isnothing(interconnect) &amp;&amp; filter!(row -&gt; row[:from_bus_id] in bus.bus_id, dcbranch)
+!isnothing(interconnect) &amp;&amp; filter!(row -&gt; row[:to_bus_id] in bus.bus_id, dcbranch)
+dcbranch.name = &quot;dcbranch&quot; .\* string.(dcbranch.dcline_id)
+dcbranch[:, :control_mode] .= &quot;Power&quot;
+CSV.write(joinpath(siip_data, &quot;dc_branch.csv&quot;), dcbranch)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/dcline.csv" is not a valid file or doesn't exist
+Stacktrace:
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [2] #File#25
+    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+  [3] CSV.File(source::String)
+    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+</code></pre></div><h3 id="we_need_to_create_a_reference_for_where_to_get_timeseries_data_for_each_component." ><a href="#we_need_to_create_a_reference_for_where_to_get_timeseries_data_for_each_component."> We need to create a reference for where to get timeseries data for each component.</a></h3><pre><code class="julia">timeseries = []
+ts_csv = [&quot;wind&quot;, &quot;solar&quot;, &quot;hydro&quot;, &quot;demand&quot;]
+plant_ids = Symbol.(string.(gen.plant_id))
+for f in ts_csv
+    println(&quot;formatting $f.csv ...&quot;)
+    csvpath = joinpath(siip_data, f * &quot;.csv&quot;)
+    csv = DataFrame(CSV.File(joinpath(datadir, f * &quot;.csv&quot;)))
+    (category, name_prefix, label) =
+        f == &quot;demand&quot; ? (&quot;Area&quot;, &quot;&quot;, &quot;max_active_power&quot;) :
+        (&quot;Generator&quot;, &quot;gen&quot;, &quot;max_active_power&quot;)
+    if !(:DateTime in names(csv))
+        DataFrames.rename!(
+            csv,
+            (names(csv)[occursin.(&quot;UTC&quot;, String.(names(csv)))][1] =&gt; :DateTime),
+        )
+        #The timeseries data is in UTC, this converts it to a fixed UTC offset
+        csv.DateTime =
+            ZonedDateTime.(
+                DateTime.(csv.DateTime, &quot;yyyy-mm-dd HH:MM:SS&quot;),
+                timezone,
+                from_utc = true,
+            )
+        delete!(csv, csv.DateTime .&lt; initial_time)
+        csv.DateTime = Dates.format.(csv.DateTime, &quot;yyyy-mm-ddTHH:MM:SS&quot;)
+    end
+    device_names = f == &quot;demand&quot; ? unique(bus.zone_name) : gen.name
+    for id in names(csv)
+        colname = id
+        if f == &quot;demand&quot;
+            if Symbol(id) in Symbol.(zone.zone_id)
+                colname = Symbol(zone[Symbol.(zone.zone_id) .== Symbol(id), :zone_name][1])
+                DataFrames.rename!(csv, (id =&gt; colname))
+            end
+            sf = sum(bus[string.(bus.zone_id) .== id, :Pd])
+        else
+            if Symbol(id) in plant_ids
+                colname = Symbol(gen[Symbol.(gen.plant_id) .== Symbol(id), :name][1])
+                DataFrames.rename!(csv, (id =&gt; colname))
+            end
+            sf = maximum(csv[:, colname]) == 0.0 ? 1.0 : &quot;Max&quot;
+        end
+        if String(colname) in device_names
+            push!(
+                timeseries,
+                Dict(
+                    &quot;simulation&quot; =&gt; &quot;DA&quot;,
+                    &quot;category&quot; =&gt; category,
+                    &quot;module&quot; =&gt; &quot;InfrastructureSystems&quot;,
+                    &quot;type&quot; =&gt; &quot;SingleTimeSeries&quot;,
+                    &quot;component_name&quot; =&gt; String(colname),
+                    &quot;name&quot; =&gt; label,
+                    &quot;resolution&quot; =&gt; 3600,
+                    &quot;scaling_factor_multiplier&quot; =&gt; &quot;get_max_active_power&quot;,
+                    &quot;scaling_factor_multiplier_module&quot; =&gt; &quot;PowerSystems&quot;,
+                    &quot;normalization_factor&quot; =&gt; sf,
+                    &quot;data_file&quot; =&gt; csvpath,
+                ),
+            )
+        end
+    end
+    CSV.write(csvpath, csv)
+end
+
+timeseries_pointers = joinpath(siip_data, &quot;timeseries_pointers.json&quot;)
+open(timeseries_pointers, &quot;w&quot;) do io
+    PowerSystems.InfrastructureSystems.JSON3.write(io, timeseries)
+end</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: gen not defined
+Stacktrace:
+</code></pre></div>The tabular data format relies on a folder containing <code>*.csv</code> files and <code>.yaml</code> files
+describing the column names of each file in PowerSystems terms, and the PowerSystems
+data type that should be created for each generator type. The respective "us</em>decriptors.yaml"
+and "US<em>generator</em>mapping.yaml" files have already been tailored to this dataset.</p>
+<pre><code class="julia">println(&quot;parsing csv files...&quot;)
+rawsys = PowerSystems.PowerSystemTableData(
+  siip_data,
+  100.0,
+  joinpath(config_dir, &quot;us_descriptors.yaml&quot;),
+  generator_mapping_file = joinpath(config_dir, &quot;us_generator_mapping.yaml&quot;),
+)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: config_dir not defined
+Stacktrace:
+</code></pre></div><h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><p>Next, we'll create a <code>System</code> from the <code>rawsys</code> data. Since a <code>System</code> is predicated on a</p>
+<p>time series resolution and the <code>rawsys</code> data includes both 5-minute and 1-hour resolution</p>
+<p>time series, we also need to specify which time series we want to include in the <code>System</code>.</p>
+<p>The <code>time_series_resolution</code> kwarg filters to only include time series with a matching resolution.</p>
+<pre><code class="julia">println(&quot;creating System&quot;)
+sys = System(rawsys; config_path = joinpath(config_dir, &quot;us_system_validation.json&quot;));
+sys</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: config_dir not defined
+Stacktrace:
+</code></pre></div><p>This all took reasonably long, so we can save our <code>System</code> using the serialization
+capability included with PowerSystems.jl:</p>
+<pre><code class="julia">to_json(sys, joinpath(siip_data, &quot;sys.json&quot;), force = true)</code></pre>
+
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
