@@ -108,7 +108,6 @@ the generator itself:
 
 ```!
 # Machine
-
 machine_classic() = BaseMachine(
     0.0, #R
     0.2995, #Xd_p
@@ -116,22 +115,18 @@ machine_classic() = BaseMachine(
 )
 
 # Shaft
-
 shaft_damping() = SingleMass(
     3.148, #H
     2.0, #D
 )
 
 # AVR: No AVR
-
 avr_none() = AVRFixed(0.0)
 
 # TG: No TG
-
 tg_none() = TGFixed(1.0) #efficiency
 
 # PSS: No PSS
-
 pss_none() = PSSFixed(0.0)
 
 nothing # hide
