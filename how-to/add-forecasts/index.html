@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="add_time_series_to_system" ><a href="#add_time_series_to_system"> Add time series to <code>System</code></a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>An example of how to parse add time series data to a <code>System</code> using <a href="github.com/NREL-SIIP/PowerSystems.jl">PowerSystems.jl</a></p>
+<p>For example, a <code>System</code> created by <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/parse_matpower.ipynb">parsing a MATPOWER file</a>
+doesn't contain any time series data. So a user may want to add time series to the <code>System</code></p>
+<h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><p>Let's use the 5-bus dataset we parsed in the MATPOWER example</p>
+<pre><code class="julia">using PowerSystems
+using TimeSeries
+using JSON3
+
+base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;);
+
+sys = System(joinpath(base_dir, &quot;matpower&quot;, &quot;case5_re.m&quot;))
+sys</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/parsers/pm_io/matpower.jl:245
+┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/parsers/pm_io/matpower.jl:245
+</code></pre><pre><code class="code-result language-plaintext">PowerSystems.System(PowerLoad(bus4, true, Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 4.0, 1.3147, 100.0, 4.0, 1.3147, PowerSystems.Service[], nothing, Dict{String, Any}())
+PowerLoad(bus2, true, Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
+PowerLoad(bus3, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
+ThermalStandard(Solitude, true, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 3.24498, 3.9, 6.5, (min = 0.0, max = 5.2), (min = -3.9, max = 3.9), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 30.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.NUCLEAR = 9, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Park City, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 1.7, 1.275, 2.125, (min = 0.0, max = 1.7), (min = -1.275, max = 1.275), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 15.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Alta, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.4, 0.3, 0.5, (min = 0.0, max = 0.4), (min = -0.3, max = 0.3), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 14.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CT = 8, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Brighton, true, true, Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 4.70694, -1.6503899999999998, 7.5, (min = 0.0, max = 6.0), (min = -4.5, max = 4.5), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 10.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.COAL = 1, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Sundance, true, true, Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.0, -0.10801999999999999, 2.5, (min = 0.0, max = 2.0), (min = -1.5, max = 1.5), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 40.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+Arc(Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
+Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
+
+***Omitted 21 components***
+
+
+
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("e2b084e4-9f74-4f28-8da0-889000b13535"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="define_pointers_to_time_series_files" ><a href="#define_pointers_to_time_series_files"> Define pointers to time series files</a></h3><p>For example, if we want to add a bunch of time series files, say one for each load and
+one for each renewable generator, we need to define pointers to each .csv file containing
+the time series in the following format (PowerSystems.jl also supports a CSV format for this file)</p>
+<pre><code class="julia">base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;);
+FORECASTS_DIR = joinpath(base_dir, &quot;forecasts&quot;, &quot;5bus_ts&quot;)
+fname = joinpath(FORECASTS_DIR, &quot;timeseries_pointers_da.json&quot;)
+open(fname, &quot;r&quot;) do f
+    JSON3.@pretty JSON3.read(f)
+end</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">[
+  {
+                       "component_name": "SolarBusC",
+                 "normalization_factor": 1,
+                                 "name": "max_active_power",
+     "scaling_factor_multiplier_module": "PowerSystems",
+                            "data_file": "./gen/Renewable/PV/da_solar5.csv",
+                           "resolution": 3600,
+                               "module": "PowerSystems",
+                             "category": "Generator",
+            "scaling_factor_multiplier": "get_max_active_power",
+                           "simulation": "DAY_AHEAD",
+                                 "type": "SingleTimeSeries"
+  },
+  {
+                       "component_name": "WindBusA",
+                 "normalization_factor": 1,
+                                 "name": "max_active_power",
+     "scaling_factor_multiplier_module": "PowerSystems",
+                            "data_file": "./gen/Renewable/WIND/da_wind5.csv",
+                           "resolution": 3600,
+                               "module": "PowerSystems",
+                             "category": "Generator",
+            "scaling_factor_multiplier": "get_max_active_power",
+                           "simulation": "DAY_AHEAD",
+                                 "type": "SingleTimeSeries"
+  },
+  {
+                       "component_name": "bus2",
+                 "normalization_factor": 1,
+                                 "name": "max_active_power",
+     "scaling_factor_multiplier_module": "PowerSystems",
+                            "data_file": "./load/da_load5.csv",
+                           "resolution": 3600,
+                               "module": "PowerSystems",
+                             "category": "ElectricLoad",
+            "scaling_factor_multiplier": "get_max_active_power",
+                           "simulation": "DAY_AHEAD",
+                                 "type": "SingleTimeSeries"
+  },
+  {
+                       "component_name": "bus3",
+                 "normalization_factor": 1,
+                                 "name": "max_active_power",
+     "scaling_factor_multiplier_module": "PowerSystems",
+                            "data_file": "./load/da_load5.csv",
+                           "resolution": 3600,
+                               "module": "PowerSystems",
+                             "category": "ElectricLoad",
+            "scaling_factor_multiplier": "get_max_active_power",
+                           "simulation": "DAY_AHEAD",
+                                 "type": "SingleTimeSeries"
+  },
+  {
+                       "component_name": "bus4",
+                 "normalization_factor": 1,
+                                 "name": "max_active_power",
+     "scaling_factor_multiplier_module": "PowerSystems",
+                            "data_file": "./load/da_load5.csv",
+                           "resolution": 3600,
+                               "module": "PowerSystems",
+                             "category": "ElectricLoad",
+            "scaling_factor_multiplier": "get_max_active_power",
+                           "simulation": "DAY_AHEAD",
+                                 "type": "SingleTimeSeries"
+  }
+]</code></pre></div><h3 id="read_and_assign_time_series_to_system_using_these_parameters." ><a href="#read_and_assign_time_series_to_system_using_these_parameters."> Read and assign time series to <code>System</code> using these parameters.</a></h3><pre><code class="julia">add_time_series!(sys, fname)
+sys</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(PowerLoad(bus4, true, Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 4.0, 1.3147, 100.0, 4.0, 1.3147, PowerSystems.Service[], nothing, Dict{String, Any}())
+PowerLoad(bus2, true, Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
+PowerLoad(bus3, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
+ThermalStandard(Solitude, true, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 3.24498, 3.9, 6.5, (min = 0.0, max = 5.2), (min = -3.9, max = 3.9), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 30.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.NUCLEAR = 9, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Park City, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 1.7, 1.275, 2.125, (min = 0.0, max = 1.7), (min = -1.275, max = 1.275), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 15.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Alta, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.4, 0.3, 0.5, (min = 0.0, max = 0.4), (min = -0.3, max = 0.3), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 14.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CT = 8, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Brighton, true, true, Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 4.70694, -1.6503899999999998, 7.5, (min = 0.0, max = 6.0), (min = -4.5, max = 4.5), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 10.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.COAL = 1, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Sundance, true, true, Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.0, -0.10801999999999999, 2.5, (min = 0.0, max = 2.0), (min = -1.5, max = 1.5), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 40.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+Arc(Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
+Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
+
+***Omitted 21 components***
+
+
+
+InfrastructureSystems.TimeSeriesParameters(Dates.Millisecond(3600000), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("e2b084e4-9f74-4f28-8da0-889000b13535"), nothing, Dict{String, Any}()))</code></pre></div>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>
