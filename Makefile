@@ -4,7 +4,7 @@ clean:
 	rm -rf __site
 
 develop:
-	julia --project -e 'using Xranklin; serve()'
+	julia --project
 
 deploy:
 	julia --project -e 'using Xranklin; build(prefix="SIIP-Tutorial")'
