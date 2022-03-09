@@ -145,7 +145,7 @@ using PowerSystems
 using PowerSystemCaseBuilder
 
 # uses RTS Test System with Time Series data
-@time system = build_system(PSITestSystems, "modified_RTS_GMLC_DA_sys")
+@time system = build_system(PSITestSystems, "modified_RTS_GMLC_DA_sys"; force_build = true, skip_serialization = true)
 ```
 
 You should see the following in your terminal before the output of running the script.
@@ -390,7 +390,7 @@ using PowerSystems
 using PowerSystemCaseBuilder
 
 # uses RTS Test System with Time Series data
-system = build_system(PSITestSystems, "modified_RTS_GMLC_DA_sys")
+system = build_system(PSITestSystems, "modified_RTS_GMLC_DA_sys"; force_build = true, skip_serialization = true)
 
 @info "Building a template for unit commitment"
 using PowerSimulations
@@ -446,7 +446,7 @@ using PowerSystems
 function get_system()
    @info "Building the RTS test system"
    # uses RTS Test System with Time Series data
-   build_system(PSITestSystems, "modified_RTS_GMLC_DA_sys")
+   build_system(PSITestSystems, "modified_RTS_GMLC_DA_sys"; force_build = true, skip_serialization = true)
 end
 
 
