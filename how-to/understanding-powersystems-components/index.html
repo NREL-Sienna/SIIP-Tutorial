@@ -189,17 +189,17 @@ Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9,
 Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())
 Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())
 Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())
-RenewableDispatch(WindBusB, true, Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 2.0, 1.0, 1.2, PowerSystems.PrimeMoversModule.PrimeMovers.WT = 22, (min = 0.0, max = 0.0), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(22.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
-RenewableDispatch(WindBusC, true, Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 1.0, 0.0, 1.2, PowerSystems.PrimeMoversModule.PrimeMovers.WT = 22, (min = -0.8, max = 0.8), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(22.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
-RenewableDispatch(WindBusA, true, Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), 2.0, 1.0, 1.2, PowerSystems.PrimeMoversModule.PrimeMovers.WT = 22, (min = 0.0, max = 0.0), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(22.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
 Arc(Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
 Arc(Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
 
 ***Omitted 19 components***
 
 
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([5, 4, 2, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("b27037b9-cd3d-48bd-8bd4-773bb5ee2b26"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([5, 4, 2, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("06d1b4b5-18eb-49dc-bbe2-7c6175bb8b52"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
 the intended approach to accessing data expressed using PowerSystems.</p>
 <p>PowerSystems enforces unique <code>name</code> fields between components of a particular concrete type.
 So, in order to retrieve a specific component, the user must specify the type of the component
@@ -251,24 +251,24 @@ end</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">24×1 TimeSeries.TimeArray{Float64, 1, Dates.DateTime, SubArray{Float64, 1, Vector{Float64}, Tuple{UnitRange{Int64}}, true}} 2024-01-02T00:00:00 to 2024-01-02T23:00:00
 │                     │ A      │
 ├─────────────────────┼────────┤
-│ 2024-01-02T00:00:00 │ 0.8841 │
-│ 2024-01-02T01:00:00 │ 0.7381 │
-│ 2024-01-02T02:00:00 │ 0.774  │
-│ 2024-01-02T03:00:00 │ 0.7183 │
-│ 2024-01-02T04:00:00 │ 0.7158 │
-│ 2024-01-02T05:00:00 │ 0.7454 │
-│ 2024-01-02T06:00:00 │ 0.7676 │
-│ 2024-01-02T07:00:00 │ 0.7439 │
+│ 2024-01-02T00:00:00 │ 0.8453 │
+│ 2024-01-02T01:00:00 │ 0.749  │
+│ 2024-01-02T02:00:00 │ 0.7551 │
+│ 2024-01-02T03:00:00 │ 0.6784 │
+│ 2024-01-02T04:00:00 │ 0.6915 │
+│ 2024-01-02T05:00:00 │ 0.6925 │
+│ 2024-01-02T06:00:00 │ 0.7749 │
+│ 2024-01-02T07:00:00 │ 0.7959 │
 │ ⋮                   │ ⋮      │
-│ 2024-01-02T17:00:00 │ 0.9429 │
-│ 2024-01-02T18:00:00 │ 0.9971 │
-│ 2024-01-02T19:00:00 │ 1.0039 │
-│ 2024-01-02T20:00:00 │ 1.0887 │
-│ 2024-01-02T21:00:00 │ 1.0604 │
-│ 2024-01-02T22:00:00 │ 0.9572 │
-│ 2024-01-02T23:00:00 │ 0.8807 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
+│ 2024-01-02T17:00:00 │ 0.9421 │
+│ 2024-01-02T18:00:00 │ 1.0169 │
+│ 2024-01-02T19:00:00 │ 1.0337 │
+│ 2024-01-02T20:00:00 │ 1.058  │
+│ 2024-01-02T21:00:00 │ 1.0229 │
+│ 2024-01-02T22:00:00 │ 0.9757 │
+│ 2024-01-02T23:00:00 │ 0.9332 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
 <pre><code class="julia">ts = get_time_series_values(Deterministic, loads[1], ts_names[1])</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[0.8840768185365079, 0.738073884450072, 0.7740342298406605, 0.7183450284740831, 0.7157974299973566, 0.7454209721783867, 0.767620372794081, 0.7439064783584792, 0.8417846313249965, 0.8620036305891932, 0.8951718498961226, 0.9097301819859371, 0.9077545263618186, 0.8380228904559465, 0.8688003666066482, 0.8194112478167187, 0.8327519354486743, 0.9428824660734354, 0.9971263873449676, 1.0039236224405876, 1.0887466989775585, 1.060372165679625, 0.9572120186138839, 0.8807272677679919]</code></pre></div>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.8453153048053732, 0.7489998994642892, 0.7551113077252429, 0.6784149667916527, 0.6915216148488713, 0.6925481560710001, 0.7748842435030594, 0.7959412029844684, 0.8058152748317136, 0.8543996630730737, 0.9259509967641437, 0.845829080679484, 0.9071128087514282, 0.867123899354246, 0.8668611454118431, 0.8519340804551891, 0.8926905907182638, 0.9420880464868489, 1.0169008440346998, 1.0336961369352313, 1.058046532694621, 1.0228919415456388, 0.9757464297497179, 0.933234936521025]</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with

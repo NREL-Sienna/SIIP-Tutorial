@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="creating_and_handling_data_for_dynamic_simulations" ><a href="#creating_and_handling_data_for_dynamic_simulations"> Creating and Handling Data for Dynamic Simulations</a></h1><p><strong>Originally Contributed by</strong>: Rodrigo Henriquez and José Daniel Lara</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>This tutorial briefly introduces how to create a system using <code>PowerSystems.jl</code> data
+structures. The tutorial will guide you to create the JSON data file for the tutorial 1.
+Start by calling <code>PowerSystems.jl</code>:</p>
+<pre><code class="julia">using PowerSystems
+const PSY = PowerSystems;</code></pre>
+<h2 id="system_description" ><a href="#system_description"> System description</a></h2><p>Next we need to define the different elements required to run a simulation. To run a
+simulation in <code>PowerSimulationsDynamics</code>, it is required to define a <code>System</code> that contains
+the following components:</p>
+<h2 id="static_components" ><a href="#static_components"> Static Components:</a></h2><p>We called static components to those that are used to run a Power Flow problem.</p>
+<ul>
+<li>Vector of <code>Bus</code> elements, that define all the buses in the network.</li>
+<li>Vector of <code>Branch</code> elements, that define all the branches elements (that connect two buses)
+  in the network.</li>
+<li>Vector of <code>StaticInjection</code> elements, that define all the devices connected to buses that
+  can inject (or withdraw) power. These static devices, typically generators, in
+  <code>PowerSimulationsDynamics</code> are used to solve the Power Flow problem that determines the
+  active and reactive power provided for each device.</li>
+<li>Vector of <code>PowerLoad</code> elements, that define all the loads connected to buses that can
+  withdraw current. These are also used to solve the Power Flow.</li>
+<li>Vector of <code>Source</code> elements, that define source components behind a reactance that can
+  inject or withdraw current.</li>
+<li>The base of power used to define per unit values, in MVA as a <code>Float64</code> value.</li>
+<li>The base frequency used in the system, in Hz as a <code>Float64</code> value.</li>
+</ul>
+<h2 id="dynamic_components" ><a href="#dynamic_components"> Dynamic Components:</a></h2><p>Dynamic components are those that define differential equations to run a transient simulation.</p>
+<ul>
+<li>Vector of <code>DynamicInjection</code> elements. These components must be attached to a
+  <code>StaticInjection</code> that connects the power flow solution to the dynamic formulation of such
+  device. <code>DynamicInjection</code> can be <code>DynamicGenerator</code> or <code>DynamicInverter</code>, and its specific
+  formulation (i.e. differential equations) will depend on the specific components that define such device.</li>
+<li>(Optional) Selecting which of the <code>Lines</code> (of the <code>Branch</code> vector) elements must be modeled of
+  <code>DynamicLines</code> elements, that can be used to model lines with differential equations.</li>
+</ul>
+<p>To start we will define the data structures for the network.</p>
+<h2 id="one_machine_infinite_bus_case_manual_data_creation" ><a href="#one_machine_infinite_bus_case_manual_data_creation"> One Machine Infinite Bus case manual data creation</a></h2><p>The following describes the system creation for the OMIB case.</p>
+<h2 id="static_system_creation" ><a href="#static_system_creation"> Static System creation</a></h2><p>To create the system you need to pass the location of the RAW file</p>
+<pre><code class="julia">file_dir = joinpath(
+    Utils.path(:folder),
+    &quot;how-to/load-dynamics-systems-data&quot;,
+    &quot;data&quot;,
+)
+omib_sys = System(joinpath(file_dir, &quot;OMIB.raw&quot;))</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())
+Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())
+Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()))
+LoadZone(1, 0.0, 0.0)
+Line(BUS 1-BUS 2-i_2, true, 0.0, 0.0, Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())), 0.0, 0.1, (from = 0.0, to = 0.0), 1.0, (min = -1.0472, max = 1.0472), PowerSystems.Service[], Dict{String, Any}())
+Line(BUS 1-BUS 2-i_1, true, 0.0, 0.0, Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())), 0.0, 0.1, (from = 0.0, to = 0.0), 1.0, (min = -1.0472, max = 1.0472), PowerSystems.Service[], Dict{String, Any}())
+Area(1, 0.0, 0.0, 0.0)
+ThermalStandard(generator-102-1, true, true, Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), 0.5, 0.0, 1.4142135623730951, (min = 0.0, max = 1.0), (min = -1.0, max = 1.0), (up = 1.0, down = 1.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 1.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.OT = 19, PowerSystems.ThermalFuelsModule.ThermalFuels.OTHER = 14, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}("z_source" => (r = 0.0, x = 1.0)))
+
+
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([102, 101]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("b8857334-c519-483c-8ba4-0482037dc73c"), nothing, Dict{String, Any}()))</code></pre></div><p>This system does not have an injection device in bus 1 (the reference bus).
+We can add a source with small impedance directly as follows:</p>
+<pre><code class="julia">slack_bus = [b for b in get_components(Bus, omib_sys) if b.bustype == BusTypes.REF][1]
+inf_source = Source(
+    name = &quot;InfBus&quot;, #name
+    available = true, #availability
+    active_power = 0.0,
+    reactive_power = 0.0,
+    bus = slack_bus, #bus
+    R_th = 0.0, #Rth
+    X_th = 5e-6, #Xth
+)
+add_component!(omib_sys, inf_source)</code></pre>
+<p>We just added a infinite source with \(X_{th} = 5\cdot 10^{-6}\) pu</p>
+<p>The system can be explored directly using functions like:</p>
+<pre><code class="julia">get_components(Source, omib_sys)
+
+get_components(Generator, omib_sys)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">InfrastructureSystems.FlattenIteratorWrapper{PowerSystems.Generator}(PowerSystems.Generator, Base.Iterators.Flatten{Vector{Base.ValueIterator{Dict{String, PowerSystems.ThermalStandard}}}}(Base.ValueIterator{Dict{String, PowerSystems.ThermalStandard}}[PowerSystems.ThermalStandard[ThermalStandard(generator-102-1, true, true, Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), 0.5, 0.0, 1.4142135623730951, (min = 0.0, max = 1.0), (min = -1.0, max = 1.0), (up = 1.0, down = 1.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 1.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.OT = 19, PowerSystems.ThermalFuelsModule.ThermalFuels.OTHER = 14, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}("z_source" => (r = 0.0, x = 1.0)))]]), 1)</code></pre></div><p>By exploring those it can be seen that the generators are named as: <code>generator-bus_number-id</code>.
+Then, the generator attached at bus 2 is named <code>generator-102-1</code>.</p>
+<h3 id="dynamic_injections" ><a href="#dynamic_injections"> Dynamic Injections</a></h3><p>We are now interested in attaching to the system the dynamic component that will be modeling
+our dynamic generator.</p>
+<p>Dynamic generator devices are composed by 5 components, namely, <code>machine</code>, <code>shaft</code>,
+<code>avr</code>, <code>tg</code> and <code>pss</code>. So we will be adding functions to create all of its components and
+the generator itself:</p>
+<pre><code class="julia"># Machine
+machine_classic() = BaseMachine(
+    0.0, #R
+    0.2995, #Xd_p
+    0.7087, #eq_p
+)
+
+# Shaft
+shaft_damping() = SingleMass(
+    3.148, #H
+    2.0, #D
+)
+
+# AVR: No AVR
+avr_none() = AVRFixed(0.0)
+
+# TG: No TG
+tg_none() = TGFixed(1.0) #efficiency
+
+# PSS: No PSS
+pss_none() = PSSFixed(0.0)</code></pre>
+<p>The next lines receives a static generator name, and creates a <code>DynamicGenerator</code> based on
+that specific static generator, with the specific components defined previously. This is
+a classic machine model without AVR, Turbine Governor and PSS.</p>
+<pre><code class="julia">static_gen = get_component(Generator, omib_sys, &quot;generator-102-1&quot;)
+
+dyn_gen = DynamicGenerator(
+    name = get_name(static_gen),
+    ω_ref = 1.0,
+    machine = machine_classic(),
+    shaft = shaft_damping(),
+    avr = avr_none(),
+    prime_mover = tg_none(),
+    pss = pss_none(),
+)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">DynamicGenerator(generator-102-1, 1.0, PowerSystems.BaseMachine(0.0, 0.2995, 0.7087, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("d4079837-8aa3-4b73-94cd-91d9706c7ae7"), nothing, nothing)), PowerSystems.SingleMass(3.148, 2.0, Dict{String, Any}(), [:δ, :ω], 2, InfrastructureSystems.InfrastructureSystemsInternal(UUID("b26d840c-bcec-492b-a249-1f159fd0cd83"), nothing, nothing)), PowerSystems.AVRFixed(0.0, 1.0, Dict{String, Any}(), Symbol[], 0, PowerSystems.StateTypesModule.StateTypes[], InfrastructureSystems.InfrastructureSystemsInternal(UUID("d71d77d2-81be-44e3-8037-ecf713e7c47e"), nothing, nothing)), PowerSystems.TGFixed(1.0, 1.0, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("a2618e36-3f11-467d-9dc2-965316bb88b5"), nothing, nothing)), PowerSystems.PSSFixed(0.0, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("02d51f5c-11fe-436d-b57f-3d7d7cbffee3"), nothing, nothing)), 100.0, 2, [:δ, :ω], Dict{String, Any}())</code></pre></div><p>The dynamic generator is added to the system by specifying the dynamic and static generator</p>
+<pre><code class="julia">add_component!(omib_sys, dyn_gen, static_gen)</code></pre>
+<p>Then we can serialize our system data to a json file that can be later read as:</p>
+<pre><code class="julia">to_json(omib_sys, joinpath(file_dir, &quot;omib_sys.json&quot;), force = true)</code></pre>
+<h2 id="dynamic_lines_case_data_creation" ><a href="#dynamic_lines_case_data_creation"> Dynamic Lines case: Data creation</a></h2><p>We will now create a three bus system with one inverter and one generator.
+In order to do so, we will parse the following <code>ThreebusInverter.raw</code> network:</p>
+<pre><code class="julia">sys_file_dir = joinpath(file_dir, &quot;ThreeBusInverter.raw&quot;)
+threebus_sys = System(sys_file_dir)
+slack_bus = [b for b in get_components(Bus, threebus_sys) if b.bustype == BusTypes.REF][1]
+inf_source = Source(
+    name = &quot;InfBus&quot;, #name
+    available = true, #availability
+    active_power = 0.0,
+    reactive_power = 0.0,
+    bus = slack_bus, #bus
+    R_th = 0.0, #Rth
+    X_th = 5e-6, #Xth
+)
+add_component!(threebus_sys, inf_source)
+
+threebus_sys</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">System
+┌───────────────────┬─────────────┐
+│ Property          │ Value       │
+├───────────────────┼─────────────┤
+│ System Units Base │ SYSTEM_BASE │
+│ Base Power        │ 100.0       │
+│ Base Frequency    │ 60.0        │
+│ Num Components    │ 17          │
+└───────────────────┴─────────────┘
+
+Static Components
+┌─────────────────┬───────┬────────────────────────┬───────────────┐
+│ Type            │ Count │ Has Static Time Series │ Has Forecasts │
+├─────────────────┼───────┼────────────────────────┼───────────────┤
+│ Arc             │ 3     │ false                  │ false         │
+│ Area            │ 1     │ false                  │ false         │
+│ Bus             │ 3     │ false                  │ false         │
+│ Line            │ 3     │ false                  │ false         │
+│ LoadZone        │ 1     │ false                  │ false         │
+│ PowerLoad       │ 3     │ false                  │ false         │
+│ Source          │ 1     │ false                  │ false         │
+│ ThermalStandard │ 2     │ false                  │ false         │
+└─────────────────┴───────┴────────────────────────┴───────────────┘
+
+</code></pre></div><p>We will connect a One-d-one-q machine at bus 102, and a Virtual Synchronous Generator
+Inverter at bus 103. An inverter is composed by a <code>converter</code>, <code>outer control</code>,
+<code>inner control</code>, <code>dc source</code>, <code>frequency estimator</code> and a <code>filter</code>.</p>
+<h2 id="dynamic_inverter_definition" ><a href="#dynamic_inverter_definition"> Dynamic Inverter definition</a></h2><p>We will create specific functions to create the components of the inverter as follows:</p>
+<pre><code class="julia"># Define converter as an AverageConverter
+converter_high_power() = AverageConverter(rated_voltage = 138.0, rated_current = 100.0)
+
+# Define Outer Control as a composition of Virtual Inertia + Reactive Power Droop
+outer_control() = OuterControl(
+    VirtualInertia(Ta = 2.0, kd = 400.0, kω = 20.0),
+    ReactivePowerDroop(kq = 0.2, ωf = 1000.0),
+)
+
+# Define an Inner Control as a Voltage+Current Controler with Virtual Impedance:
+inner_control() = CurrentControl(
+    kpv = 0.59,     #Voltage controller proportional gain
+    kiv = 736.0,    #Voltage controller integral gain
+    kffv = 0.0,     #Binary variable enabling the voltage feed-forward in output of current controllers
+    rv = 0.0,       #Virtual resistance in pu
+    lv = 0.2,       #Virtual inductance in pu
+    kpc = 1.27,     #Current controller proportional gain
+    kic = 14.3,     #Current controller integral gain
+    kffi = 0.0,     #Binary variable enabling the current feed-forward in output of current controllers
+    ωad = 50.0,     #Active damping low pass filter cut-off frequency
+    kad = 0.2,      #Active damping gain
+)
+
+# Define DC Source as a FixedSource:
+dc_source_lv() = FixedDCSource(voltage = 600.0)
+
+# Define a Frequency Estimator as a PLL based on Vikram Kaura and Vladimir Blaskoc 1997 paper:
+pll() = KauraPLL(
+    ω_lp = 500.0, #Cut-off frequency for LowPass filter of PLL filter.
+    kp_pll = 0.084,  #PLL proportional gain
+    ki_pll = 4.69,   #PLL integral gain
+)
+
+# Define an LCL filter:
+filt() = LCLFilter(lf = 0.08, rf = 0.003, cf = 0.074, lg = 0.2, rg = 0.01)</code></pre>
+<p>We will construct the inverter later by specifying to which static device is assigned.</p>
+<h2 id="dynamic_generator_definition" ><a href="#dynamic_generator_definition"> Dynamic Generator definition</a></h2><p>Similarly we will construct a dynamic generator as follows:</p>
+<pre><code class="julia"># Create the machine
+machine_oneDoneQ() = OneDOneQMachine(
+    0.0, #R
+    1.3125, #Xd
+    1.2578, #Xq
+    0.1813, #Xd_p
+    0.25, #Xq_p
+    5.89, #Td0_p
+    0.6, #Tq0_p
+)
+
+# Shaft
+shaft_no_damping() = SingleMass(
+    3.01, #H (M = 6.02 -&gt; H = M/2)
+    0.0, #D
+)
+
+# AVR: Type I: Resembles a DC1 AVR
+avr_type1() = AVRTypeI(
+    20.0, #Ka - Gain
+    0.01, #Ke
+    0.063, #Kf
+    0.2, #Ta
+    0.314, #Te
+    0.35, #Tf
+    0.001, #Tr
+    (min = -5.0, max = 5.0),
+    0.0039, #Ae - 1st ceiling coefficient
+    1.555, #Be - 2nd ceiling coefficient
+)
+
+# No TG
+tg_none() = TGFixed(1.0) #efficiency
+
+# No PSS
+pss_none() = PSSFixed(0.0) #Vs</code></pre>
+<p>Now we will construct the dynamic generator and inverter.</p>
+<h2 id="add_the_components_to_the_system" ><a href="#add_the_components_to_the_system"> Add the components to the system</a></h2><pre><code class="julia">for g in get_components(Generator, threebus_sys)
+    #Find the generator at bus 102
+    if get_number(get_bus(g)) == 102
+        #Create the dynamic generator
+        case_gen = DynamicGenerator(
+            get_name(g),
+            1.0, # ω_ref,
+            machine_oneDoneQ(), #machine
+            shaft_no_damping(), #shaft
+            avr_type1(), #avr
+            tg_none(), #tg
+            pss_none(), #pss
+        )
+        #Attach the dynamic generator to the system by specifying the dynamic and static part
+        add_component!(threebus_sys, case_gen, g)
+        #Find the generator at bus 103
+    elseif get_number(get_bus(g)) == 103
+        #Create the dynamic inverter
+        case_inv = DynamicInverter(
+            get_name(g),
+            1.0, # ω_ref,
+            converter_high_power(), #converter
+            outer_control(), #outer control
+            inner_control(), #inner control voltage source
+            dc_source_lv(), #dc source
+            pll(), #pll
+            filt(), #filter
+        )
+        #Attach the dynamic inverter to the system
+        add_component!(threebus_sys, case_inv, g)
+    end
+end
+show(stdout, &quot;text/plain&quot;, threebus_sys)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">System
+┌───────────────────┬─────────────┐
+│ Property          │ Value       │
+├───────────────────┼─────────────┤
+│ System Units Base │ SYSTEM_BASE │
+│ Base Power        │ 100.0       │
+│ Base Frequency    │ 60.0        │
+│ Num Components    │ 19          │
+└───────────────────┴─────────────┘
+
+Static Components
+┌─────────────────┬───────┬────────────────────────┬───────────────┐
+│ Type            │ Count │ Has Static Time Series │ Has Forecasts │
+├─────────────────┼───────┼────────────────────────┼───────────────┤
+│ Arc             │ 3     │ false                  │ false         │
+│ Area            │ 1     │ false                  │ false         │
+│ Bus             │ 3     │ false                  │ false         │
+│ Line            │ 3     │ false                  │ false         │
+│ LoadZone        │ 1     │ false                  │ false         │
+│ PowerLoad       │ 3     │ false                  │ false         │
+│ Source          │ 1     │ false                  │ false         │
+│ ThermalStandard │ 2     │ false                  │ false         │
+└─────────────────┴───────┴────────────────────────┴───────────────┘
+
+Dynamic Components
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┐
+│ Type                                                                                                                                                                                                                                                │ Count │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┤
+│ DynamicGenerator{PowerSystems.OneDOneQMachine, PowerSystems.SingleMass, PowerSystems.AVRTypeI, PowerSystems.TGFixed, PowerSystems.PSSFixed}                                                                                                         │ 1     │
+│ DynamicInverter{PowerSystems.AverageConverter, PowerSystems.OuterControl{PowerSystems.VirtualInertia, PowerSystems.ReactivePowerDroop}, PowerSystems.VoltageModeControl, PowerSystems.FixedDCSource, PowerSystems.KauraPLL, PowerSystems.LCLFilter} │ 1     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┘
+
+</code></pre></div><h3 id="save_the_system_in_a_json_file" ><a href="#save_the_system_in_a_json_file"> Save the system in a JSON file</a></h3><pre><code class="julia">to_json(threebus_sys, joinpath(file_dir, &quot;threebus_sys.json&quot;), force = true)</code></pre>
+
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+        <script src="/SIIP-Tutorial/libs/katex/katex.min.js"></script>
+<script src="/SIIP-Tutorial/libs/katex/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>
