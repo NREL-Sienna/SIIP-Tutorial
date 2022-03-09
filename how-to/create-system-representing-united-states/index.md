@@ -328,7 +328,7 @@ The `time_series_resolution` kwarg filters to only include time series with a ma
 ```!
 println("creating System")
 sys = System(rawsys; config_path = joinpath(config_dir, "us_system_validation.json"));
-sys
+show(stdout, "text/plain", sys)
 ```
 
 This all took reasonably long, so we can save our `System` using the serialization
