@@ -24,6 +24,14 @@ using TimeZones
 using DataFrames
 using CSV
 
+abstract type AbstractOS end
+abstract type Unix <: AbstractOS end
+abstract type BSD <: Unix end
+
+abstract type Windows <: AbstractOS end
+abstract type MacOS <: BSD end
+abstract type Linux <: BSD end
+
 if Sys.iswindows()
     const OS = Windows
 elseif Sys.isapple()
@@ -65,16 +73,16 @@ Let's download the test data.
 ```!
 println("downloading data...")
 datadir = joinpath(Utils.path(:folder), "how-to/create-system-representing-united-states/data")
+siip_data = joinpath(datadir, "SIIP")
 if !isdir(datadir)
   mkpath(datadir)
   tempfilename = download("https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1")
-  unzip(SIIPExamples.os, tempfilename, datadir)
-  siip_data = joinpath(datadir, "SIIP")
+  unzip(OS, tempfilename, datadir)
   mkpath(siip_data)
 end
 
 config_dir = joinpath(
-    joinpath(Utils.path(:folder), "how-to/create-system-representing-united-states")
+    joinpath(Utils.path(:folder), "how-to/create-system-representing-united-states"),
     "config",
 )
 ```
@@ -212,13 +220,13 @@ CSV.write(joinpath(siip_data, "branch.csv"), branch)
 
 The PowerSystems parser expects the files to be named a certain way.
 
-And, we need a "control_mode" column in dc-line data
+And, we need a `control_mode` column in dc-line data
 
 ```!
 dcbranch = DataFrame(CSV.File(joinpath(datadir, "dcline.csv")))
 !isnothing(interconnect) && filter!(row -> row[:from_bus_id] in bus.bus_id, dcbranch)
 !isnothing(interconnect) && filter!(row -> row[:to_bus_id] in bus.bus_id, dcbranch)
-dcbranch.name = "dcbranch" .\* string.(dcbranch.dcline_id)
+dcbranch.name = "dcbranch" .* string.(dcbranch.dcline_id)
 dcbranch[:, :control_mode] .= "Power"
 CSV.write(joinpath(siip_data, "dc_branch.csv"), dcbranch)
 ```
