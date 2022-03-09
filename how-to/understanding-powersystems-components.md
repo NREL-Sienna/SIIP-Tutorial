@@ -1,3 +1,1 @@
-# Understanding PowerSystems.jl components
-
-\literate{literate/power-systems-intro.jl}
+\literate{literate/01-understanding-powersystems-components.jl}
