@@ -8,3 +8,4 @@
 1. [Serialize data](/how-to/serialize-data/)
 1. [Calculate network matrices](/how-to/calculate-network-matrices/)
 1. [Create a System representing the U.S.](/how-to/create-system-representing-united-states/)
+1. [Load dynamics data](/how-to/load-dynamics-systems-data/)
