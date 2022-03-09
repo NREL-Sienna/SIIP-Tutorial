@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="creating_a_system_representing_the_entire_u.s." ><a href="#creating_a_system_representing_the_entire_u.s."> Creating a <code>System</code> representing the entire U.S.</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>This example demonstrates how to assemble a <code>System</code> representing the entire U.S. using
+<a href="https://github.com/NREL-SIIP/powersystems.jl">PowerSystems.jl</a> and the data assembled by
+<a href="https://arxiv.org/abs/2002.06155">Xu, et. al.</a>. We'll use the same tabular data parsing
+capability <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/04_parse_tabulardata.ipynb">demonstrated on the RTS-GMLC dataset</a>.</p>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  Activating project at `~/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states`
+   Installed Mocking ─────────────── v0.7.3
+   Installed WeakRefStrings ──────── v1.4.2
+   Installed Tables ──────────────── v1.7.0
+   Installed JSON3 ───────────────── v1.9.3
+   Installed LogExpFunctions ─────── v0.3.7
+   Installed TimeZones ───────────── v1.7.2
+   Installed PowerSystems ────────── v1.20.0
+   Installed InverseFunctions ────── v0.1.3
+   Installed InfrastructureSystems ─ v1.17.1
+   Installed CSV ─────────────────── v0.10.3
+    Building TimeZones → `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/2d4b6de8676b34525ac518de36006dc2e89c7e2e/build.log`
+Precompiling project...
+[33m  ✓ [39m[90mInverseFunctions[39m
+[33m  ✓ [39m[90mTables[39m
+[33m  ✓ [39m[90mWeakRefStrings[39m
+[33m  ✓ [39m[90mJSON3[39m
+[33m  ✓ [39m[90mMustache[39m
+[33m  ✓ [39mTimeSeries
+[33m  ✓ [39m[90mLogExpFunctions[39m
+[33m  ✓ [39m[90mPrettyTables[39m
+[33m  ✓ [39m[90mSpecialFunctions[39m
+[33m  ✓ [39m[90mDiffRules[39m
+[33m  ✓ [39mCSV
+[33m  ✓ [39m[90mForwardDiff[39m
+[33m  ✓ [39m[90mNLSolversBase[39m
+[33m  ✓ [39m[90mLineSearches[39m
+[33m  ✓ [39m[90mNLsolve[39m
+[33m  ✓ [39mDataFrames
+[33m  ✓ [39m[90mInfrastructureSystems[39m
+[33m  ✓ [39mPowerSystems
+  18 dependencies successfully precompiled in 115 seconds (68 already precompiled)
+  [33m18[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
+</code></pre></div><pre><code class="julia">using PowerSystems
+using TimeSeries
+using Dates
+using TimeZones
+using DataFrames
+using CSV
+
+if Sys.iswindows()
+    const OS = Windows
+elseif Sys.isapple()
+    const OS = MacOS
+else
+    const OS = Linux
+end
+
+function unzip(::Type&lbrace;&lt;:BSD&rbrace;, filename, directory)
+    @assert success(`tar -xvf $filename -C $directory`) &quot;Unable to extract $filename to $directory&quot;
+end
+
+function unzip(::Type&lbrace;Windows&rbrace;, filename, directory)
+    path_7z = if Base.VERSION &lt; v&quot;0.7-&quot;
+        &quot;$JULIA_HOME/7z&quot;
+    else
+        sep = Sys.iswindows() ? &quot;;&quot; : &quot;:&quot;
+        withenv(
+            &quot;PATH&quot; =&gt; string(
+                joinpath(Sys.BINDIR, &quot;..&quot;, &quot;libexec&quot;),
+                sep,
+                Sys.BINDIR,
+                sep,
+                ENV[&quot;PATH&quot;],
+            ),
+        ) do
+            Sys.which(&quot;7z&quot;)
+        end
+    end
+    @assert success(`$path_7z x $filename -y -o$directory`) &quot;Unable to extract $filename to $directory&quot;
+end</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: Linux not defined
+Stacktrace:
+</code></pre></div><h3 id="fetch_data" ><a href="#fetch_data"> Fetch Data</a></h3><p>PowerSystems.jl links to some test data that is suitable for this example.
+Let's download the test data.</p>
+<pre><code class="julia">println(&quot;downloading data...&quot;)
+datadir = joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states/data&quot;)
+if !isdir(datadir)
+  mkpath(datadir)
+  tempfilename = download(&quot;https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1&quot;)
+  unzip(SIIPExamples.os, tempfilename, datadir)
+end</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: SIIPExamples not defined
+Stacktrace:
+</code></pre></div>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>
