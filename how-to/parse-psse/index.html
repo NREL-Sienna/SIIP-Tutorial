@@ -45,46 +45,33 @@
 
 
 <div class="franklin-content" >
-  <h1 id="siip_tutorials" ><a href="#siip_tutorials"> SIIP Tutorials</a></h1><p>This website offers tutorials for SIIP related packages.</p>
-<p>These tutorials use the Julia programming language.</p>
-<p>If you'd like a place to start, check out the <a href="/SIIP-Tutorial/fundamentals/">fundamentals walkthrough</a>.</p>
-<h2 id="tutorials" ><a href="#tutorials"> Tutorials</a></h2><ul>
-<li><a href="/SIIP-Tutorial/fundamentals/">Fundamentals</a></li>
-</ul>
-<p>See <a href="/SIIP-Tutorial/how-to/">How To Guides</a> for more information.</p>
-<h1 id="how_to_guides" ><a href="#how_to_guides"> How to guides</a></h1><ul>
-<li><a href="/SIIP-Tutorial/how-to/parse-matpower/">Parse MATPOWER files</a></li>
-<li><a href="/SIIP-Tutorial/how-to/understanding-powersystems-components/">Understanding PowerSystems.jl Components</a></li>
-<li><a href="/SIIP-Tutorial/how-to/parse-psse/">Parse PSS/e files</a></li>
-</ul><h2 id="notes" ><a href="#notes"> Notes</a></h2><p>If you see a code block like the one below, unless otherwise specified it is a snippet of Julia code.
-Below the snippet, you may see the output of the snippet itself.
-If you run the snippet in a Julia REPL, you should see the same or a very similar output.</p>
-<pre><code class="julia">println(&quot;hello world&quot;)</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">hello world
-</code></pre></div><p>As part of this tutorial, you may also see a few callouts.</p>
-<fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>
+  <h1 id="parsing_pss/e_*.raw_files" ><a href="#parsing_pss/e_*.raw_files"> Parsing PSS/e <code>*.RAW</code> Files</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>An example of how to parse PSS/e files and create a <code>System</code> using <a href="github.com/NREL-SIIP/PowerSystems.jl">PowerSystems.jl</a></p>
+<h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><pre><code class="julia">using PowerSystems
+using TimeSeries</code></pre>
+<h3 id="fetch_data" ><a href="#fetch_data"> Fetch Data</a></h3><p>PowerSystems.jl links to some test data that is suitable for this example.
+Let's download the test data</p>
+<pre><code class="julia">PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;)
+base_dir = dirname(dirname(pathof(PowerSystems)));</code></pre>
+<h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><pre><code class="julia">sys = System(joinpath(base_dir, &quot;data&quot;, &quot;psse_raw&quot;, &quot;RTS-GMLC.RAW&quot;));
 
-This is a tip about some useful information.
+sys</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(Bus(202, BACON, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1877810214196211, 1.04843998, (min = 0.9, max = 1.1), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22, 5.29, 1.08), Dict{String, Any}())
+Bus(314, CHAIN, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0559889406735017, 1.04630995, (min = 0.9, max = 1.1), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36, 6.109999999999999, 1.23), Dict{String, Any}())
+Bus(113, ARNE, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.03470004, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(14, 2.65, 0.54), Dict{String, Any}())
+Bus(117, ASTON, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.19956391373276003, 1.04782999, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(17, 3.33, 0.68), Dict{String, Any}())
+Bus(115, ARTHUR, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.13892297247099264, 1.04334998, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16, 6.109999999999999, 1.23), Dict{String, Any}())
+Bus(108, ALGER, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23997701256268875, 1.01023996, (min = 0.9, max = 1.1), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12, 5.29, 1.08), Dict{String, Any}())
+Bus(124, AVERY, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.04159800285910765, 1.01154995, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16, 6.109999999999999, 1.23), Dict{String, Any}())
+Bus(308, CARREL, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.26499107140227146, 1.01056004, (min = 0.9, max = 1.1), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32, 5.29, 1.08), Dict{String, Any}())
+Bus(216, BASOV, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0820320456400603, 1.04556, (min = 0.9, max = 1.1), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26, 6.109999999999999, 1.23), Dict{String, Any}())
+Bus(218, BAYLE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.17444094634785287, 1.04999995, (min = 0.9, max = 1.1), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(27, 3.33, 0.68), Dict{String, Any}())
 
-</fieldset><fieldset class="note"><legend class="note-legend">📝 Note</legend>
+***Omitted 530 components***
 
-This is a note about something important.
 
-</fieldset><fieldset class="exercise"><legend class="exercise-legend">🏋  Exercise</legend>
 
-This is an exercise for the reader.
-For example, can you find the source markdown page for this webpage?
-
-</fieldset><p>You can find the source for this web page here: <a href="https://github.com/NREL-SIIP/SIIP-Tutorial">https://github.com/NREL-SIIP/SIIP-Tutorial</a></p>
-<p>If you have any feedback or questions, feel free to contact us on the SIIP team.</p>
-<h2 id="authors" ><a href="#authors"> Authors</a></h2><ul>
-<li>Clayton Barrows</li>
-<li>Dan Thom</li>
-<li>Dheepak Krishnamurthy</li>
-<li>Jose Daniel Lara</li>
-<li>Sourabh Dalvi</li>
-</ul>
-
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([114, 123, 110, 305, 220, 308, 325, 117, 215, 219, 319, 115, 320, 112, 324, 210, 207, 104, 205, 218, 316, 224, 122, 111, 302, 204, 118, 119, 216, 203, 108, 310, 321, 103, 208, 318, 124, 304, 307, 211, 301, 317, 116, 202, 312, 213, 217, 222, 106, 109, 107, 212, 303, 102, 209, 120, 323, 101, 105, 223, 221, 313, 201, 121, 206, 311, 214, 306, 314, 113, 309, 322, 315]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("e1c10635-252e-479c-a367-02fc60981aef"), nothing, Dict{String, Any}()))</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
