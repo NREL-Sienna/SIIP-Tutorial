@@ -2,7 +2,7 @@
 
 julia_version = "1.9.0-DEV"
 manifest_format = "2.0"
-project_hash = "069689368ae837da5f8fee949a063700d40b8011"
+project_hash = "0e14a0b89c0056bfcb1705cb14580cb38cd9e971"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -84,9 +84,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "19a35467a82e236ff51bc17a3a44b69ef35185a2"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
 version = "1.0.8+0"
-
-[[deps.CRC32c]]
-uuid = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
 
 [[deps.CSV]]
 deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "SentinelArrays", "Tables", "Unicode", "WeakRefStrings"]
@@ -366,18 +363,6 @@ deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "Lo
 git-tree-sha1 = "1bd6fc0c344fc0cbee1f42f8d2e7ec8253dda2d2"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.25"
-
-[[deps.FranklinParser]]
-deps = ["OrderedCollections", "REPL"]
-git-tree-sha1 = "a8865d4a2fefd9ed276d9eff3fbb1cf6bb3b9828"
-uuid = "796511e7-1510-466f-ad0c-1823c64bcafa"
-version = "0.5.0"
-
-[[deps.FranklinTemplates]]
-deps = ["LiveServer"]
-git-tree-sha1 = "6a0a98f70cdb16cc63e013e3ed6743f3af14309c"
-uuid = "3a985190-f512-4703-8d38-2a7944ed5916"
-version = "0.8.25"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Pkg", "Zlib_jll"]
@@ -767,12 +752,6 @@ deps = ["Base64", "IOCapture", "JSON", "REPL"]
 git-tree-sha1 = "b856be4fe3dfa4146e5c890f1d9865f4e2e4779d"
 uuid = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 version = "2.13.0"
-
-[[deps.LiveServer]]
-deps = ["Crayons", "FileWatching", "HTTP", "Pkg", "Sockets", "Test"]
-git-tree-sha1 = "3c04368686c010fd6cb7b9a2d871b68457de244c"
-uuid = "16fef848-5104-11e9-1b77-fb7a48bbb589"
-version = "0.7.3"
 
 [[deps.LogExpFunctions]]
 deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
@@ -1535,14 +1514,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "79c31e7844f6ecf779705fbc12146eb190b7d845"
 uuid = "c5fb5394-a638-5e4d-96e5-b29de1b5cf10"
 version = "1.4.0+3"
-
-[[deps.Xranklin]]
-deps = ["CRC32c", "Dates", "FranklinParser", "FranklinTemplates", "IOCapture", "LiveServer", "Logging", "OrderedCollections", "Pkg", "REPL", "Serialization", "TOML", "URIs"]
-git-tree-sha1 = "e40f5bad4b90ee6fa79e268348af0eb7a188dd25"
-repo-rev = "main"
-repo-url = "https://github.com/tlienart/Xranklin.jl"
-uuid = "558449b0-171e-4e1f-900f-d076a5ddf486"
-version = "0.1.0"
 
 [[deps.YAML]]
 deps = ["Base64", "Dates", "Printf", "StringEncodings"]
