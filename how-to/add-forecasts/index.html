@@ -59,25 +59,195 @@ base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&qu
 sys = System(joinpath(base_dir, &quot;matpower&quot;, &quot;case5_re.m&quot;))
 sys</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/parsers/pm_io/matpower.jl:245
+└ @ PowerSystems ~/.julia/packages/PowerSystems/0u1wh/src/parsers/pm_io/matpower.jl:245
 ┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/parsers/pm_io/matpower.jl:245
-</code></pre><pre><code class="code-result language-plaintext">PowerSystems.System(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Arc(Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
+└ @ PowerSystems ~/.julia/packages/PowerSystems/0u1wh/src/parsers/pm_io/matpower.jl:245
+</code></pre><!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
 
-***Omitted 21 components***
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
 
+  tr:nth-child(odd) {
+      background: #eee;
+  }
 
+  tr:nth-child(even) {
+      background: #fff;
+  }
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("19d534fa-3c94-4840-b04c-04b0b2677cda"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="define_pointers_to_time_series_files" ><a href="#define_pointers_to_time_series_files"> Define pointers to time series files</a></h3><p>For example, if we want to add a bunch of time series files, say one for each load and
+  tr.header {
+      background: navy !important;
+      color: white;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: lightgray !important;
+      color: black;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">SYSTEM_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">30</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: #fff !important;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: #fff !important;
+      color: dimgray;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">6</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PhaseShiftingTransformer</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">RenewableDispatch</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+</div><h3 id="define_pointers_to_time_series_files" ><a href="#define_pointers_to_time_series_files"> Define pointers to time series files</a></h3><p>For example, if we want to add a bunch of time series files, say one for each load and
 one for each renewable generator, we need to define pointers to each .csv file containing
 the time series in the following format (PowerSystems.jl also supports a CSV format for this file)</p>
 <pre><code class="julia">base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;);
@@ -88,88 +258,329 @@ open(fname, &quot;r&quot;) do f
 end</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">[
   {
+                           "simulation": "DAY_AHEAD",
+                           "resolution": 3600,
+                             "category": "Generator",
                        "component_name": "SolarBusC",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./gen/Renewable/PV/da_solar5.csv",
-                           "resolution": 3600,
                                "module": "PowerSystems",
-                             "category": "Generator",
+                                 "type": "SingleTimeSeries",
+                                 "name": "max_active_power",
             "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
+     "scaling_factor_multiplier_module": "PowerSystems",
+                 "normalization_factor": 1,
+                            "data_file": "./gen/Renewable/PV/da_solar5.csv"
   },
   {
+                           "simulation": "DAY_AHEAD",
+                           "resolution": 3600,
+                             "category": "Generator",
                        "component_name": "WindBusA",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./gen/Renewable/WIND/da_wind5.csv",
-                           "resolution": 3600,
                                "module": "PowerSystems",
-                             "category": "Generator",
+                                 "type": "SingleTimeSeries",
+                                 "name": "max_active_power",
             "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
+     "scaling_factor_multiplier_module": "PowerSystems",
+                 "normalization_factor": 1,
+                            "data_file": "./gen/Renewable/WIND/da_wind5.csv"
   },
   {
+                           "simulation": "DAY_AHEAD",
+                           "resolution": 3600,
+                             "category": "ElectricLoad",
                        "component_name": "bus2",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./load/da_load5.csv",
-                           "resolution": 3600,
                                "module": "PowerSystems",
-                             "category": "ElectricLoad",
+                                 "type": "SingleTimeSeries",
+                                 "name": "max_active_power",
             "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
+     "scaling_factor_multiplier_module": "PowerSystems",
+                 "normalization_factor": 1,
+                            "data_file": "./load/da_load5.csv"
   },
   {
+                           "simulation": "DAY_AHEAD",
+                           "resolution": 3600,
+                             "category": "ElectricLoad",
                        "component_name": "bus3",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./load/da_load5.csv",
-                           "resolution": 3600,
                                "module": "PowerSystems",
-                             "category": "ElectricLoad",
+                                 "type": "SingleTimeSeries",
+                                 "name": "max_active_power",
             "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
+     "scaling_factor_multiplier_module": "PowerSystems",
+                 "normalization_factor": 1,
+                            "data_file": "./load/da_load5.csv"
   },
   {
-                       "component_name": "bus4",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./load/da_load5.csv",
-                           "resolution": 3600,
-                               "module": "PowerSystems",
-                             "category": "ElectricLoad",
-            "scaling_factor_multiplier": "get_max_active_power",
                            "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
+                           "resolution": 3600,
+                             "category": "ElectricLoad",
+                       "component_name": "bus4",
+                               "module": "PowerSystems",
+                                 "type": "SingleTimeSeries",
+                                 "name": "max_active_power",
+            "scaling_factor_multiplier": "get_max_active_power",
+     "scaling_factor_multiplier_module": "PowerSystems",
+                 "normalization_factor": 1,
+                            "data_file": "./load/da_load5.csv"
   }
 ]</code></pre></div><h3 id="read_and_assign_time_series_to_system_using_these_parameters." ><a href="#read_and_assign_time_series_to_system_using_these_parameters."> Read and assign time series to <code>System</code> using these parameters.</a></h3><pre><code class="julia">add_time_series!(sys, fname)
 sys</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Arc(Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
+<div class="code-output"><!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
 
-***Omitted 21 components***
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
 
+  tr:nth-child(odd) {
+      background: #eee;
+  }
 
+  tr:nth-child(even) {
+      background: #fff;
+  }
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Millisecond(3600000), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("19d534fa-3c94-4840-b04c-04b0b2677cda"), nothing, Dict{String, Any}()))</code></pre></div>
+  tr.header {
+      background: navy !important;
+      color: white;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: lightgray !important;
+      color: black;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">SYSTEM_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">30</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: #fff !important;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: #fff !important;
+      color: dimgray;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">6</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PhaseShiftingTransformer</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">RenewableDispatch</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: #fff !important;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: #fff !important;
+      color: dimgray;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Time Series Summary</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Components with time series data</td>
+      <td style = "text-align: left;">5</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total StaticTimeSeries</td>
+      <td style = "text-align: left;">5</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total Forecasts</td>
+      <td style = "text-align: left;">0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Resolution</td>
+      <td style = "text-align: left;">60 minutes</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+</div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with

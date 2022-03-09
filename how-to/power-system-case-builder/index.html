@@ -226,22 +226,301 @@ PowerSystemCaseBuilder.SIIPExampleSystems
 └─────────────────────────────────┴────────────────────────────────────────────────────────────┘
 </code></pre></div><h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><p><em>The first time this is run, it will parse csv data. Subsequent executions will rely on serialized data and will execute much faster</em></p>
 <pre><code class="julia">sys = build_system(SIIPExampleSystems, &quot;5_bus_hydro_ed_sys&quot;; force_build = true, skip_serialization = true)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(LoadZone(1, 0.285714286, 0.09390714300000001)
-LoadZone(2, 0.428571428, 0.140871428)
-HydroDispatch(HydroDispatch2, true, Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), 0.0, 0.0, 1.4142135623730951, PowerSystems.PrimeMoversModule.PrimeMovers.HY = 16, (min = 0.0, max = 1.0), (min = -1.0, max = 1.0), nothing, nothing, 10.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(0.0), 0.0), PowerSystems.Service[], nothing, Dict{String, Any}())
-Line(branch2, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}())), 0.00304, 0.0304, (from = 0.00329, to = 0.00329), 0.133, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
-Line(branch4, true, 0.0, 0.0, Arc(Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.00022378718134155663, 1.04407, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}()), Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0001705004641357477, 1.0, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}())), 0.00108, 0.0108, (from = 0.00926, to = 0.00926), 0.8, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
-Line(branch3, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0010936770654406082, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}())), 0.00064, 0.0064, (from = 0.01563, to = 0.01563), 0.6659999999999999, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
-Line(branch1, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.00022378718134155663, 1.04407, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}())), 0.00281, 0.0281, (from = 0.00356, to = 0.00356), 0.133, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
-Line(branch7, true, 0.0, 0.0, Arc(Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0010936770654406082, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}())), 0.00297, 0.0297, (from = 0.00337, to = 0.00337), 0.133, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
-ThermalStandard(Solitude, true, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0001705004641357477, 1.0, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}()), 0.6285714285714286, 0.7428571428571429, 1.2457273918052367, (min = 0.4857142857142857, max = 1.0), (min = -0.7428571428571429, max = 0.7428571428571429), (up = 0.42857142857142855, down = 0.42857142857142855), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Vector{Tuple{Float64, Float64}}}([(0.0, 0.0), (525.0, 17.5), (1137.5, 35.0)]), 0.0, 0.0, 0.0), 35.0, (up = 4.0, down = 4.0), PowerSystems.PrimeMoversModule.PrimeMovers.CT = 8, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
-ThermalStandard(Park City, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), 1.0, 0.7727272727272727, 1.2637671613143495, (min = 0.3, max = 1.0), (min = -0.7727272727272727, max = 0.7727272727272727), (up = 1.3636363636363635, down = 1.3636363636363635), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Vector{Tuple{Float64, Float64}}}([(0.0, 0.0), (165.0, 11.0)]), 0.0, 0.0, 0.0), 11.0, (up = 4.0, down = 4.0), PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[VariableReserve(REG1, true, 5.0, 0.001, Dict{String, Any}())], 10000.0, nothing, Dict{String, Any}())
+<div class="code-output"><!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
 
-***Omitted 26 components***
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
 
+  tr:nth-child(odd) {
+      background: #eee;
+  }
 
+  tr:nth-child(even) {
+      background: #fff;
+  }
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Millisecond(3600000), InfrastructureSystems.ForecastParameters(12, Dates.DateTime("2020-01-01T00:00:00"), Dates.Hour(1), 2005)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.DEVICE_BASE = 1), InfrastructureSystems.InfrastructureSystemsInternal(UUID("2d553900-3a27-4a96-aacf-ce13edd6b8b8"), nothing, Dict{String, Any}()))</code></pre></div>
+  tr.header {
+      background: navy !important;
+      color: white;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: lightgray !important;
+      color: black;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">DEVICE_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">35</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: #fff !important;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: #fff !important;
+      color: dimgray;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">6</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">HydroDispatch</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">HydroEnergyReservoir</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">HydroPumpedStorage</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">TapTransformer</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">VariableReserve{PowerSystems.ReserveUp}</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: #fff !important;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: #fff !important;
+      color: dimgray;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Time Series Summary</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Components with time series data</td>
+      <td style = "text-align: left;">6</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total StaticTimeSeries</td>
+      <td style = "text-align: left;">12</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total Forecasts</td>
+      <td style = "text-align: left;">12</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Resolution</td>
+      <td style = "text-align: left;">60 minutes</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">First initial time</td>
+      <td style = "text-align: left;">2020-01-01T00:00:00</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Last initial time</td>
+      <td style = "text-align: left;">2020-03-24T12:00:00</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Horizon</td>
+      <td style = "text-align: left;">12</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Interval</td>
+      <td style = "text-align: left;">60 minutes</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Forecast window count</td>
+      <td style = "text-align: left;">2005</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+</div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with

@@ -56,22 +56,192 @@ base_dir = dirname(dirname(pathof(PowerSystems)));</code></pre>
 <h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><pre><code class="julia">sys = System(joinpath(base_dir, &quot;data&quot;, &quot;psse_raw&quot;, &quot;RTS-GMLC.RAW&quot;));
 
 sys</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(Bus(202, BACON, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.1877810214196211, 1.04843998, (min = 0.9, max = 1.1), 138.0, Area(2, 0.0, 0.0, 0.0), LoadZone(22, 5.29, 1.08), Dict{String, Any}())
-Bus(314, CHAIN, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0559889406735017, 1.04630995, (min = 0.9, max = 1.1), 230.0, Area(3, 0.0, 0.0, 0.0), LoadZone(36, 6.109999999999999, 1.23), Dict{String, Any}())
-Bus(113, ARNE, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.03470004, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(14, 2.65, 0.54), Dict{String, Any}())
-Bus(117, ASTON, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.19956391373276003, 1.04782999, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(17, 3.33, 0.68), Dict{String, Any}())
-Bus(115, ARTHUR, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.13892297247099264, 1.04334998, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16, 6.109999999999999, 1.23), Dict{String, Any}())
-Bus(108, ALGER, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.23997701256268875, 1.01023996, (min = 0.9, max = 1.1), 138.0, Area(1, 0.0, 0.0, 0.0), LoadZone(12, 5.29, 1.08), Dict{String, Any}())
-Bus(124, AVERY, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.04159800285910765, 1.01154995, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(16, 6.109999999999999, 1.23), Dict{String, Any}())
-Bus(308, CARREL, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.26499107140227146, 1.01056004, (min = 0.9, max = 1.1), 138.0, Area(3, 0.0, 0.0, 0.0), LoadZone(32, 5.29, 1.08), Dict{String, Any}())
-Bus(216, BASOV, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0820320456400603, 1.04556, (min = 0.9, max = 1.1), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(26, 6.109999999999999, 1.23), Dict{String, Any}())
-Bus(218, BAYLE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.17444094634785287, 1.04999995, (min = 0.9, max = 1.1), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(27, 3.33, 0.68), Dict{String, Any}())
+<div class="code-output"><!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
 
-***Omitted 530 components***
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
 
+  tr:nth-child(odd) {
+      background: #eee;
+  }
 
+  tr:nth-child(even) {
+      background: #fff;
+  }
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([114, 123, 110, 305, 220, 308, 325, 117, 215, 219, 319, 115, 320, 112, 324, 210, 207, 104, 205, 218, 316, 224, 122, 111, 302, 204, 118, 119, 216, 203, 108, 310, 321, 103, 208, 318, 124, 304, 307, 211, 301, 317, 116, 202, 312, 213, 217, 222, 106, 109, 107, 212, 303, 102, 209, 120, 323, 101, 105, 223, 221, 313, 201, 121, 206, 311, 214, 306, 314, 113, 309, 322, 315]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("0e4cb496-0583-46dd-87d8-4d5aef6eeaad"), nothing, Dict{String, Any}()))</code></pre></div>
+  tr.header {
+      background: navy !important;
+      color: white;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: lightgray !important;
+      color: black;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">SYSTEM_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">539</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: #fff !important;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: #fff !important;
+      color: dimgray;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">108</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">73</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">FixedAdmittance</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">105</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">21</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">51</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">TapTransformer</td>
+      <td style = "text-align: left;">15</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">160</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+</div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with

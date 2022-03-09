@@ -60,56 +60,226 @@ base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&qu
 sys = System(joinpath(base_dir, &quot;matpower&quot;, &quot;case5_re.m&quot;))
 sys</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/parsers/pm_io/matpower.jl:245
+└ @ PowerSystems ~/.julia/packages/PowerSystems/0u1wh/src/parsers/pm_io/matpower.jl:245
 ┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/M5MJB/src/parsers/pm_io/matpower.jl:245
-</code></pre><pre><code class="code-result language-plaintext">PowerSystems.System(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())
-Arc(Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.012822061349776342, 1.08407, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
-Arc(Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()))
+└ @ PowerSystems ~/.julia/packages/PowerSystems/0u1wh/src/parsers/pm_io/matpower.jl:245
+</code></pre><!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
 
-***Omitted 21 components***
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
 
+  tr:nth-child(odd) {
+      background: #eee;
+  }
 
+  tr:nth-child(even) {
+      background: #fff;
+  }
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("d7cff212-6f1a-49f0-825f-9551cdf68d9a"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="ybus" ><a href="#ybus"> Ybus</a></h3><pre><code class="julia">ybus = Ybus(sys)</code></pre>
+  tr.header {
+      background: navy !important;
+      color: white;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: lightgray !important;
+      color: black;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">SYSTEM_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">30</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: #fff !important;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: #fff !important;
+      color: dimgray;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">6</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PhaseShiftingTransformer</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">RenewableDispatch</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+</div><h3 id="ybus" ><a href="#ybus"> Ybus</a></h3><pre><code class="julia">ybus = Ybus(sys)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">PowerNetworkMatrix
     Dimension 1, [1, 2, 3, 4, 10]
     Dimension 2, [1, 2, 3, 4, 10]
 And data, a (5, 5):
-  22.250685688535143 - 222.48437688535142im  -3.5234840209999647 + 35.234840209999646im                      ⋅                      -3.2569046378322044 + 32.56904637832204im   -15.470297029702971 + 154.7029702970297im
- -3.5234840209999647 + 35.234840209999646im    12.69106744600913 - 126.89785446009131im  -9.167583425009166 + 91.67583425009167im                        ⋅                                           ⋅     
-                      ⋅                       -9.167583425009166 + 91.67583425009167im   15.524984093269492 - 155.2405809326949im    -7.457074339365532 + 63.377922205722975im                       ⋅     
- -3.2569046378322044 + 32.56904637832204im                        ⋅                      -5.240674104131404 + 63.599562229246395im   12.947972006095863 - 129.46663337161624im  -3.3336667000033335 + 33.33666700003334im
- -15.470297029702971 + 154.7029702970297im                        ⋅                                          ⋅                      -3.3336667000033335 + 33.33666700003334im    18.803963729706304 - 188.02063729706305im</code></pre></div><h3 id="ptdf" ><a href="#ptdf"> PTDF</a></h3><pre><code class="julia">ptdf = PTDF(sys)</code></pre>
+  22.2507-222.484im  -3.52348+35.2348im           ⋅           -3.2569+32.569im   -15.4703+154.703im
+ -3.52348+35.2348im   12.6911-126.898im  -9.16758+91.6758im           ⋅                   ⋅    
+          ⋅          -9.16758+91.6758im    15.525-155.241im  -7.45707+63.3779im           ⋅    
+  -3.2569+32.569im            ⋅          -5.24067+63.5996im    12.948-129.467im  -3.33367+33.3367im
+ -15.4703+154.703im           ⋅                   ⋅          -3.33367+33.3367im    18.804-188.021im</code></pre></div><h3 id="ptdf" ><a href="#ptdf"> PTDF</a></h3><pre><code class="julia">ptdf = PTDF(sys)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">PowerNetworkMatrix
     Dimension 1, ["bus1-bus2-i_1", "bus1-bus4-i_2", "bus1-bus5-i_3", "bus2-bus3-i_4", "bus3-bus4-i_6", "bus3-bus4-i_5", "bus4-bus5-i_7"]
     Dimension 2, [1, 2, 3, 4, 10]
 And data, a (7, 5):
-  0.23244980808604176  -0.3717496616981997   -0.2196270379853814   0.0   0.19123986981040003
-  0.4166701041818629    0.20180695920759403   0.1192261063349213   0.0   0.3428006120277377
-  0.35088008773209495   0.16994270249060545   0.10040093165046003  0.0  -0.534040481838138
-  0.23244980808604185   0.6282503383018003   -0.21962703798538125  0.0   0.19123986981040006
-  0.11622490404302094   0.3141251691509003    0.39018648100730935  0.0   0.09561993490520007
-  0.11622490404302094   0.3141251691509003    0.39018648100730935  0.0   0.09561993490520007
- -0.35088008773209517  -0.16994270249060553  -0.10040093165046005  0.0  -0.46595951816186226</code></pre></div><h3 id="lodf" ><a href="#lodf"> LODF</a></h3><pre><code class="julia">lodf = LODF(sys)</code></pre>
+  0.23245   -0.37175   -0.219627  0.0   0.19124
+  0.41667    0.201807   0.119226  0.0   0.342801
+  0.35088    0.169943   0.100401  0.0  -0.53404
+  0.23245    0.62825   -0.219627  0.0   0.19124
+  0.116225   0.314125   0.390186  0.0   0.0956199
+  0.116225   0.314125   0.390186  0.0   0.0956199
+ -0.35088   -0.169943  -0.100401  0.0  -0.46596</code></pre></div><h3 id="lodf" ><a href="#lodf"> LODF</a></h3><pre><code class="julia">lodf = LODF(sys)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">PowerNetworkMatrix
     Dimension 1, ["bus1-bus2-i_1", "bus1-bus4-i_2", "bus1-bus5-i_3", "bus2-bus3-i_4", "bus3-bus4-i_6", "bus3-bus4-i_5", "bus4-bus5-i_7"]
     Dimension 2, ["bus1-bus2-i_1", "bus1-bus4-i_2", "bus1-bus5-i_3", "bus2-bus3-i_4", "bus3-bus4-i_6", "bus3-bus4-i_5", "bus4-bus5-i_7"]
 And data, a (7, 7):
- -1.0                   0.39848773353202505   0.35809994993668426  -0.9999999999999992   -0.36015442614025406  -0.36015442614025406  -0.35809994993668465
-  0.5428571428571427   -1.0                   0.6419000500633144    0.5428571428571423    0.19551240276185214   0.19551240276185214  -0.6419000500633155
-  0.45714285714285685   0.6015122664679742   -1.0                   0.4571428571428563    0.16464202337840178   0.16464202337840178   1.0000000000000007
- -0.9999999999999998    0.3984877335320252    0.35809994993668476  -1.0                  -0.3601544261402538   -0.3601544261402538   -0.3580999499366847
- -0.5000000000000001    0.19924386676601263   0.17904997496834213  -0.4999999999999993   -1.0                   0.6398455738597462   -0.1790499749683424
- -0.5000000000000001    0.19924386676601263   0.17904997496834213  -0.4999999999999993    0.6398455738597462   -1.0                  -0.1790499749683424
- -0.4571428571428572   -0.6015122664679746    1.0                  -0.45714285714285674  -0.1646420233784018   -0.1646420233784018   -1.0</code></pre></div><h3 id="indexing" ><a href="#indexing"> Indexing</a></h3><p>Note that the axes of these matrices that correspond to buses are indexed by bus number
+ -1.0        0.398488   0.3581   -1.0       -0.360154  -0.360154  -0.3581
+  0.542857  -1.0        0.6419    0.542857   0.195512   0.195512  -0.6419
+  0.457143   0.601512  -1.0       0.457143   0.164642   0.164642   1.0
+ -1.0        0.398488   0.3581   -1.0       -0.360154  -0.360154  -0.3581
+ -0.5        0.199244   0.17905  -0.5       -1.0        0.639846  -0.17905
+ -0.5        0.199244   0.17905  -0.5        0.639846  -1.0       -0.17905
+ -0.457143  -0.601512   1.0      -0.457143  -0.164642  -0.164642  -1.0</code></pre></div><h3 id="indexing" ><a href="#indexing"> Indexing</a></h3><p>Note that the axes of these matrices that correspond to buses are indexed by bus number
 (<code>::Int64</code>) while the branch axes are indexed by branch name (<code>::String</code>). You can access
 specific elements of the matrices as follows:</p>
 <pre><code class="julia">ptdf[&quot;bus3-bus4-i_6&quot;, 3]</code></pre>

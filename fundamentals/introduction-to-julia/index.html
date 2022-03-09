@@ -61,7 +61,7 @@ a more comprehensive introduction to Julia <a href="https://julialang.org/learni
 To make <code>π</code> (and most other greek letters), type <code>\pi</code> and then press <code>TAB</code>.</p>
 <pre><code class="julia">\pi&lt;TAB&gt;</code></pre>
 <pre><code class="julia">π</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">π</code></pre></div><pre><code class="julia">typeof(π)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">π = 3.1415926535897...</code></pre></div><pre><code class="julia">typeof(π)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">Irrational{:π}</code></pre></div><p>Julia has native support for complex numbers:</p>
 <pre><code class="julia">typeof(2 + 3im)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">Complex{Int64}</code></pre></div><p>Double quotes are used for strings</p>
@@ -91,11 +91,17 @@ careful, this can throw up all manner of issues. For example:</p>
 <div class="code-output"><pre><code class="code-result language-plaintext">false</code></pre></div><h3 id="vectors,_matrices_and_arrays" ><a href="#vectors,_matrices_and_arrays"> Vectors, Matrices and Arrays</a></h3><p>Similar to Matlab, Julia has native support for vectors, matrices and tensors; all of which are represented by arrays of different dimensions.</p>
 <p>Vectors are constructed by comma-separated elements surrounded by square brackets:</p>
 <pre><code class="julia">b = [5, 6]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[5, 6]</code></pre></div><p>Matrices can by constructed with spaces separating the columns, and semicolons separating the rows:</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">2-element Vector{Int64}:
+ 5
+ 6</code></pre></div><p>Matrices can by constructed with spaces separating the columns, and semicolons separating the rows:</p>
 <pre><code class="julia">A = [1 2; 3 4]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[1 2; 3 4]</code></pre></div><p>We can do linear algebra:</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">2×2 Matrix{Int64}:
+ 1  2
+ 3  4</code></pre></div><p>We can do linear algebra:</p>
 <pre><code class="julia">x = A \ b</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[-3.9999999999999987, 4.499999999999999]</code></pre></div><pre><code class="julia">A \* x</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">2-element Vector{Float64}:
+ -3.9999999999999987
+  4.499999999999999</code></pre></div><pre><code class="julia">A \* x</code></pre>
 <div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: "*" is not a unary operator
 Stacktrace:
 </code></pre></div><pre><code class="julia">A \* x == b</code></pre>
@@ -125,13 +131,22 @@ b</code></pre>
 <pre><code class="julia">t.word</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">"hello"</code></pre></div><h3 id="dictionaries" ><a href="#dictionaries"> Dictionaries</a></h3><p>Similar to Python, Julia has native support for dictionaries. Dictionaries provide a very generic way of mapping keys to values. For example, a map of integers to strings,</p>
 <pre><code class="julia">d1 = Dict(1 =&gt; &quot;A&quot;, 2 =&gt; &quot;B&quot;, 4 =&gt; &quot;D&quot;)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">Dict(4 => "D", 2 => "B", 1 => "A")</code></pre></div><p>Looking up a values uses the bracket syntax,</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict{Int64, String} with 3 entries:
+  4 => "D"
+  2 => "B"
+  1 => "A"</code></pre></div><p>Looking up a values uses the bracket syntax,</p>
 <pre><code class="julia">d1[2]</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">"B"</code></pre></div><p>Dictionaries support non-integer keys and can mix data types,</p>
 <pre><code class="julia">Dict(&quot;A&quot; =&gt; 1, &quot;B&quot; =&gt; 2.5, &quot;D&quot; =&gt; 2 - 3im)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">Dict{String, Number}("B" => 2.5, "A" => 1, "D" => 2 - 3im)</code></pre></div><p>Dictionaries can be nested</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict{String, Number} with 3 entries:
+  "B" => 2.5
+  "A" => 1
+  "D" => 2-3im</code></pre></div><p>Dictionaries can be nested</p>
 <pre><code class="julia">d2 = Dict(&quot;A&quot; =&gt; 1, &quot;B&quot; =&gt; 2, &quot;D&quot; =&gt; Dict(:foo =&gt; 3, :bar =&gt; 4))</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">Dict{String, Any}("B" => 2, "A" => 1, "D" => Dict(:bar => 4, :foo => 3))</code></pre></div><pre><code class="julia">d2[&quot;B&quot;]</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict{String, Any} with 3 entries:
+  "B" => 2
+  "A" => 1
+  "D" => Dict(:bar=>4, :foo=>3)</code></pre></div><pre><code class="julia">d2[&quot;B&quot;]</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">2</code></pre></div><pre><code class="julia">d2[&quot;D&quot;][:foo]</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">3</code></pre></div><h3 id="for_each_loops" ><a href="#for_each_loops"> For-Each Loops</a></h3><p>Julia has native support for for-each style loops with the syntax <code>for &lt;value&gt; in &lt;collection&gt; end</code>.</p>
 <pre><code class="julia">for i in 1:5
@@ -182,17 +197,37 @@ end</code></pre>
 </code></pre></div><h3 id="comprehensions" ><a href="#comprehensions"> Comprehensions</a></h3><p>Similar to languages like Haskell and Python, Julia supports the use of simple loops in the construction of arrays and dictionaries, called comprehenions.</p>
 <p>A list of increasing integers,</p>
 <pre><code class="julia">[i for i in 1:5]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[1, 2, 3, 4, 5]</code></pre></div><p>Matrices can be built by including multiple indices,</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">5-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 4
+ 5</code></pre></div><p>Matrices can be built by including multiple indices,</p>
 <pre><code class="julia">[i * j for i in 1:5, j in 5:10]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[5 6 7 8 9 10; 10 12 14 16 18 20; 15 18 21 24 27 30; 20 24 28 32 36 40; 25 30 35 40 45 50]</code></pre></div><p>Conditional statements can be used to filter out some values,</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">5×6 Matrix{Int64}:
+  5   6   7   8   9  10
+ 10  12  14  16  18  20
+ 15  18  21  24  27  30
+ 20  24  28  32  36  40
+ 25  30  35  40  45  50</code></pre></div><p>Conditional statements can be used to filter out some values,</p>
 <pre><code class="julia">[i for i in 1:10 if i % 2 == 1]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[1, 3, 5, 7, 9]</code></pre></div><p>A similar syntax can be used for building dictionaries</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">5-element Vector{Int64}:
+ 1
+ 3
+ 5
+ 7
+ 9</code></pre></div><p>A similar syntax can be used for building dictionaries</p>
 <pre><code class="julia">Dict(&quot;$i&quot; =&gt; i for i in 1:10 if i % 2 == 1)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">Dict("1" => 1, "5" => 5, "7" => 7, "9" => 9, "3" => 3)</code></pre></div><h3 id="functions" ><a href="#functions"> Functions</a></h3><p>A simple function is defined as follows,</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">Dict{String, Int64} with 5 entries:
+  "1" => 1
+  "5" => 5
+  "7" => 7
+  "9" => 9
+  "3" => 3</code></pre></div><h3 id="functions" ><a href="#functions"> Functions</a></h3><p>A simple function is defined as follows,</p>
 <pre><code class="julia">function print_hello()
   println(&quot;hello&quot;)
 end</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">Main.__FRANKLIN_1453561.print_hello</code></pre></div><pre><code class="julia">print_hello()</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">print_hello (generic function with 1 method)</code></pre></div><pre><code class="julia">print_hello()</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">hello
 </code></pre></div><p>Arguments can be added to a function,</p>
 <pre><code class="julia">function print_it(x)
@@ -221,9 +256,17 @@ mult(4.0)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">20.0</code></pre></div><h3 id="other_notes_on_types" ><a href="#other_notes_on_types"> Other notes on types</a></h3><p>Usually, specifing types is not required to use Julia. However, it can be helpful to understand the basics of Julia types for debugging.</p>
 <p>For example this list has a type of <code>Array&lbrace;Int64,1&rbrace;</code> indicating that it is a one dimensional array of integer values.</p>
 <pre><code class="julia">[1, 5, -2, 7]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[1, 5, -2, 7]</code></pre></div><p>In this example, the decimal values lead to a one dimensional array of floating point values, i.e. <code>Array&lbrace;Float64,1&rbrace;</code>. Notice that the integer <code>7</code> is promoted to a <code>Float64</code>, because all elements in the array need share a common type.</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">4-element Vector{Int64}:
+  1
+  5
+ -2
+  7</code></pre></div><p>In this example, the decimal values lead to a one dimensional array of floating point values, i.e. <code>Array&lbrace;Float64,1&rbrace;</code>. Notice that the integer <code>7</code> is promoted to a <code>Float64</code>, because all elements in the array need share a common type.</p>
 <pre><code class="julia">[1.0, 5.2, -2.1, 7]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[1.0, 5.2, -2.1, 7.0]</code></pre></div><h3 id="mutable_vs_immutable_objects" ><a href="#mutable_vs_immutable_objects"> Mutable vs immutable objects</a></h3><p>Some types in Julia are <em>mutable</em>, which means you can change the values inside them. A good example is an array. You can modify the contents of an array without having to make a new array.</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">4-element Vector{Float64}:
+  1.0
+  5.2
+ -2.1
+  7.0</code></pre></div><h3 id="mutable_vs_immutable_objects" ><a href="#mutable_vs_immutable_objects"> Mutable vs immutable objects</a></h3><p>Some types in Julia are <em>mutable</em>, which means you can change the values inside them. A good example is an array. You can modify the contents of an array without having to make a new array.</p>
 <p>In contrast, types like <code>Float64</code> are <em>immutable</em>. You can't modify the contents of a <code>Float64</code>.</p>
 <p>This is something to be aware of when passing types into functions. For example:</p>
 <pre><code class="julia">function mutability_example!(mutable_type::Vector&lbrace;Int&rbrace;, immutable_type::Int)
@@ -250,7 +293,17 @@ isimmutable(1) = true
 </code></pre></div><h3 id="using_packages_and_the_package_manager" ><a href="#using_packages_and_the_package_manager"> Using Packages and the Package Manager</a></h3><p>No matter how wonderful Julia's base language is, at some point you will want to use an extension package. Some of these are built-in, for example random number generation is available in the <code>Random</code> package in the standard library. These packages are loaded with the commands <code>using</code> and <code>import</code>.</p>
 <pre><code class="julia">using Random
 [rand() for i in 1:10]</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[0.5490330209734527, 0.7913237920166382, 0.3430108342790915, 0.6158822274100555, 0.13456438604105536, 0.6433365197717491, 0.04128167885725076, 0.05210215979844135, 0.8614097617971935, 0.537022102116765]</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">10-element Vector{Float64}:
+ 0.6970111932056509
+ 0.02388124293602578
+ 0.6146780254788462
+ 0.30967178010736207
+ 0.6265865116604082
+ 0.26986399872617195
+ 0.5973231650526335
+ 0.9513820009842274
+ 0.8718110978185082
+ 0.21926264356212555</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
 <p>For example the following can be used to install JuMP,</p>
 <pre><code class="julia">using Pkg
 Pkg.add(&quot;JuMP&quot;)</code></pre>
