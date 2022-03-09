@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
   <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
   <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
   <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
@@ -44,13 +45,33 @@
 
 
 <div class="franklin-content" >
-  <h1 id="how_to_guides" ><a href="#how_to_guides"> How to guides</a></h1><ul>
-<li><a href="/SIIP-Tutorial/how-to/parse-matpower/">Parse MATPOWER files</a></li>
-<li><a href="/SIIP-Tutorial/how-to/understanding-powersystems-components/">Understanding PowerSystems.jl Components</a></li>
-<li><a href="/SIIP-Tutorial/how-to/parse-psse/">Parse PSS/e files</a></li>
-<li><a href="/SIIP-Tutorial/how-to/parse-clayton-data-format/">Parse Clayton Data Format</a></li>
-</ul>
+  <h1 id="parsing_pss/e_*.raw_files" ><a href="#parsing_pss/e_*.raw_files"> Parsing PSS/e <code>*.RAW</code> Files</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>An example of how to parse PSS/e files and create a <code>System</code> using <a href="github.com/NREL-SIIP/PowerSystems.jl">PowerSystems.jl</a></p>
+<h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><pre><code class="julia">using PowerSystems
+using TimeSeries</code></pre>
+<h3 id="fetch_data" ><a href="#fetch_data"> Fetch Data</a></h3><p>PowerSystems.jl links to some test data that is suitable for this example.
+Let's download the test data</p>
+<pre><code class="julia">PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;)
+base_dir = dirname(dirname(pathof(PowerSystems)));</code></pre>
+<h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><pre><code class="julia">sys = System(joinpath(base_dir, &quot;data&quot;, &quot;psse_raw&quot;, &quot;RTS-GMLC.RAW&quot;));
 
+sys</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(LoadZone(24, 2.65, 0.54)
+LoadZone(32, 5.29, 1.08)
+LoadZone(12, 5.29, 1.08)
+LoadZone(25, 3.09, 0.63)
+LoadZone(23, 3.7, 0.76)
+LoadZone(22, 5.29, 1.08)
+LoadZone(11, 4.33, 0.88)
+LoadZone(35, 3.09, 0.63)
+LoadZone(13, 3.7, 0.76)
+LoadZone(31, 4.33, 0.88)
+
+***Omitted 530 components***
+
+
+
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([114, 123, 110, 305, 220, 308, 325, 117, 215, 219, 319, 115, 320, 112, 324, 210, 207, 104, 205, 218, 316, 224, 122, 111, 302, 204, 118, 119, 216, 203, 108, 310, 321, 103, 208, 318, 124, 304, 307, 211, 301, 317, 116, 202, 312, 213, 217, 222, 106, 109, 107, 212, 303, 102, 209, 120, 323, 101, 105, 223, 221, 313, 201, 121, 206, 311, 214, 306, 314, 113, 309, 322, 315]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("fbddc214-c1d9-46ee-b1b4-aeebfe2d4820"), nothing, Dict{String, Any}()))</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
@@ -140,6 +161,10 @@
 </div>
 
     
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
     
   </body>
 
