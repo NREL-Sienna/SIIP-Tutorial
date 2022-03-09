@@ -65,7 +65,9 @@ Let's download the test data.
 ```!
 println("downloading data...")
 datadir = joinpath(Utils.path(:folder), "how-to/create-system-representing-united-states/data")
-mkpath(datadir)
-tempfilename = download("https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1")
-unzip(SIIPExamples.os, tempfilename, datadir)
+if !isdir(datadir)
+  mkpath(datadir)
+  tempfilename = download("https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1")
+  unzip(SIIPExamples.os, tempfilename, datadir)
+end
 ```
