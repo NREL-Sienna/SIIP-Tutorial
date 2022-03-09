@@ -91,15 +91,15 @@ the following components:</p>
 omib_sys = System(joinpath(file_dir, &quot;OMIB.raw&quot;))</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())
 Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())
-Line(BUS 1-BUS 2-i_2, true, 0.0, 0.0, Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())), 0.0, 0.1, (from = 0.0, to = 0.0), 1.0, (min = -1.0472, max = 1.0472), PowerSystems.Service[], Dict{String, Any}())
-Line(BUS 1-BUS 2-i_1, true, 0.0, 0.0, Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())), 0.0, 0.1, (from = 0.0, to = 0.0), 1.0, (min = -1.0472, max = 1.0472), PowerSystems.Service[], Dict{String, Any}())
+Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()))
 LoadZone(1, 0.0, 0.0)
 ThermalStandard(generator-102-1, true, true, Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), 0.5, 0.0, 1.4142135623730951, (min = 0.0, max = 1.0), (min = -1.0, max = 1.0), (up = 1.0, down = 1.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 1.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.OT = 19, PowerSystems.ThermalFuelsModule.ThermalFuels.OTHER = 14, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}("z_source" => (r = 0.0, x = 1.0)))
-Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()))
 Area(1, 0.0, 0.0, 0.0)
+Line(BUS 1-BUS 2-i_2, true, 0.0, 0.0, Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())), 0.0, 0.1, (from = 0.0, to = 0.0), 1.0, (min = -1.0472, max = 1.0472), PowerSystems.Service[], Dict{String, Any}())
+Line(BUS 1-BUS 2-i_1, true, 0.0, 0.0, Arc(Bus(101, BUS 1, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.05, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}()), Bus(102, BUS 2, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.04, (min = 0.94, max = 1.06), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.0, 0.0), Dict{String, Any}())), 0.0, 0.1, (from = 0.0, to = 0.0), 1.0, (min = -1.0472, max = 1.0472), PowerSystems.Service[], Dict{String, Any}())
 
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([102, 101]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("d6d211c7-2ebc-4259-bc1e-e84da332eca3"), nothing, Dict{String, Any}()))</code></pre></div><p>This system does not have an injection device in bus 1 (the reference bus).
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([102, 101]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("592243cd-7ec1-403d-9a3c-0bc327e00ebd"), nothing, Dict{String, Any}()))</code></pre></div><p>This system does not have an injection device in bus 1 (the reference bus).
 We can add a source with small impedance directly as follows:</p>
 <pre><code class="julia">slack_bus = [b for b in get_components(Bus, omib_sys) if b.bustype == BusTypes.REF][1]
 inf_source = Source(
@@ -125,7 +125,6 @@ our dynamic generator.</p>
 <code>avr</code>, <code>tg</code> and <code>pss</code>. So we will be adding functions to create all of its components and
 the generator itself:</p>
 <pre><code class="julia"># Machine
-
 machine_classic() = BaseMachine(
     0.0, #R
     0.2995, #Xd_p
@@ -133,22 +132,18 @@ machine_classic() = BaseMachine(
 )
 
 # Shaft
-
 shaft_damping() = SingleMass(
     3.148, #H
     2.0, #D
 )
 
 # AVR: No AVR
-
 avr_none() = AVRFixed(0.0)
 
 # TG: No TG
-
 tg_none() = TGFixed(1.0) #efficiency
 
 # PSS: No PSS
-
 pss_none() = PSSFixed(0.0)</code></pre>
 <p>The next lines receives a static generator name, and creates a <code>DynamicGenerator</code> based on
 that specific static generator, with the specific components defined previously. This is
@@ -164,7 +159,7 @@ dyn_gen = DynamicGenerator(
     prime_mover = tg_none(),
     pss = pss_none(),
 )</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">DynamicGenerator(generator-102-1, 1.0, PowerSystems.BaseMachine(0.0, 0.2995, 0.7087, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("6007be88-a53b-48d5-8220-686c803ca61c"), nothing, nothing)), PowerSystems.SingleMass(3.148, 2.0, Dict{String, Any}(), [:δ, :ω], 2, InfrastructureSystems.InfrastructureSystemsInternal(UUID("962c3b48-df88-47c9-941b-7f74bbeb86a4"), nothing, nothing)), PowerSystems.AVRFixed(0.0, 1.0, Dict{String, Any}(), Symbol[], 0, PowerSystems.StateTypesModule.StateTypes[], InfrastructureSystems.InfrastructureSystemsInternal(UUID("dc11c6c2-8220-4756-8fda-47efd05f5d46"), nothing, nothing)), PowerSystems.TGFixed(1.0, 1.0, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("b5f9b16b-ceea-4c9e-baed-ca00be101f35"), nothing, nothing)), PowerSystems.PSSFixed(0.0, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("0268981e-9493-4383-937f-6798833215a1"), nothing, nothing)), 100.0, 2, [:δ, :ω], Dict{String, Any}())</code></pre></div><p>The dynamic generator is added to the system by specifying the dynamic and static generator</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">DynamicGenerator(generator-102-1, 1.0, PowerSystems.BaseMachine(0.0, 0.2995, 0.7087, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("2a7867f6-4c59-4980-a0e1-38102151c9b1"), nothing, nothing)), PowerSystems.SingleMass(3.148, 2.0, Dict{String, Any}(), [:δ, :ω], 2, InfrastructureSystems.InfrastructureSystemsInternal(UUID("497d941f-a62c-499f-83d8-03d00c136ede"), nothing, nothing)), PowerSystems.AVRFixed(0.0, 1.0, Dict{String, Any}(), Symbol[], 0, PowerSystems.StateTypesModule.StateTypes[], InfrastructureSystems.InfrastructureSystemsInternal(UUID("d4087c9b-b28d-4ba5-8cf6-fb9feb32b099"), nothing, nothing)), PowerSystems.TGFixed(1.0, 1.0, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("929dee1e-a991-4363-9d5d-3956ac65f0b9"), nothing, nothing)), PowerSystems.PSSFixed(0.0, Dict{String, Any}(), Symbol[], 0, InfrastructureSystems.InfrastructureSystemsInternal(UUID("123a8319-3afd-4fbf-9732-23917e8a4c58"), nothing, nothing)), 100.0, 2, [:δ, :ω], Dict{String, Any}())</code></pre></div><p>The dynamic generator is added to the system by specifying the dynamic and static generator</p>
 <pre><code class="julia">add_component!(omib_sys, dyn_gen, static_gen)</code></pre>
 <p>Then we can serialize our system data to a json file that can be later read as:</p>
 <pre><code class="julia">to_json(omib_sys, joinpath(file_dir, &quot;omib_sys.json&quot;), force = true)</code></pre>

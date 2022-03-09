@@ -51,15 +51,15 @@
 <a href="https://arxiv.org/abs/2002.06155">Xu, et. al.</a>. We'll use the same tabular data parsing
 capability <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/04_parse_tabulardata.ipynb">demonstrated on the RTS-GMLC dataset</a>.</p>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">  Activating project at `~/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states`
-   Installed Mocking ─────────────── v0.7.3
    Installed WeakRefStrings ──────── v1.4.2
+   Installed Mocking ─────────────── v0.7.3
+   Installed LogExpFunctions ─────── v0.3.7
    Installed Tables ──────────────── v1.7.0
    Installed JSON3 ───────────────── v1.9.3
-   Installed LogExpFunctions ─────── v0.3.7
    Installed TimeZones ───────────── v1.7.2
    Installed InverseFunctions ────── v0.1.3
-   Installed PowerSystems ────────── v1.20.0
    Installed InfrastructureSystems ─ v1.17.1
+   Installed PowerSystems ────────── v1.20.0
    Installed CSV ─────────────────── v0.10.3
     Building TimeZones → `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/2d4b6de8676b34525ac518de36006dc2e89c7e2e/build.log`
 Precompiling project...
@@ -81,7 +81,7 @@ Precompiling project...
 [33m  ✓ [39mDataFrames
 [33m  ✓ [39m[90mInfrastructureSystems[39m
 [33m  ✓ [39mPowerSystems
-  18 dependencies successfully precompiled in 138 seconds (68 already precompiled)
+  18 dependencies successfully precompiled in 121 seconds (68 already precompiled)
   [33m18[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
 </code></pre></div><pre><code class="julia">using PowerSystems
 using TimeSeries
@@ -145,7 +145,7 @@ config_dir = joinpath(
     joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states&quot;),
     &quot;config&quot;,
 )</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_FUdsf5 to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_SNeLzX to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
 Stacktrace:
   [1] unzip(#unused#::Type{Main.__FRANKLIN_4456949.Linux}, filename::String, directory::String)
     @ Main.__FRANKLIN_4456949 ./string:25

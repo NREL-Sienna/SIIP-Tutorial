@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="system_library_management_with_powersystemcasebuilder.jl" ><a href="#system_library_management_with_powersystemcasebuilder.jl"> <code>System</code> library management with <code>PowerSystemCaseBuilder.jl</code></a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p><a href="github.com/NREL-SIIP/PowerSystemCaseBuilder.jl">PowerSystemCaseBuilder.jl</a> provides a utility to manage a library of <code>System</code>s.
+The package has utilities to list the available system data and to create instances of each system. By keeping track of which systems
+have been constructed locally, it makes the re-instantiation of systems efficient by utilizing the serialization features and avoiding
+the parsing process for systems that have been previously constructed.</p>
+<h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><div class="code-output"><pre><code class="code-stdout language-plaintext">  Activating project at `~/work/SIIP-Tutorial/SIIP-Tutorial`
+</code></pre></div><pre><code class="julia">using PowerSystemCaseBuilder</code></pre>
+<h3 id="list_all_systems_in_library" ><a href="#list_all_systems_in_library"> List all systems in library</a></h3><pre><code class="julia">show_systems()</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">
+Category: PowerSystemCaseBuilder.MatPowerTestSystems
+
+┌──────────────────────────────┬───────────────────────────────────┐
+│ Name                         │ Descriptor                        │
+├──────────────────────────────┼───────────────────────────────────┤
+│ matpower_ACTIVSg10k_sys      │ ACTIVSg10k Test system            │
+│ matpower_ACTIVSg2000_sys     │ MATPOWER ACTIVSg2000 Test system  │
+│ matpower_RTS_GMLC_sys        │ Matpower RTS-GMLC Test system     │
+│ matpower_case14_sys          │ Matpower Test system              │
+│ matpower_case24_sys          │ Matpower Test system              │
+│ matpower_case2_sys           │ Matpower Test system              │
+│ matpower_case30_sys          │ Matpower Test system              │
+│ matpower_case3_tnep_sys      │ Matpower Test system              │
+│ matpower_case5_asym_sys      │ Matpower Test system              │
+│ matpower_case5_dc_sys        │ Matpower Test system              │
+│ matpower_case5_gap_sys       │ Matpower Test system              │
+│ matpower_case5_pwlc_sys      │ Matpower Test system              │
+│ matpower_case5_re_intid_sys  │ Matpower Test system              │
+│ matpower_case5_re_sys        │ Matpower Test system              │
+│ matpower_case5_re_uc_pwl_sys │ Matpower Test system              │
+│ matpower_case5_re_uc_sys     │ Matpower Test system              │
+│ matpower_case5_strg_sys      │ Matpower Test system              │
+│ matpower_case5_sys           │ Matpower Test system              │
+│ matpower_case5_th_intid_sys  │ Matpower Test system              │
+│ matpower_case5_tnep_sys      │ Matpower Test system              │
+│ matpower_case6_sys           │ Matpower Test system              │
+│ matpower_case7_tplgy_sys     │ Matpower Test system              │
+│ matpower_frankenstein_00_sys │ Matpower Frankenstein Test system │
+└──────────────────────────────┴───────────────────────────────────┘
+
+Category: PowerSystemCaseBuilder.PSITestSystems
+
+┌───────────────────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Name                              │ Descriptor                                                                                                                            │
+├───────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ RTS_GMLC_sys                      │ RTS-GMLC Full system from git repo for day-ahead simulations                                                                          │
+│ batt_test_case_b_sys              │ test system for Storage Energy Target formulation(case-b)                                                                             │
+│ batt_test_case_c_sys              │ test system for Storage Energy Target formulation(case-c)                                                                             │
+│ batt_test_case_d_sys              │ test system for Storage Energy Target formulation(case-d)                                                                             │
+│ batt_test_case_e_sys              │ test system for Storage Energy Target formulation(case-e)                                                                             │
+│ batt_test_case_f_sys              │ test system for Storage Energy Target formulation(case-f)                                                                             │
+│ c_duration_test                   │ 1 Bus for duration testing                                                                                                            │
+│ c_linear_pwl_test                 │ 1 Bus lineal PWL linear testing                                                                                                       │
+│ c_market_bid_cost                 │ 1 bus system with MarketBidCost Model                                                                                                 │
+│ c_ramp_test                       │ 1-bus for ramp testing                                                                                                                │
+│ c_sos_pwl_test                    │ 1 Bus lineal PWL sos testing                                                                                                          │
+│ c_sys14                           │ 14-bus system                                                                                                                         │
+│ c_sys14_dc                        │ 14-bus system with DC line                                                                                                            │
+│ c_sys5                            │ 5-bus system                                                                                                                          │
+│ c_sys5_bat                        │ 5-bus system with Storage Device                                                                                                      │
+│ c_sys5_bat_ems                    │ 5-bus system with Storage Device with EMS                                                                                             │
+│ c_sys5_dc                         │ Systems with HVDC data in the branches                                                                                                │
+│ c_sys5_ed                         │ 5-bus System for Economic Dispatch Simulations                                                                                        │
+│ c_sys5_hy                         │ 5-bus system with HydroDispatch                                                                                                       │
+│ c_sys5_hy_ed                      │ 5-bus system with Hydro-Power for Economic Dispatch Simulations                                                                       │
+│ c_sys5_hy_ems_ed                  │ 5-bus system with Hydro-Power for Economic Dispatch Simulations                                                                       │
+│ c_sys5_hy_ems_uc                  │ 5-bus system with Hydro-Power for Unit Commitment Simulations                                                                         │
+│ c_sys5_hy_uc                      │ 5-bus system with Hydro-Power for Unit Commitment Simulations                                                                         │
+│ c_sys5_hybrid                     │ 5-bus system with Hybrid devices                                                                                                      │
+│ c_sys5_hybrid_ed                  │ 5-bus system with Hybrid devices and thermal devices for ED.                                                                          │
+│ c_sys5_hybrid_uc                  │ 5-bus system with Hybrid devices and thermal UC devices                                                                               │
+│ c_sys5_hyd                        │ 5-bus system with Hydro Energy Reservoir                                                                                              │
+│ c_sys5_hyd_ems                    │ 5-bus system with Hydro Energy Reservoir                                                                                              │
+│ c_sys5_il                         │ System with Interruptible Load                                                                                                        │
+│ c_sys5_ml                         │                                                                                                                                       │
+│ c_sys5_pglib                      │ 5-bus with ThermalMultiStart                                                                                                          │
+│ c_sys5_pglib_sim                  │ 5-bus with ThermalMultiStart for simulation                                                                                           │
+│ c_sys5_phes_ed                    │ 5-bus system with Hydro Pumped Energy Storage for Economic Dispatch Simulations                                                       │
+│ c_sys5_pwl_ed                     │ 5-bus with pwl cost function                                                                                                          │
+│ c_sys5_pwl_ed_nonconvex           │ 5-bus with SOS cost function for Economic Dispatch Simulations                                                                        │
+│ c_sys5_pwl_uc                     │ 5-bus with SOS cost function for Unit Commitment Simulations                                                                          │
+│ c_sys5_re                         │ 5-bus system with Renewable Energy                                                                                                    │
+│ c_sys5_re_only                    │ 5-bus system with only Renewable Energy                                                                                               │
+│ c_sys5_reg                        │ 5-bus with regulation devices and AGC                                                                                                 │
+│ c_sys5_uc                         │ 5-bus system for Unit Commitment Simulations                                                                                          │
+│ c_sys5_uc_non_spin                │ 5-bus system for Unit Commitment with Non-Spinning Reserve Simulations                                                                │
+│ c_sys5_uc_re                      │ 5-bus system for Unit Commitment Simulations with Renewable Units                                                                     │
+│ hydro_test_case_b_sys             │ test system for HydroGen Energy Target formulation(case-b)                                                                            │
+│ hydro_test_case_c_sys             │ test system for HydroGen Energy Target formulation(case-c)                                                                            │
+│ hydro_test_case_d_sys             │ test system for HydroGen Energy Target formulation(case-d)                                                                            │
+│ hydro_test_case_e_sys             │ test system for HydroGen Energy Target formulation(case-e)                                                                            │
+│ hydro_test_case_f_sys             │ test system for HydroGen  Energy Target formulation(case-f)                                                                           │
+│ modified_RTS_GMLC_DA_sys          │ Modified RTS-GMLC Full system for day-ahead simulations\n            with modifications to reserve definitions to improve feasibility │
+│ modified_RTS_GMLC_RT_sys          │ Modified RTS-GMLC Full system for real-time simulations\n            with modifications to reserve definitions to improve feasibility │
+│ modified_RTS_GMLC_realization_sys │ Modified RTS-GMLC Full system for real-time simulations\n            with modifications to reserve definitions to improve feasibility │
+│ modified_tamu_ercot_da_system     │ Modified tamu ercot day ahead system                                                                                                  │
+│ test_RTS_GMLC_sys                 │ RTS-GMLC test system with day-ahead forecast                                                                                          │
+└───────────────────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Category: PowerSystemCaseBuilder.PSSETestSystems
+
+┌─────────────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Name                            │ Descriptor                                                                                   │
+├─────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ psse_240_case_renewable_sys     │ PSSE 240 Bus Case system with Renewables https://www.nrel.gov/grid/test-case-repository.html │
+│ psse_3bus_SEXS_sys              │ PSSE 3-bus Test system with SEXS                                                             │
+│ psse_3bus_gen_cls_sys           │ PSSE 3-bus Test system with CLS                                                              │
+│ psse_3bus_no_cls_sys            │ PSSE 3-bus Test system without CLS                                                           │
+│ psse_ACTIVSg2000_sys            │ PSSE ACTIVSg2000 Test system                                                                 │
+│ psse_Benchmark_4ger_33_2015_sys │ PSSE Benchmark system                                                                        │
+│ psse_OMIB_sys                   │ PSSE OMIB Test system                                                                        │
+│ psse_RTS_GMLC_sys               │ PSSE .raw RTS-GMLC system                                                                    │
+│ psse_renewable_parsing_1        │ PSSE 3-bus Test system with REPCA, REECB and REGCA                                           │
+│ pti_case14_sys                  │ PSSE 14-bus Test system                                                                      │
+│ pti_case24_sys                  │ PSSE 24-bus Test system                                                                      │
+│ pti_case30_sys                  │ PSSE 30-bus Test system                                                                      │
+│ pti_case3_sys                   │ PSSE 3-bus Test system                                                                       │
+│ pti_case5_alc_sys               │ PSSE 5-bus alc Test system                                                                   │
+│ pti_case5_sys                   │ PSSE 5-bus Test system                                                                       │
+│ pti_case73_sys                  │ PSSE 73-bus Test system                                                                      │
+│ pti_case7_tplgy_sys             │ PSSE 7-bus Test system                                                                       │
+│ pti_frankenstein_00_2_sys       │ PSSE frankenstein Test system                                                                │
+│ pti_frankenstein_00_sys         │ PSSE frankenstein Test system                                                                │
+│ pti_frankenstein_20_sys         │ PSSE frankenstein Test system                                                                │
+│ pti_frankenstein_70_sys         │ PSSE frankenstein Test system                                                                │
+│ pti_parser_test_a_sys           │ PSSE Test system                                                                             │
+│ pti_three_winding_mag_test_sys  │ PSSE Test system                                                                             │
+│ pti_three_winding_test_2_sys    │ PSSE Test system                                                                             │
+│ pti_three_winding_test_sys      │ PSSE Test system                                                                             │
+│ pti_two_terminal_hvdc_test_sys  │ PSSE Test system                                                                             │
+│ pti_two_winding_mag_test_sys    │ PSSE Test system                                                                             │
+│ pti_vsc_hvdc_test_sys           │ PSSE Test system                                                                             │
+└─────────────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Category: PowerSystemCaseBuilder.PSYTestSystems
+
+┌──────────────────────┬──────────────────────────────────┐
+│ Name                 │ Descriptor                       │
+├──────────────────────┼──────────────────────────────────┤
+│ dynamic_inverter_sys │ PSY test dynamic inverter system │
+│ tamu_ACTIVSg2000_sys │ TAMU ACTIVSg2000 Test system     │
+└──────────────────────┴──────────────────────────────────┘
+
+Category: PowerSystemCaseBuilder.SIIPExampleSystems
+
+┌─────────────────────────────────┬────────────────────────────────────────────────────────────┐
+│ Name                            │ Descriptor                                                 │
+├─────────────────────────────────┼────────────────────────────────────────────────────────────┤
+│ 5_bus_hydro_ed_sys              │ 5-bus hydro economic dispatch data                         │
+│ 5_bus_hydro_ed_sys_with_targets │ 5-bus hydro economic dispatch data with energy targets     │
+│ 5_bus_hydro_uc_sys              │ 5-bus hydro unit commitment data                           │
+│ 5_bus_hydro_uc_sys_with_targets │ 5-bus hydro unit commitment data with energy targets       │
+│ 5_bus_hydro_wk_sys              │ 5-bus hydro system for weekly dispatch                     │
+│ 5_bus_hydro_wk_sys_with_targets │ 5-bus hydro system for weekly dispatch with energy targets │
+│ 5_bus_matpower_AGC              │ matpower 5-bus system with AGC time series                 │
+│ 5_bus_matpower_DA               │ matpower 5-bus system with DA time series                  │
+│ 5_bus_matpower_RT               │ matpower 5-bus system with RT time series                  │
+└─────────────────────────────────┴────────────────────────────────────────────────────────────┘
+</code></pre></div><h3 id="systems_can_be_listed_by_category" ><a href="#systems_can_be_listed_by_category"> Systems can be listed by category</a></h3><p>The available categories can be displayed with:</p>
+<pre><code class="julia">show_categories()</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">PowerSystemCaseBuilder.MatPowerTestSystems
+PowerSystemCaseBuilder.PSITestSystems
+PowerSystemCaseBuilder.PSSETestSystems
+PowerSystemCaseBuilder.PSYTestSystems
+PowerSystemCaseBuilder.SIIPExampleSystems
+</code></pre></div><p>The available systems can be displayed with:</p>
+<pre><code class="julia">show_systems(SIIPExampleSystems)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">┌─────────────────────────────────┬────────────────────────────────────────────────────────────┐
+│ Name                            │ Descriptor                                                 │
+├─────────────────────────────────┼────────────────────────────────────────────────────────────┤
+│ 5_bus_hydro_ed_sys              │ 5-bus hydro economic dispatch data                         │
+│ 5_bus_hydro_ed_sys_with_targets │ 5-bus hydro economic dispatch data with energy targets     │
+│ 5_bus_hydro_uc_sys              │ 5-bus hydro unit commitment data                           │
+│ 5_bus_hydro_uc_sys_with_targets │ 5-bus hydro unit commitment data with energy targets       │
+│ 5_bus_hydro_wk_sys              │ 5-bus hydro system for weekly dispatch                     │
+│ 5_bus_hydro_wk_sys_with_targets │ 5-bus hydro system for weekly dispatch with energy targets │
+│ 5_bus_matpower_AGC              │ matpower 5-bus system with AGC time series                 │
+│ 5_bus_matpower_DA               │ matpower 5-bus system with DA time series                  │
+│ 5_bus_matpower_RT               │ matpower 5-bus system with RT time series                  │
+└─────────────────────────────────┴────────────────────────────────────────────────────────────┘
+</code></pre></div><h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><p><em>The first time this is run, it will parse csv data. Subsequent executions will rely on serialized data and will execute much faster</em></p>
+<pre><code class="julia">sys = build_system(SIIPExampleSystems, &quot;5_bus_hydro_ed_sys&quot;; force_build = true, skip_serialization = true)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(LoadZone(1, 0.285714286, 0.09390714300000001)
+LoadZone(2, 0.428571428, 0.140871428)
+HydroDispatch(HydroDispatch2, true, Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), 0.0, 0.0, 1.4142135623730951, PowerSystems.PrimeMoversModule.PrimeMovers.HY = 16, (min = 0.0, max = 1.0), (min = -1.0, max = 1.0), nothing, nothing, 10.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(0.0), 0.0), PowerSystems.Service[], nothing, Dict{String, Any}())
+Line(branch2, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}())), 0.00304, 0.0304, (from = 0.00329, to = 0.00329), 0.133, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
+Line(branch4, true, 0.0, 0.0, Arc(Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.00022378718134155663, 1.04407, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}()), Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0001705004641357477, 1.0, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}())), 0.00108, 0.0108, (from = 0.00926, to = 0.00926), 0.8, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
+Line(branch3, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0010936770654406082, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}())), 0.00064, 0.0064, (from = 0.01563, to = 0.01563), 0.6659999999999999, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
+Line(branch1, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(2, bus2, PowerSystems.BusTypesModule.BusTypes.PQ = 2, -0.00022378718134155663, 1.04407, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}())), 0.00281, 0.0281, (from = 0.00356, to = 0.00356), 0.133, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
+Line(branch7, true, 0.0, 0.0, Arc(Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0010936770654406082, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}())), 0.00297, 0.0297, (from = 0.00337, to = 0.00337), 0.133, (min = -1.57079, max = 1.57079), PowerSystems.Service[], Dict{String, Any}())
+ThermalStandard(Solitude, true, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.0001705004641357477, 1.0, (min = 0.95, max = 1.05), 230.0, Area(2, 0.0, 0.0, 0.0), LoadZone(2, 0.428571428, 0.140871428), Dict{String, Any}()), 0.6285714285714286, 0.7428571428571429, 1.2457273918052367, (min = 0.4857142857142857, max = 1.0), (min = -0.7428571428571429, max = 0.7428571428571429), (up = 0.42857142857142855, down = 0.42857142857142855), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Vector{Tuple{Float64, Float64}}}([(0.0, 0.0), (525.0, 17.5), (1137.5, 35.0)]), 0.0, 0.0, 0.0), 35.0, (up = 4.0, down = 4.0), PowerSystems.PrimeMoversModule.PrimeMovers.CT = 8, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+ThermalStandard(Park City, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0008540771836226905, 1.0, (min = 0.95, max = 1.05), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 0.285714286, 0.09390714300000001), Dict{String, Any}()), 1.0, 0.7727272727272727, 1.2637671613143495, (min = 0.3, max = 1.0), (min = -0.7727272727272727, max = 0.7727272727272727), (up = 1.3636363636363635, down = 1.3636363636363635), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Vector{Tuple{Float64, Float64}}}([(0.0, 0.0), (165.0, 11.0)]), 0.0, 0.0, 0.0), 11.0, (up = 4.0, down = 4.0), PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[VariableReserve(REG1, true, 5.0, 0.001, Dict{String, Any}())], 10000.0, nothing, Dict{String, Any}())
+
+***Omitted 26 components***
+
+
+
+InfrastructureSystems.TimeSeriesParameters(Dates.Millisecond(3600000), InfrastructureSystems.ForecastParameters(12, Dates.DateTime("2020-01-01T00:00:00"), Dates.Hour(1), 2005)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.DEVICE_BASE = 1), InfrastructureSystems.InfrastructureSystemsInternal(UUID("2d553900-3a27-4a96-aacf-ce13edd6b8b8"), nothing, Dict{String, Any}()))</code></pre></div>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>

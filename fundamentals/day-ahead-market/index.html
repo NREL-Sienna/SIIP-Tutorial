@@ -127,10 +127,10 @@ using PowerSystems
 using PowerSystemCaseBuilder
 
 # uses RTS Test System with Time Series data
-@time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)</code></pre>
+@time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;; force_build = true, skip_serialization = true)</code></pre>
 You should see the following in your terminal before the output of running the script.<pre><code class="julia">[ Info: Building the RTS test system</code></pre>
 </fieldset><p>Going forward in this tutorial, I'm going to show the output of the terminal on this webpage, instead of screenshots of the vscode terminal, for the clarity of presentation. For example, the output of the <code>system</code> will be as follows:</p>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">109.076695 seconds (131.17 M allocations: 6.420 GiB, 2.47% gc time, 88.71% compilation time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext"> 92.510687 seconds (132.75 M allocations: 6.514 GiB, 3.64% gc time, 87.17% compilation time)
 System
 ┌───────────────────┬─────────────┐
 │ Property          │ Value       │
@@ -185,9 +185,9 @@ The following is the output of the same <code>build_system</code> function 3 mor
    force_build = true, skip_serialization = true);
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
    force_build = true, skip_serialization = true);</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.507788 seconds (13.10 M allocations: 618.125 MiB, 13.67% gc time)
-  1.467653 seconds (13.10 M allocations: 618.192 MiB, 12.58% gc time)
-  1.460054 seconds (13.10 M allocations: 618.125 MiB, 11.71% gc time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.262314 seconds (13.10 M allocations: 618.125 MiB, 17.49% gc time)
+  1.121177 seconds (13.10 M allocations: 618.125 MiB, 10.34% gc time)
+  1.251275 seconds (13.10 M allocations: 618.125 MiB, 15.54% gc time)
 </code></pre></div>There are ways to decrease the "first time to run" for Julia code but we'll cover that in a more advanced session.
 For now, it is enough to just be aware of this quirk of the language.
 
@@ -320,9 +320,9 @@ When this successfully completes, you should see the following status message be
 <pre><code class="julia">results = ProblemResults(model)</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">ProblemResults:
   Base power: 100.0
-  Variables: PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("")
+  Variables: PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1")
   Duals: 
-  Parameters: PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down")
+  Parameters: PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("")
 </code></pre></div><p>For example, if you are interested in getting the objection function value, you can use the <code>get_objective_value</code> function:</p>
 <pre><code class="julia">get_objective_value(results)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">1.5371547080667508e6</code></pre></div><p>There are a lot of other helper functions available to get results from the model.
@@ -361,7 +361,7 @@ using PowerSystems
 using PowerSystemCaseBuilder
 
 # uses RTS Test System with Time Series data
-system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
+system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;; force_build = true, skip_serialization = true)
 
 @info &quot;Building a template for unit commitment&quot;
 using PowerSimulations
@@ -412,7 +412,7 @@ using PowerSystems
 function get_system()
    @info &quot;Building the RTS test system&quot;
    # uses RTS Test System with Time Series data
-   build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
+   build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;; force_build = true, skip_serialization = true)
 end
 
 

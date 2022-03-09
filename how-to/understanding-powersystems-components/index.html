@@ -91,36 +91,20 @@ function print_struct(type)
 end
 
 print_struct(Bus)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: Package AbstractTrees not found in current path:
-- Run `import Pkg; Pkg.add("AbstractTrees")` to install the AbstractTrees package.
-
-Stacktrace:
-  [1] require(into::Module, mod::Symbol)
-    @ Base ./loading.jl:967
-  [2] eval
-    @ ./boot.jl:373 [inlined]
-  [3] include_string(mapexpr::typeof(REPL.softscope), mod::Module, code::String, filename::String)
-    @ Base ./loading.jl:1196
-  [4] include_string
-    @ ./loading.jl:1180 [inlined]
-  [5] #49
-    @ ~/.julia/packages/Xranklin/QHd0y/src/context/code/notebook_code.jl:168 [inlined]
-  [6] (::IOCapture.var"#3#5"{DataType, Xranklin.var"#49#50"{Module, String}, Task, IOContext{Base.PipeEndpoint}, IOContext{Base.PipeEndpoint}, Base.PipeEndpoint, Base.PipeEndpoint})()
-    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:118
-  [7] with_logstate(f::Function, logstate::Any)
-    @ Base.CoreLogging ./logging.jl:511
-  [8] with_logger
-    @ ./logging.jl:623 [inlined]
-  [9] capture(f::Xranklin.var"#49#50"{Module, String}; rethrow::Type, color::Bool)
-    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:116
- [10] capture
-    @ ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:75 [inlined]
- [11] _eval_code_cell(mdl::Module, code::String, cell_name::String)
-    @ Xranklin ~/.julia/packages/Xranklin/QHd0y/src/context/code/notebook_code.jl:167
- [12] eval_code_cell!(ctx::Xranklin.LocalContext, cell_code::SubString{String}, cell_name::String; imgdir_html::String, imgdir_latex::String, force::Bool, indep::Bool)
-    @ Xranklin ~/.julia/packages/Xranklin/QHd0y/src/context/code/notebook_code.jl:111
- [13] html_code_block(b::FranklinParser.Block, c::Xranklin.LocalContext)
-    @ Xranklin ~/.julia/packages/Xranklin/QHd0y/src/convert/markdown/rules/code.jl:239</code></pre></div><h3 id="type_hierarchy" ><a href="#type_hierarchy"> Type Hierarchy</a></h3><p>PowerSystems is intended to organize data containers by the behavior of the devices that
+<div class="code-output"><pre><code class="code-stdout language-plaintext">mutable struct PowerSystems.Bus
+  number::Int64
+  name::String
+  bustype::Union{Nothing, PowerSystems.BusTypesModule.BusTypes}
+  angle::Union{Nothing, Float64}
+  magnitude::Union{Nothing, Float64}
+  voltage_limits::Union{Nothing, NamedTuple{(:min, :max), Tuple{Float64, Float64}}}
+  base_voltage::Union{Nothing, Float64}
+  area::Union{Nothing, PowerSystems.Area}
+  load_zone::Union{Nothing, PowerSystems.LoadZone}
+  ext::Dict{String, Any}
+  internal::InfrastructureSystems.InfrastructureSystemsInternal
+end
+</code></pre></div><h3 id="type_hierarchy" ><a href="#type_hierarchy"> Type Hierarchy</a></h3><p>PowerSystems is intended to organize data containers by the behavior of the devices that
 the data represents. To that end, a type hierarchy has been defined with several levels of
 abstract types starting with <code>InfrastructureSystemsType</code>. There are a bunch of subtypes of
 <code>InfrastructureSystemsType</code>, but the important ones to know about are:</p>
@@ -143,8 +127,305 @@ time stamp</li>
 <li><code>System</code>: collects all of the <code>Component</code>s</li>
 </ul>
 <pre><code class="julia">print_tree(PowerSystems.IS.InfrastructureSystemsType)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: print_tree not defined
-Stacktrace:
+<div class="code-output"><pre><code class="code-stdout language-plaintext">InfrastructureSystemsType
+├─ DeviceParameter
+│  ├─ ActivePowerControl
+│  │  ├─ ActivePowerDroop
+│  │  ├─ ActivePowerPI
+│  │  ├─ ActiveRenewableControllerAB
+│  │  └─ VirtualInertia
+│  ├─ DynamicComponent
+│  │  ├─ DynamicGeneratorComponent
+│  │  │  ├─ AVR
+│  │  │  │  ├─ AVRFixed
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ AVRSimple
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ AVRTypeI
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ AVRTypeII
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESAC1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESAC6A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESDC1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESDC2A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESST1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ ESST4B
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXAC1
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXAC1A
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXAC2
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXPIC1
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ IEEET1
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SCRX
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ SEXS
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Machine
+│  │  │  │  ├─ AndersonFouadMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ BaseMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ FullMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ MarconatoMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ OneDOneQMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RoundRotorExponential
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RoundRotorMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RoundRotorQuadratic
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SalientPoleExponential
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SalientPoleMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SalientPoleQuadratic
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SimpleAFMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ SimpleFullMachine
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ SimpleMarconatoMachine
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ PSS
+│  │  │  │  ├─ IEEEST
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ PSSFixed
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ PSSSimple
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Shaft
+│  │  │  │  ├─ FiveMassShaft
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ SingleMass
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  └─ TurbineGov
+│  │  │     ├─ GasTG
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ GeneralGovModel
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ HydroTurbineGov
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ IEEETurbineGov1
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ SteamTurbineGov1
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ TGFixed
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     ├─ TGTypeI
+│  │  │     │  ⋮
+│  │  │     │  
+│  │  │     └─ TGTypeII
+│  │  │        ⋮
+│  │  │        
+│  │  ├─ DynamicInverterComponent
+│  │  │  ├─ Converter
+│  │  │  │  ├─ AverageConverter
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ RenewableEnergyConverterTypeA
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ DCSource
+│  │  │  │  ├─ FixedDCSource
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ ZeroOrderBESS
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Filter
+│  │  │  │  ├─ LCFilter
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ LCLFilter
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ RLFilter
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ FrequencyEstimator
+│  │  │  │  ├─ FixedFrequency
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ KauraPLL
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ ReducedOrderPLL
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ InnerControl
+│  │  │  │  ├─ CurrentModeControl
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ RECurrentControlB
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ VoltageModeControl
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  └─ OuterControl
+│  │  └─ InverterComponent
+│  ├─ OperationalCost
+│  │  ├─ MarketBidCost
+│  │  ├─ MultiStartCost
+│  │  ├─ StorageManagementCost
+│  │  ├─ ThreePartCost
+│  │  └─ TwoPartCost
+│  └─ ReactivePowerControl
+│     ├─ ReactivePowerDroop
+│     ├─ ReactivePowerPI
+│     └─ ReactiveRenewableControllerAB
+├─ ForecastParameters
+├─ InfrastructureSystemsComponent
+│  ├─ AdditionalTestComponent
+│  ├─ TestComponent
+│  ├─ TimeSeriesData
+│  │  ├─ Forecast
+│  │  │  ├─ AbstractDeterministic
+│  │  │  │  ├─ Deterministic
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ DeterministicSingleTimeSeries
+│  │  │  │     ⋮
+│  │  │  │     
+│  │  │  ├─ Probabilistic
+│  │  │  └─ Scenarios
+│  │  └─ StaticTimeSeries
+│  │     └─ SingleTimeSeries
+│  └─ Component
+│     ├─ Device
+│     │  ├─ Branch
+│     │  │  ├─ ACBranch
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  └─ DCBranch
+│     │  │     ⋮
+│     │  │     
+│     │  ├─ DynamicInjection
+│     │  │  ├─ DynamicGenerator
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  ├─ DynamicInverter
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  └─ PeriodicVariableSource
+│     │  │     ⋮
+│     │  │     
+│     │  ├─ RegulationDevice
+│     │  └─ StaticInjection
+│     │     ├─ ElectricLoad
+│     │     │  ⋮
+│     │     │  
+│     │     ├─ Generator
+│     │     │  ⋮
+│     │     │  
+│     │     ├─ Source
+│     │     │  ⋮
+│     │     │  
+│     │     ├─ StaticInjectionSubsystem
+│     │     │  ⋮
+│     │     │  
+│     │     └─ Storage
+│     │        ⋮
+│     │        
+│     ├─ Service
+│     │  ├─ AGC
+│     │  ├─ AbstractReserve
+│     │  │  ├─ Reserve
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  └─ ReserveNonSpinning
+│     │  │     ⋮
+│     │  │     
+│     │  ├─ StaticReserveGroup
+│     │  └─ Transfer
+│     └─ Topology
+│        ├─ AggregationTopology
+│        │  ├─ Area
+│        │  │  ⋮
+│        │  │  
+│        │  └─ LoadZone
+│        │     ⋮
+│        │     
+│        ├─ Arc
+│        └─ Bus
+├─ InfrastructureSystemsInternal
+├─ SystemData
+├─ TimeSeriesKey
+├─ TimeSeriesMetadata
+│  ├─ ForecastMetadata
+│  │  ├─ DeterministicMetadata
+│  │  ├─ ProbabilisticMetadata
+│  │  └─ ScenariosMetadata
+│  └─ StaticTimeSeriesMetadata
+│     └─ SingleTimeSeriesMetadata
+├─ TimeSeriesParameters
+├─ PowerSystemCaseBuilderType
+│  ├─ SystemBuildStats
+│  ├─ SystemCategory
+│  │  ├─ MatPowerTestSystems
+│  │  ├─ PSIDTestSystems
+│  │  ├─ PSITestSystems
+│  │  ├─ PSSETestSystems
+│  │  ├─ PSYTestSystems
+│  │  └─ SIIPExampleSystems
+│  └─ SystemDescriptor
+└─ System
 </code></pre></div><h3 id="timeseriesdata" ><a href="#timeseriesdata"> <code>TimeSeriesData</code></a></h3><p>The time series documentation can be found <a href="https://nrel-siip.github.io/PowerSystems.jl/stable/modeler_guide/time_series/">here</a>.</p>
 <p>Every <code>Component</code> has a <code>time_series_container::InfrastructureSystems.TimeSeriesContainer</code>
 field. <code>TimeSeriesData</code> are used to hold time series information that describes the
@@ -153,8 +434,15 @@ temporally dependent data of fields within the same struct. For example, the
 describe other fields in the struct (<code>available</code>, <code>activepower</code>, <code>reactivepower</code>).</p>
 <p><code>TimeSeriesData</code>s themselves can take the form of the following:</p>
 <pre><code class="julia">print_tree(TimeSeriesData)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: print_tree not defined
-Stacktrace:
+<div class="code-output"><pre><code class="code-stdout language-plaintext">TimeSeriesData
+├─ Forecast
+│  ├─ AbstractDeterministic
+│  │  ├─ Deterministic
+│  │  └─ DeterministicSingleTimeSeries
+│  ├─ Probabilistic
+│  └─ Scenarios
+└─ StaticTimeSeries
+   └─ SingleTimeSeries
 </code></pre></div><p>In each case, the time series contains fields for <code>scaling_factor_multiplier</code> and <code>data</code>
 to identify the details of  th <code>Component</code> field that the time series describes, and the
 time series <code>data</code>. For example: we commonly want to use a time series to
@@ -164,15 +452,26 @@ maximum active power field in the struct describing the generator. In this way, 
 store a scaling factor time series that will get multiplied by the maximum active power
 rather than the magnitudes of the maximum active power time series.</p>
 <pre><code class="julia">print_struct(Deterministic)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: print_struct not defined
-Stacktrace:
+<div class="code-output"><pre><code class="code-stdout language-plaintext">mutable struct InfrastructureSystems.Deterministic
+  name::String
+  data::Union{DataStructures.SortedDict{Dates.DateTime, Vector{Vector{Tuple{Float64, Float64}}}}, DataStructures.SortedDict{Dates.DateTime, Vector{Float64}}, DataStructures.SortedDict{Dates.DateTime, Vector{Tuple{Float64, Float64}}}}
+  resolution::Dates.Period
+  scaling_factor_multiplier::Union{Nothing, Function}
+  internal::InfrastructureSystems.InfrastructureSystemsInternal
+end
 </code></pre></div><p>Examples of how to create and add time series to system can be found in the
 <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/05_add_forecasts.ipynb">Add Time Series Example</a></p>
 <h3 id="system" ><a href="#system"> System</a></h3><p>The <code>System</code> object collects all of the individual components into a single struct along
 with some metadata about the system itself (e.g. <code>base_power</code>)</p>
 <pre><code class="julia">print_struct(System)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: print_struct not defined
-Stacktrace:
+<div class="code-output"><pre><code class="code-stdout language-plaintext">mutable struct PowerSystems.System
+  data::InfrastructureSystems.SystemData
+  frequency::Float64
+  bus_numbers::Set{Int64}
+  runchecks::Base.RefValue{Bool}
+  units_settings::InfrastructureSystems.SystemUnitsSettings
+  internal::InfrastructureSystems.InfrastructureSystemsInternal
+end
 </code></pre></div><h2 id="basic_example" ><a href="#basic_example"> Basic example</a></h2><p>PowerSystems contains a few basic data files (mostly for testing and demonstration).</p>
 <pre><code class="julia">BASE_DIR = abspath(joinpath(dirname(Base.find_package(&quot;PowerSystems&quot;)), &quot;..&quot;))
 include(joinpath(BASE_DIR, &quot;test&quot;, &quot;data_5bus_pu.jl&quot;)) # .jl file containing 5-bus system data
@@ -189,17 +488,17 @@ Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9,
 Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())
 Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())
 Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())
-PowerLoad(Bus2, true, Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
-PowerLoad(Bus3, true, Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 3.0, 0.9861, 100.0, 3.0, 0.9861, PowerSystems.Service[], nothing, Dict{String, Any}())
-PowerLoad(Bus4, true, Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), PowerSystems.LoadModelsModule.LoadModels.ConstantPower = 3, 4.0, 1.3147, 100.0, 4.0, 1.3147, PowerSystems.Service[], nothing, Dict{String, Any}())
-Line(4, true, 0.0, 0.0, Arc(Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00108, 0.0108, (from = 0.00926, to = 0.00926), 11.148, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
-Line(1, true, 0.0, 0.0, Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}())), 0.00281, 0.0281, (from = 0.00356, to = 0.00356), 2.0, (min = -0.7, max = 0.7), PowerSystems.Service[], Dict{String, Any}())
+Arc(Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(5, nodeE, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(3, nodeC, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(4, nodeD, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
+Arc(Bus(1, nodeA, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()), Bus(2, nodeB, PowerSystems.BusTypesModule.BusTypes.PQ = 2, 0.0, 1.0, (min = 0.9, max = 1.05), 230.0, nothing, nothing, Dict{String, Any}()))
 
 ***Omitted 19 components***
 
 
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([5, 4, 2, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("7522e2ed-2653-434f-970f-44d54b530a80"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([5, 4, 2, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("f9f562be-496b-4d9d-a21c-171ba82d63ec"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
 the intended approach to accessing data expressed using PowerSystems.</p>
 <p>PowerSystems enforces unique <code>name</code> fields between components of a particular concrete type.
 So, in order to retrieve a specific component, the user must specify the type of the component
@@ -251,24 +550,24 @@ end</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">24×1 TimeSeries.TimeArray{Float64, 1, Dates.DateTime, SubArray{Float64, 1, Vector{Float64}, Tuple{UnitRange{Int64}}, true}} 2024-01-02T00:00:00 to 2024-01-02T23:00:00
 │                     │ A      │
 ├─────────────────────┼────────┤
-│ 2024-01-02T00:00:00 │ 0.8673 │
-│ 2024-01-02T01:00:00 │ 0.7754 │
-│ 2024-01-02T02:00:00 │ 0.7363 │
-│ 2024-01-02T03:00:00 │ 0.7512 │
-│ 2024-01-02T04:00:00 │ 0.7592 │
-│ 2024-01-02T05:00:00 │ 0.7475 │
-│ 2024-01-02T06:00:00 │ 0.7784 │
-│ 2024-01-02T07:00:00 │ 0.7962 │
+│ 2024-01-02T00:00:00 │ 0.8585 │
+│ 2024-01-02T01:00:00 │ 0.7522 │
+│ 2024-01-02T02:00:00 │ 0.7788 │
+│ 2024-01-02T03:00:00 │ 0.7411 │
+│ 2024-01-02T04:00:00 │ 0.7019 │
+│ 2024-01-02T05:00:00 │ 0.7183 │
+│ 2024-01-02T06:00:00 │ 0.7642 │
+│ 2024-01-02T07:00:00 │ 0.8015 │
 │ ⋮                   │ ⋮      │
-│ 2024-01-02T17:00:00 │ 0.9456 │
-│ 2024-01-02T18:00:00 │ 1.0099 │
-│ 2024-01-02T19:00:00 │ 1.0673 │
-│ 2024-01-02T20:00:00 │ 1.0214 │
-│ 2024-01-02T21:00:00 │ 1.0085 │
-│ 2024-01-02T22:00:00 │ 0.934  │
-│ 2024-01-02T23:00:00 │ 0.8468 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
+│ 2024-01-02T17:00:00 │ 0.9987 │
+│ 2024-01-02T18:00:00 │ 1.0863 │
+│ 2024-01-02T19:00:00 │ 1.0508 │
+│ 2024-01-02T20:00:00 │ 1.0424 │
+│ 2024-01-02T21:00:00 │ 0.9639 │
+│ 2024-01-02T22:00:00 │ 1.0203 │
+│ 2024-01-02T23:00:00 │ 0.9206 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
 <pre><code class="julia">ts = get_time_series_values(Deterministic, loads[1], ts_names[1])</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">[0.8673314679337071, 0.775375969415269, 0.7362687113101575, 0.7512134587152702, 0.7591934663884096, 0.7475202987947096, 0.778382315821883, 0.796182208305425, 0.7636084179243805, 0.8875183638805617, 0.9253755947216578, 0.8908706173725198, 0.8455746206066824, 0.9289217232447585, 0.8457254052957618, 0.8324001515465984, 0.9074232703774171, 0.9456063950958924, 1.0098594823403024, 1.067284190653676, 1.0213600296685819, 1.0085483901022956, 0.9340132842298732, 0.8467753446256717]</code></pre></div>
+<div class="code-output"><pre><code class="code-result language-plaintext">[0.8585247004933731, 0.752208195759371, 0.7787861097921628, 0.7411292672463381, 0.7019130868237276, 0.7183421669668981, 0.764161884374545, 0.8015165514880535, 0.8538392079214874, 0.8833009804688923, 0.8710923487596849, 0.9077007925304988, 0.8640335286463483, 0.9188438593611685, 0.8999513696177684, 0.8500058214477169, 0.9080335593654953, 0.9987375809097344, 1.0863286853802632, 1.0508367896350477, 1.0423862224136944, 0.9638790069758639, 1.0202549066646012, 0.9206221024675209]</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
