@@ -31,7 +31,7 @@ lodf = LODF(sys)
 
 # ### Indexing
 # Note that the axes of these matrices that correspond to buses are indexed by bus number
-# (`::Int64`) while the branch axes are indexed by branch name (`::String`). You can access
+# (::Int64) while the branch axes are indexed by branch name (::String). You can access
 # specific elements of the matrices as follows:
 
 ptdf["bus3-bus4-i_6", 3]
