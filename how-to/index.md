@@ -4,3 +4,4 @@
 - [Parse MATPOWER files](/how-to/parse-matpower/)
 - [Parse PSS/e files](/how-to/parse-psse/)
 - [Parse Clayton Data Format](/how-to/parse-clayton-data-format/)
+- [Add forecasts](/how-to/add-forecasts/)
