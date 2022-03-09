@@ -6,3 +6,4 @@
 1. [Parse Clayton Data Format](/how-to/parse-clayton-data-format/)
 1. [Add forecasts](/how-to/add-forecasts/)
 1. [Serialize data](/how-to/serialize-data/)
+1. [Calculate network matrices](/how-to/calculate-network-matrices/)
