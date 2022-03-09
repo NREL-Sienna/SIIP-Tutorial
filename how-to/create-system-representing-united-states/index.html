@@ -81,7 +81,7 @@ Precompiling project...
 [33m  ✓ [39mDataFrames
 [33m  ✓ [39m[90mInfrastructureSystems[39m
 [33m  ✓ [39mPowerSystems
-  18 dependencies successfully precompiled in 115 seconds (68 already precompiled)
+  18 dependencies successfully precompiled in 124 seconds (68 already precompiled)
   [33m18[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
 </code></pre></div><pre><code class="julia">using PowerSystems
 using TimeSeries
@@ -127,11 +127,9 @@ Stacktrace:
 Let's download the test data.</p>
 <pre><code class="julia">println(&quot;downloading data...&quot;)
 datadir = joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states/data&quot;)
-if !isdir(datadir)
-  mkpath(datadir)
-  tempfilename = download(&quot;https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1&quot;)
-  unzip(SIIPExamples.os, tempfilename, datadir)
-end</code></pre>
+mkpath(datadir)
+tempfilename = download(&quot;https://zenodo.org/record/3753177/files/USATestSystem.zip?download=1&quot;)
+unzip(SIIPExamples.os, tempfilename, datadir)</code></pre>
 <div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: SIIPExamples not defined
 Stacktrace:
 </code></pre></div>
