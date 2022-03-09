@@ -45,17 +45,14 @@
 
 
 <div class="franklin-content" >
-  <h1 id="add_time_series_to_system" ><a href="#add_time_series_to_system"> Add time series to <code>System</code></a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
-<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>An example of how to parse add time series data to a <code>System</code> using <a href="github.com/NREL-SIIP/PowerSystems.jl">PowerSystems.jl</a></p>
-<p>For example, a <code>System</code> created by <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/parse_matpower.ipynb">parsing a MATPOWER file</a>
-doesn't contain any time series data. So a user may want to add time series to the <code>System</code></p>
-<h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><p>Let's use the 5-bus dataset we parsed in the MATPOWER example</p>
+  <h1 id="serializing_powersystem_data" ><a href="#serializing_powersystem_data"> Serializing PowerSystem Data</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>PowerSystems.jl supports serializing/deserializing data with JSON. This notebook
+provides an example of how to write and read a <code>System</code> to/from disk.</p>
+<h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><p>Let's use a dataset from the <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/parse_matpower.ipynb">tabular data parsing example</a></p>
 <pre><code class="julia">using PowerSystems
 using TimeSeries
-using JSON3
 
 base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;);
-
 sys = System(joinpath(base_dir, &quot;matpower&quot;, &quot;case5_re.m&quot;))
 sys</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
@@ -77,99 +74,30 @@ RenewableDispatch(WindBusA, true, Bus(10, bus5, PowerSystems.BusTypesModule.BusT
 
 
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("7a1b822b-bbd6-42f4-9099-1dcc38bdb817"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="define_pointers_to_time_series_files" ><a href="#define_pointers_to_time_series_files"> Define pointers to time series files</a></h3><p>For example, if we want to add a bunch of time series files, say one for each load and
-one for each renewable generator, we need to define pointers to each .csv file containing
-the time series in the following format (PowerSystems.jl also supports a CSV format for this file)</p>
-<pre><code class="julia">base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;);
-FORECASTS_DIR = joinpath(base_dir, &quot;forecasts&quot;, &quot;5bus_ts&quot;)
-fname = joinpath(FORECASTS_DIR, &quot;timeseries_pointers_da.json&quot;)
-open(fname, &quot;r&quot;) do f
-    JSON3.@pretty JSON3.read(f)
-end</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">[
-  {
-                       "component_name": "SolarBusC",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./gen/Renewable/PV/da_solar5.csv",
-                           "resolution": 3600,
-                               "module": "PowerSystems",
-                             "category": "Generator",
-            "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
-  },
-  {
-                       "component_name": "WindBusA",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./gen/Renewable/WIND/da_wind5.csv",
-                           "resolution": 3600,
-                               "module": "PowerSystems",
-                             "category": "Generator",
-            "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
-  },
-  {
-                       "component_name": "bus2",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./load/da_load5.csv",
-                           "resolution": 3600,
-                               "module": "PowerSystems",
-                             "category": "ElectricLoad",
-            "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
-  },
-  {
-                       "component_name": "bus3",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./load/da_load5.csv",
-                           "resolution": 3600,
-                               "module": "PowerSystems",
-                             "category": "ElectricLoad",
-            "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
-  },
-  {
-                       "component_name": "bus4",
-                 "normalization_factor": 1,
-                                 "name": "max_active_power",
-     "scaling_factor_multiplier_module": "PowerSystems",
-                            "data_file": "./load/da_load5.csv",
-                           "resolution": 3600,
-                               "module": "PowerSystems",
-                             "category": "ElectricLoad",
-            "scaling_factor_multiplier": "get_max_active_power",
-                           "simulation": "DAY_AHEAD",
-                                 "type": "SingleTimeSeries"
-  }
-]</code></pre></div><h3 id="read_and_assign_time_series_to_system_using_these_parameters." ><a href="#read_and_assign_time_series_to_system_using_these_parameters."> Read and assign time series to <code>System</code> using these parameters.</a></h3><pre><code class="julia">add_time_series!(sys, fname)
-sys</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(ThermalStandard(Solitude, true, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 3.24498, 3.9, 6.5, (min = 0.0, max = 5.2), (min = -3.9, max = 3.9), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 30.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.NUCLEAR = 9, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("8ce179af-fd34-46bc-ac47-3cceef15cad4"), nothing, Dict{String, Any}()))</code></pre></div><h3 id="write_data_to_a_temporary_directory" ><a href="#write_data_to_a_temporary_directory"> Write data to a temporary directory</a></h3><pre><code class="julia">folder = mktempdir()
+path = joinpath(folder, &quot;system.json&quot;)
+println(&quot;Serializing to $path&quot;)
+to_json(sys, path)
+
+filesize(path) / (1024 * 1024) #MiB</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">Serializing to /tmp/jl_Sw3NWU/system.json
+</code></pre><pre><code class="code-result language-plaintext">0.02357959747314453</code></pre></div><h3 id="read_the_json_file_and_create_a_new_system" ><a href="#read_the_json_file_and_create_a_new_system"> Read the JSON file and create a new <code>System</code></a></h3><pre><code class="julia">sys2 = System(path)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSystems.System(PhaseShiftingTransformer(bus3-bus4-i_6, true, 0.0, 0.0, Arc(Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())), 0.003274425, 0.03274425, 0.003056689342403628, 0.9523809523809523, 0.017453292519943295, 4.26, PowerSystems.Service[], Dict{String, Any}())
+PhaseShiftingTransformer(bus3-bus4-i_5, true, 0.0, 0.0, Arc(Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())), 0.00297, 0.0297, 0.00337, 1.05, 0.017453292519943295, 10.0, PowerSystems.Service[], Dict{String, Any}())
+ThermalStandard(Solitude, true, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 3.24498, 3.9, 6.5, (min = 0.0, max = 5.2), (min = -3.9, max = 3.9), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 30.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.NUCLEAR = 9, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
 ThermalStandard(Park City, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 1.7, 1.275, 2.125, (min = 0.0, max = 1.7), (min = -1.275, max = 1.275), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 15.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
 ThermalStandard(Alta, true, true, Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.4, 0.3, 0.5, (min = 0.0, max = 0.4), (min = -0.3, max = 0.3), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 14.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CT = 8, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
 ThermalStandard(Brighton, true, true, Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 4.70694, -1.6503899999999998, 7.5, (min = 0.0, max = 6.0), (min = -4.5, max = 4.5), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 10.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.ST = 20, PowerSystems.ThermalFuelsModule.ThermalFuels.COAL = 1, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
 ThermalStandard(Sundance, true, true, Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.0, -0.10801999999999999, 2.5, (min = 0.0, max = 2.0), (min = -1.5, max = 1.5), (up = 0.0, down = 0.0), PowerSystems.ThreePartCost(PowerSystems.VariableCost{Tuple{Float64, Float64}}((0.0, 40.0)), 0.0, 0.0, 0.0), 100.0, nothing, PowerSystems.PrimeMoversModule.PrimeMovers.CC = 4, PowerSystems.ThermalFuelsModule.ThermalFuels.NATURAL_GAS = 7, PowerSystems.Service[], 10000.0, nothing, Dict{String, Any}())
-PhaseShiftingTransformer(bus3-bus4-i_6, true, 0.0, 0.0, Arc(Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())), 0.003274425, 0.03274425, 0.003056689342403628, 0.9523809523809523, 0.017453292519943295, 4.26, PowerSystems.Service[], Dict{String, Any}())
-PhaseShiftingTransformer(bus3-bus4-i_5, true, 0.0, 0.0, Arc(Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())), 0.00297, 0.0297, 0.00337, 1.05, 0.017453292519943295, 10.0, PowerSystems.Service[], Dict{String, Any}())
 LoadZone(1, 10.0, 3.2869)
-RenewableDispatch(SolarBusC, true, Bus(3, bus3, PowerSystems.BusTypesModule.BusTypes.PV = 3, -0.00976895688926266, 1.1, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.0, 0.0, 0.6, PowerSystems.PrimeMoversModule.PrimeMovers.PVe = 21, (min = 0.0, max = 0.0), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(0.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
-RenewableDispatch(WindBusA, true, Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), 0.0, 0.0, 0.6, PowerSystems.PrimeMoversModule.PrimeMovers.WT = 22, (min = 0.0, max = 0.0), 1.0, PowerSystems.TwoPartCost(PowerSystems.VariableCost{Float64}(0.0), 0.0), 100.0, PowerSystems.Service[], nothing, Dict{String, Any}())
+Line(bus1-bus5-i_3, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(10, bus5, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.06266307973312801, 1.06907, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())), 0.00064, 0.0064, (from = 0.01563, to = 0.01563), 10.0, (min = -0.5235987755982988, max = 0.5235987755982988), PowerSystems.Service[], Dict{String, Any}())
+Line(bus1-bus4-i_2, true, 0.0, 0.0, Arc(Bus(1, bus1, PowerSystems.BusTypesModule.BusTypes.PV = 3, 0.048935017968641414, 1.07762, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}()), Bus(4, bus4, PowerSystems.BusTypesModule.BusTypes.REF = 4, 0.0, 1.06414, (min = 0.9, max = 1.1), 230.0, Area(1, 0.0, 0.0, 0.0), LoadZone(1, 10.0, 3.2869), Dict{String, Any}())), 0.00304, 0.0304, (from = 0.00329, to = 0.00329), 2.0, (min = -0.5235987755982988, max = 0.5235987755982988), PowerSystems.Service[], Dict{String, Any}())
 
 ***Omitted 21 components***
 
 
 
-InfrastructureSystems.TimeSeriesParameters(Dates.Millisecond(3600000), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("7a1b822b-bbd6-42f4-9099-1dcc38bdb817"), nothing, Dict{String, Any}()))</code></pre></div>
+InfrastructureSystems.TimeSeriesParameters(Dates.Minute(0), InfrastructureSystems.ForecastParameters(0, Dates.DateTime("0001-01-01T00:00:00"), Dates.Minute(0), 0)), 60.0, Set([4, 2, 10, 3, 1]), Base.RefValue{Bool}(true), InfrastructureSystems.SystemUnitsSettings(100.0, InfrastructureSystems.UnitSystemModule.UnitSystem.SYSTEM_BASE = 0), InfrastructureSystems.InfrastructureSystemsInternal(UUID("8ce179af-fd34-46bc-ac47-3cceef15cad4"), nothing, nothing))</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: March 9, 2022. Website built with
