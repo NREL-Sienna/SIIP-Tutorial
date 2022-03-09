@@ -5,3 +5,4 @@
 - [Parse PSS/e files](/how-to/parse-psse/)
 - [Parse Clayton Data Format](/how-to/parse-clayton-data-format/)
 - [Add forecasts](/how-to/add-forecasts/)
+- [Serialize data](/how-to/serialize-data/)
