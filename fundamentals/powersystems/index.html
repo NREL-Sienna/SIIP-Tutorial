@@ -589,7 +589,8 @@ foreach&#40;x -&gt; add_component&#33;&#40;sys, x&#41;, Iterators.flatten&#40;&#
 
 </div></div><p>This function takes a <code>PowerSystems.System</code> and a <code>PowerSystems.Component</code>.
 Let's create a battery storage and attach it to a bus.</p>
-<pre><code class="julia">battery = GenericBattery(; name = &quot;battery&quot;,
+<pre><code class="julia">loads = collect(get_components(PowerLoad, system))
+battery = GenericBattery(; name = &quot;battery&quot;,
   available = true,
   bus = get_bus(first(loads)),
   prime_mover=PrimeMovers.BA,
