@@ -51,8 +51,8 @@
 <a href="https://arxiv.org/abs/2002.06155">Xu, et. al.</a>. We'll use the same tabular data parsing
 capability <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/04_parse_tabulardata.ipynb">demonstrated on the RTS-GMLC dataset</a>.</p>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">  Activating project at `~/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states`
-   Installed ArrayInterface ─ v5.0.1
    Installed Mocking ──────── v0.7.3
+   Installed ArrayInterface ─ v5.0.1
    Installed TimeZones ────── v1.7.2
    Installed CSV ──────────── v0.10.3
     Building TimeZones → `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/2d4b6de8676b34525ac518de36006dc2e89c7e2e/build.log`
@@ -65,7 +65,7 @@ Precompiling project...
 [33m  ✓ [39m[90mNLsolve[39m
 [33m  ✓ [39m[90mInfrastructureSystems[39m
 [33m  ✓ [39mPowerSystems
-  8 dependencies successfully precompiled in 72 seconds (78 already precompiled)
+  8 dependencies successfully precompiled in 79 seconds (78 already precompiled)
   [33m8[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
 </code></pre></div><pre><code class="julia">using PowerSystems
 using TimeSeries
@@ -129,7 +129,7 @@ config_dir = joinpath(
     joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states&quot;),
     &quot;config&quot;,
 )</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_Wk4xyW to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_Rf9QAW to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
 Stacktrace:
   [1] unzip(#unused#::Type{Main.__FRANKLIN_4456949.Linux}, filename::String, directory::String)
     @ Main.__FRANKLIN_4456949 ./string:25
