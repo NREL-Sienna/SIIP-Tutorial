@@ -258,7 +258,7 @@ This function takes a `PowerSystems.System` and a `PowerSystems.Component`.
 Let's create a battery storage and attach it to a bus.
 
 ```!
-loads = collect(get_components(PowerLoad, system)) # hide
+loads = collect(get_components(PowerLoad, system))
 try # hide
   remove_component!(system, get_component(GenericBattery, system, "battery")) # hide
 catch # hide
