@@ -424,8 +424,7 @@ get_largest_load_names(system, n = 10) =
 
 get_largest_load_names(system, 10)
 
-v = get_largest_load_names(system, 10) # hide
-show(stdout, "text/plain", v) # hide
+show(stdout, "text/plain", get_largest_load_names(system, 10)) # hide
 ```
 
 }
