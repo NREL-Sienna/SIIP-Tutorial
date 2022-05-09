@@ -60,13 +60,13 @@ Precompiling project...
 [33m  ✓ [39m[90mArrayInterface[39m
 [33m  ✓ [39m[90mFiniteDiff[39m
 [32m  ✓ [39mTimeZones
-[33m  ✓ [39m[90mNLSolversBase[39m
 [33m  ✓ [39mCSV
+[33m  ✓ [39m[90mNLSolversBase[39m
 [33m  ✓ [39m[90mLineSearches[39m
 [33m  ✓ [39m[90mNLsolve[39m
 [33m  ✓ [39m[90mInfrastructureSystems[39m
 [33m  ✓ [39mPowerSystems
-  9 dependencies successfully precompiled in 84 seconds (77 already precompiled)
+  9 dependencies successfully precompiled in 100 seconds (77 already precompiled)
   [33m8[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
 </code></pre></div><pre><code class="julia">using PowerSystems
 using TimeSeries
@@ -130,7 +130,7 @@ config_dir = joinpath(
     joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states&quot;),
     &quot;config&quot;,
 )</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_U0zHEv to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_n3S5ZL to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
 Stacktrace:
   [1] unzip(#unused#::Type{Main.__FRANKLIN_4456949.Linux}, filename::String, directory::String)
     @ Main.__FRANKLIN_4456949 ./string:25
