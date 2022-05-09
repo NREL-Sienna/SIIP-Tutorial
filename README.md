@@ -2,8 +2,8 @@
 
 This package contains examples and tutorials for [Scalable Integrated Infrastructure Planning (SIIP) packages developed at the National Renewable Energy Laboratory (NREL)](https://www.nrel.gov/analysis/siip.html).
 
-The examples included here are intended as practical examples of using [SIIP packages](https://github.com/nrel-siip). However,
-in many cases users may find the documentation pages for each package more informative:
+The examples included here are intended as practical examples of using [SIIP packages](https://github.com/nrel-siip).
+However, in many cases users may find the documentation pages for each package more informative:
 
 - [InfrastructureSystems.jl docs](https://nrel-siip.github.io/InfrastructureSystems.jl/stable/)
 - [PowerSystems.jl docs](https://nrel-siip.github.io/PowerSystems.jl/stable/)
