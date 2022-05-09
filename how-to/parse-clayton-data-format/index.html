@@ -69,12 +69,12 @@ rawsys = PowerSystems.PowerSystemTableData(
   directory:  /home/runner/.julia/packages/PowerSystems/0u1wh/data/RTS_GMLC
   timeseries_metadata_file:  /home/runner/.julia/packages/PowerSystems/0u1wh/data/RTS_GMLC/timeseries_pointers.json
   base_power:  100.0
-  PowerSystems.InputCategoryModule.InputCategory.RESERVE = 6:  7×7 DataFrame
   PowerSystems.InputCategoryModule.InputCategory.STORAGE = 8:  22×8 DataFrame
-  PowerSystems.InputCategoryModule.InputCategory.BRANCH = 1:  120×14 DataFrame
   PowerSystems.InputCategoryModule.InputCategory.BUS = 2:  73×15 DataFrame
-  PowerSystems.InputCategoryModule.InputCategory.DC_BRANCH = 3:  1×60 DataFrame
   PowerSystems.InputCategoryModule.InputCategory.GENERATOR = 4:  158×58 DataFrame
+  PowerSystems.InputCategoryModule.InputCategory.RESERVE = 6:  7×7 DataFrame
+  PowerSystems.InputCategoryModule.InputCategory.DC_BRANCH = 3:  1×60 DataFrame
+  PowerSystems.InputCategoryModule.InputCategory.BRANCH = 1:  120×14 DataFrame
 </code></pre></div><h3 id="create_a_system" ><a href="#create_a_system"> Create a <code>System</code></a></h3><p>Next, we'll create a <code>System</code> from the <code>rawsys</code> data. Since a <code>System</code> is predicated on a
 time series resolution and the <code>rawsys</code> data includes both 5-minute and 1-hour resolution
 time series, we also need to specify which time series we want to include in the <code>System</code>.
@@ -399,7 +399,7 @@ sys</code></pre>
 </div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
-  Dheepak Krishnamurthy.  Last modified: March 10, 2022. Website built with
+  Dheepak Krishnamurthy.  Last modified: May 9, 2022. Website built with
   <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
   <a href="https://julialang.org">Julia programming language</a>.
 </div>
