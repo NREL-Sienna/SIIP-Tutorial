@@ -59,53 +59,10 @@ base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&qu
 sys = System(joinpath(base_dir, &quot;matpower&quot;, &quot;case5_re.m&quot;))
 sys</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/0u1wh/src/parsers/pm_io/matpower.jl:245
+└ @ PowerSystems ~/.julia/packages/PowerSystems/KS7DZ/src/parsers/pm_io/matpower.jl:245
 ┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/0u1wh/src/parsers/pm_io/matpower.jl:245
-</code></pre><!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<style>
-  table, td, th {
-      border-collapse: collapse;
-      font-family: sans-serif;
-  }
-
-  td, th {
-      border-bottom: 0;
-      padding: 4px
-  }
-
-  tr:nth-child(odd) {
-      background: #eee;
-  }
-
-  tr:nth-child(even) {
-      background: #fff;
-  }
-
-  tr.header {
-      background: navy !important;
-      color: white;
-      font-weight: bold;
-  }
-
-  tr.subheader {
-      background: lightgray !important;
-      color: black;
-  }
-
-  tr.headerLastRow {
-      border-bottom: 2px solid black;
-  }
-
-  th.rowNumber, td.rowNumber {
-      text-align: right;
-  }
-
-</style>
-<body>
-<table>
+└ @ PowerSystems ~/.julia/packages/PowerSystems/KS7DZ/src/parsers/pm_io/matpower.jl:245
+</code></pre><table>
   <caption style = "text-align: left;">System</caption>
   <thead>
     <tr class = "header headerLastRow">
@@ -132,51 +89,7 @@ sys</code></pre>
     </tr>
   </tbody>
 </table>
-</body>
-</html>
 
-<!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<style>
-  table, td, th {
-      border-collapse: collapse;
-      font-family: sans-serif;
-  }
-
-  td, th {
-      border-bottom: 0;
-      padding: 4px
-  }
-
-  tr:nth-child(odd) {
-      background: #eee;
-  }
-
-  tr:nth-child(even) {
-      background: #fff;
-  }
-
-  tr.header {
-      background: #fff !important;
-      font-weight: bold;
-  }
-
-  tr.subheader {
-      background: #fff !important;
-      color: dimgray;
-  }
-
-  tr.headerLastRow {
-      border-bottom: 2px solid black;
-  }
-
-  th.rowNumber, td.rowNumber {
-      text-align: right;
-  }
-
-</style>
-<body>
 <table>
   <caption style = "text-align: left;">Static Components</caption>
   <thead>
@@ -244,8 +157,6 @@ sys</code></pre>
     </tr>
   </tbody>
 </table>
-</body>
-</html>
 
 </div><h3 id="define_pointers_to_time_series_files" ><a href="#define_pointers_to_time_series_files"> Define pointers to time series files</a></h3><p>For example, if we want to add a bunch of time series files, say one for each load and
 one for each renewable generator, we need to define pointers to each .csv file containing
@@ -324,50 +235,7 @@ end</code></pre>
   }
 ]</code></pre></div><h3 id="read_and_assign_time_series_to_system_using_these_parameters." ><a href="#read_and_assign_time_series_to_system_using_these_parameters."> Read and assign time series to <code>System</code> using these parameters.</a></h3><pre><code class="julia">add_time_series!(sys, fname)
 sys</code></pre>
-<div class="code-output"><!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<style>
-  table, td, th {
-      border-collapse: collapse;
-      font-family: sans-serif;
-  }
-
-  td, th {
-      border-bottom: 0;
-      padding: 4px
-  }
-
-  tr:nth-child(odd) {
-      background: #eee;
-  }
-
-  tr:nth-child(even) {
-      background: #fff;
-  }
-
-  tr.header {
-      background: navy !important;
-      color: white;
-      font-weight: bold;
-  }
-
-  tr.subheader {
-      background: lightgray !important;
-      color: black;
-  }
-
-  tr.headerLastRow {
-      border-bottom: 2px solid black;
-  }
-
-  th.rowNumber, td.rowNumber {
-      text-align: right;
-  }
-
-</style>
-<body>
-<table>
+<div class="code-output"><table>
   <caption style = "text-align: left;">System</caption>
   <thead>
     <tr class = "header headerLastRow">
@@ -394,51 +262,7 @@ sys</code></pre>
     </tr>
   </tbody>
 </table>
-</body>
-</html>
 
-<!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<style>
-  table, td, th {
-      border-collapse: collapse;
-      font-family: sans-serif;
-  }
-
-  td, th {
-      border-bottom: 0;
-      padding: 4px
-  }
-
-  tr:nth-child(odd) {
-      background: #eee;
-  }
-
-  tr:nth-child(even) {
-      background: #fff;
-  }
-
-  tr.header {
-      background: #fff !important;
-      font-weight: bold;
-  }
-
-  tr.subheader {
-      background: #fff !important;
-      color: dimgray;
-  }
-
-  tr.headerLastRow {
-      border-bottom: 2px solid black;
-  }
-
-  th.rowNumber, td.rowNumber {
-      text-align: right;
-  }
-
-</style>
-<body>
 <table>
   <caption style = "text-align: left;">Static Components</caption>
   <thead>
@@ -506,51 +330,7 @@ sys</code></pre>
     </tr>
   </tbody>
 </table>
-</body>
-</html>
 
-<!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<style>
-  table, td, th {
-      border-collapse: collapse;
-      font-family: sans-serif;
-  }
-
-  td, th {
-      border-bottom: 0;
-      padding: 4px
-  }
-
-  tr:nth-child(odd) {
-      background: #eee;
-  }
-
-  tr:nth-child(even) {
-      background: #fff;
-  }
-
-  tr.header {
-      background: #fff !important;
-      font-weight: bold;
-  }
-
-  tr.subheader {
-      background: #fff !important;
-      color: dimgray;
-  }
-
-  tr.headerLastRow {
-      border-bottom: 2px solid black;
-  }
-
-  th.rowNumber, td.rowNumber {
-      text-align: right;
-  }
-
-</style>
-<body>
 <table>
   <caption style = "text-align: left;">Time Series Summary</caption>
   <thead>
@@ -578,8 +358,6 @@ sys</code></pre>
     </tr>
   </tbody>
 </table>
-</body>
-</html>
 </div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>

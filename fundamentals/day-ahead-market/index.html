@@ -130,7 +130,7 @@ using PowerSystemCaseBuilder
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;; force_build = true, skip_serialization = true)</code></pre>
 You should see the following in your terminal before the output of running the script.<pre><code class="julia">[ Info: Building the RTS test system</code></pre>
 </fieldset><p>Going forward in this tutorial, I'm going to show the output of the terminal on this webpage, instead of screenshots of the vscode terminal, for the clarity of presentation. For example, the output of the <code>system</code> will be as follows:</p>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">110.183350 seconds (135.03 M allocations: 6.635 GiB, 3.58% gc time, 88.69% compilation time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext"> 71.965790 seconds (92.20 M allocations: 4.954 GiB, 3.39% gc time, 83.96% compilation time)
 System
 ┌───────────────────┬─────────────┐
 │ Property          │ Value       │
@@ -186,9 +186,9 @@ The following is the output of the same <code>build_system</code> function 3 mor
    force_build = true, skip_serialization = true);
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
    force_build = true, skip_serialization = true);</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.390943 seconds (13.21 M allocations: 621.905 MiB, 18.31% gc time)
-  1.309706 seconds (13.21 M allocations: 621.972 MiB, 10.64% gc time)
-  1.340189 seconds (13.21 M allocations: 621.905 MiB, 15.20% gc time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  0.963218 seconds (8.69 M allocations: 432.622 MiB, 14.86% gc time)
+  0.893380 seconds (8.69 M allocations: 432.622 MiB, 9.99% gc time)
+  0.924500 seconds (8.69 M allocations: 432.688 MiB, 12.52% gc time)
 </code></pre></div>There are ways to decrease the "first time to run" for Julia code but we'll cover that in a more advanced session.
 For now, it is enough to just be aware of this quirk of the language.
 
@@ -222,63 +222,44 @@ Fortunately, <code>PowerSimulations</code> has a <code>template</code> for just 
 
 @info &quot;Building a template for unit commitment&quot;
 template = template_unit_commitment()</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">
-Operations Problem Specification
-============================================
-Transmission: PowerSimulations.CopperPlatePowerModel
-============================================
-Devices Models: 
+<div class="code-output"><pre><code class="code-stdout language-plaintext">Network Model
+┌───────────────┬────────────────────────────────────────┐
+│ Network Model │ PowerSimulations.CopperPlatePowerModel │
+│ Slacks        │ false                                  │
+│ PTDF          │ false                                  │
+│ Duals         │                                        │
+└───────────────┴────────────────────────────────────────┘
 
-	Type: PowerSystems.ThermalStandard
- 	Formulation: PowerSimulations.ThermalBasicUnitCommitment
+Device Models
+┌───────────────────────────────────┬─────────────────────────────────────────────┬────────┐
+│ Device Type                       │ Formulation                                 │ Slacks │
+├───────────────────────────────────┼─────────────────────────────────────────────┼────────┤
+│ PowerSystems.ThermalStandard      │ PowerSimulations.ThermalBasicUnitCommitment │ false  │
+│ PowerSystems.HydroEnergyReservoir │ PowerSimulations.HydroDispatchRunOfRiver    │ false  │
+│ PowerSystems.RenewableDispatch    │ PowerSimulations.RenewableFullDispatch      │ false  │
+│ PowerSystems.PowerLoad            │ PowerSimulations.StaticPowerLoad            │ false  │
+│ PowerSystems.InterruptibleLoad    │ PowerSimulations.InterruptiblePowerLoad     │ false  │
+│ PowerSystems.RenewableFix         │ PowerSimulations.FixedOutput                │ false  │
+│ PowerSystems.HydroDispatch        │ PowerSimulations.HydroDispatchRunOfRiver    │ false  │
+└───────────────────────────────────┴─────────────────────────────────────────────┴────────┘
 
-	Type: PowerSystems.HydroEnergyReservoir
- 	Formulation: PowerSimulations.HydroDispatchRunOfRiver
+Branch Models
+┌─────────────────────────────┬───────────────────────────────┬────────┐
+│ Branch Type                 │ Formulation                   │ Slacks │
+├─────────────────────────────┼───────────────────────────────┼────────┤
+│ PowerSystems.Transformer2W  │ PowerSimulations.StaticBranch │ false  │
+│ PowerSystems.Line           │ PowerSimulations.StaticBranch │ false  │
+│ PowerSystems.HVDCLine       │ PowerSimulations.HVDCDispatch │ false  │
+│ PowerSystems.TapTransformer │ PowerSimulations.StaticBranch │ false  │
+└─────────────────────────────┴───────────────────────────────┴────────┘
 
-	Type: PowerSystems.RenewableDispatch
- 	Formulation: PowerSimulations.RenewableFullDispatch
-
-	Type: PowerSystems.PowerLoad
- 	Formulation: PowerSimulations.StaticPowerLoad
-
-	Type: PowerSystems.InterruptibleLoad
- 	Formulation: PowerSimulations.InterruptiblePowerLoad
-
-	Type: PowerSystems.RenewableFix
- 	Formulation: PowerSimulations.FixedOutput
-
-	Type: PowerSystems.HydroDispatch
- 	Formulation: PowerSimulations.HydroDispatchRunOfRiver
-
-============================================
-Branches Models: 
-
-	Type: PowerSystems.Transformer2W
- 	Formulation: PowerSimulations.StaticBranch
-
-	Type: PowerSystems.Line
- 	Formulation: PowerSimulations.StaticBranch
-
-	Type: PowerSystems.HVDCLine
- 	Formulation: PowerSimulations.HVDCDispatch
-
-	Type: PowerSystems.TapTransformer
- 	Formulation: PowerSimulations.StaticBranch
-
-============================================
-Services Models:
-
-	Type: PowerSystems.VariableReserve{PowerSystems.ReserveUp}
- 	Formulation: PowerSimulations.RangeReserve
-
-	Name specific Model
-
-	Type: PowerSystems.VariableReserve{PowerSystems.ReserveDown}
- 	Formulation: PowerSimulations.RangeReserve
-
-	Name specific Model
-
-============================================
+Service Models
+┌────────────────────────────────────────────────────────┬───────────────────────────────┬────────┬──────────────────┐
+│ Service Type                                           │ Formulation                   │ Slacks │ Aggregated Model │
+├────────────────────────────────────────────────────────┼───────────────────────────────┼────────┼──────────────────┤
+│ PowerSystems.VariableReserve{PowerSystems.ReserveUp}   │ PowerSimulations.RangeReserve │ false  │ true             │
+│ PowerSystems.VariableReserve{PowerSystems.ReserveDown} │ PowerSimulations.RangeReserve │ false  │ true             │
+└────────────────────────────────────────────────────────┴───────────────────────────────┴────────┴──────────────────┘
 </code></pre></div><p>This template is like a blueprint or recipe for what optimization problem we'd like to solve.</p>
 <p>Note that this printout shows that this template defines the recipe for how to assemble device, branch and service models.
 And under device models, for the various kinds of components, there are various formulations assigned to them.
@@ -319,14 +300,52 @@ When this successfully completes, you should see the following status message be
 <div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.RunStatusModule.RunStatus.SUCCESSFUL = 0</code></pre></div><h2 id="getting_results_from_the_model" ><a href="#getting_results_from_the_model"> Getting Results from the Model</a></h2><p>Now that we've built and solved the model, we can get results from it.</p>
 <p><code>PowerSimulations</code> has some helper functionality to this end.</p>
 <pre><code class="julia">results = ProblemResults(model)</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">ProblemResults:
-  Base power: 100.0
-  Variables: PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.VariableKey{PowerSimulations.StartVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.RenewableDispatch}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.VariableKey{PowerSimulations.ActivePowerReserveVariable, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.VariableKey{PowerSimulations.StopVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.HydroDispatch}("") PowerSimulations.VariableKey{PowerSimulations.OnVariable, PowerSystems.ThermalStandard}("") PowerSimulations.VariableKey{PowerSimulations.ActivePowerVariable, PowerSystems.ThermalStandard}("")
-  Duals: 
-  Parameters: PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Reg_Up") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R2") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableFix}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.RenewableDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.HydroDispatch}("") PowerSimulations.ParameterKey{PowerSimulations.ActivePowerTimeSeriesParameter, PowerSystems.PowerLoad}("") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R3") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveDown}}("Reg_Down") PowerSimulations.ParameterKey{PowerSimulations.RequirementTimeSeriesParameter, PowerSystems.VariableReserve{PowerSystems.ReserveUp}}("Spin_Up_R1")
+<div class="code-output"><pre><code class="code-stdout language-plaintext">Start: 2020-01-01T00:00:00
+End: 2020-01-01T23:00:00
+Resolution: 60 minutes
+
+PowerSimulations Problem Auxiliary variables Results
+┌─────────────────────────────┐
+│ EnergyOutput__HydroDispatch │
+└─────────────────────────────┘
+
+PowerSimulations Problem Expressions Results
+┌─────────────────────────────────────────────┐
+│ ProductionCostExpression__ThermalStandard   │
+│ ProductionCostExpression__RenewableDispatch │
+│ ProductionCostExpression__HydroDispatch     │
+└─────────────────────────────────────────────┘
+
+PowerSimulations Problem Parameters Results
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Reg_Up     │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
+│ ActivePowerTimeSeriesParameter__RenewableFix                                        │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
+│ ActivePowerTimeSeriesParameter__PowerLoad                                           │
+│ ActivePowerTimeSeriesParameter__HydroDispatch                                       │
+│ ActivePowerTimeSeriesParameter__RenewableDispatch                                   │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+PowerSimulations Problem Variables Results
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ StopVariable__ThermalStandard                                                   │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
+│ ActivePowerVariable__RenewableDispatch                                          │
+│ OnVariable__ThermalStandard                                                     │
+│ StartVariable__ThermalStandard                                                  │
+│ ActivePowerVariable__HydroDispatch                                              │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Reg_Up     │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
+│ ActivePowerVariable__ThermalStandard                                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
 </code></pre></div><p>For example, if you are interested in getting the objection function value, you can use the <code>get_objective_value</code> function:</p>
 <pre><code class="julia">get_objective_value(results)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">1.5371547080667508e6</code></pre></div><p>There are a lot of other helper functions available to get results from the model.
+<div class="code-output"><pre><code class="code-result language-plaintext">1.494376408647729e6</code></pre></div><p>There are a lot of other helper functions available to get results from the model.
 In order to find what functions are available on to call, you can refer to <a href="https://nrel-siip.github.io/PowerSimulations.jl/latest/api/PowerSimulations/#PowerSimulations.ProblemResults-Tuple%7BAbstractString%7D">the API reference documentation of <code>PowerSimulations</code></a>.
 Searching for <code>res::ProblemResults</code> on this page can help you find a method that you are interested in.</p>
 <fieldset class="tip"><legend class="tip-legend">💡 Tip</legend>

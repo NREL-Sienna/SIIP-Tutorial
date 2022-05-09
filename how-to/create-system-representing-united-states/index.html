@@ -51,23 +51,90 @@
 <a href="https://arxiv.org/abs/2002.06155">Xu, et. al.</a>. We'll use the same tabular data parsing
 capability <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/04_parse_tabulardata.ipynb">demonstrated on the RTS-GMLC dataset</a>.</p>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">  Activating project at `~/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states`
-   Installed Mocking ──────── v0.7.3
-   Installed ArrayInterface ─ v5.0.1
-   Installed TimeZones ────── v1.7.2
-   Installed CSV ──────────── v0.10.3
+   Installed Mocking ─────────────── v0.7.3
+   Installed OpenSSL_jll ─────────── v1.1.13+0
+   Installed DiffRules ───────────── v1.10.0
+   Installed Preferences ─────────── v1.2.4
+   Installed Parsers ─────────────── v2.2.3
+   Installed JSON3 ───────────────── v1.9.3
+   Installed PooledArrays ────────── v1.4.0
+   Installed DataAPI ─────────────── v1.9.0
+   Installed StaticArrays ────────── v1.4.1
+   Installed TimeZones ───────────── v1.7.2
+   Installed PowerSystems ────────── v1.20.0
+   Installed ChainRulesCore ──────── v1.13.0
+   Installed HDF5 ────────────────── v0.16.2
+   Installed Static ──────────────── v0.6.0
+   Installed FilePathsBase ───────── v0.9.17
+   Installed ArrayInterface ──────── v5.0.1
+   Installed LogExpFunctions ─────── v0.3.7
+   Installed ForwardDiff ─────────── v0.10.25
+   Installed DataFrames ──────────── v1.3.2
+   Installed DataStructures ──────── v0.18.11
+   Installed StatsAPI ────────────── v1.2.1
+   Installed Compat ──────────────── v3.42.0
+   Installed InverseFunctions ────── v0.1.3
+   Installed ChangesOfVariables ──── v0.1.2
+   Installed FiniteDiff ──────────── v2.11.0
+   Installed InfrastructureSystems ─ v1.17.1
+   Installed CSV ─────────────────── v0.10.3
+    Building HDF5 ─────→ `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/ed6c28c220375a214d07fba0e3d3382d8edd779e/build.log`
     Building TimeZones → `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/2d4b6de8676b34525ac518de36006dc2e89c7e2e/build.log`
 Precompiling project...
+[33m  ✓ [39m[90mCompat[39m
+[33m  ✓ [39m[90mInverseFunctions[39m
+[33m  ✓ [39m[90mDataAPI[39m
+[33m  ✓ [39m[90mStatsAPI[39m
+[33m  ✓ [39m[90mStatic[39m
+[33m  ✓ [39m[90mPreferences[39m
+[33m  ✓ [39m[90mDataStructures[39m
+[33m  ✓ [39m[90mStaticArrays[39m
+[32m  ✓ [39m[90mMocking[39m
+[33m  ✓ [39m[90mFilePathsBase[39m
+[33m  ✓ [39m[90mTables[39m
+[33m  ✓ [39m[90mChainRulesCore[39m
+[33m  ✓ [39m[90mPooledArrays[39m
+[33m  ✓ [39m[90mMissings[39m
+[33m  ✓ [39m[90mDistances[39m
+[33m  ✓ [39m[90mJLLWrappers[39m
 [33m  ✓ [39m[90mArrayInterface[39m
+[33m  ✓ [39m[90mSortingAlgorithms[39m
+[33m  ✓ [39m[90mMustache[39m
+[33m  ✓ [39m[90mDiffResults[39m
+[33m  ✓ [39mTimeSeries
+[33m  ✓ [39m[90mChangesOfVariables[39m
+[33m  ✓ [39m[90mOpenSSL_jll[39m
+[33m  ✓ [39m[90mZstd_jll[39m
+[33m  ✓ [39m[90mPrettyTables[39m
+[33m  ✓ [39m[90mLibiconv_jll[39m
+[33m  ✓ [39m[90mLz4_jll[39m
+[33m  ✓ [39m[90mOpenSpecFun_jll[39m
 [33m  ✓ [39m[90mFiniteDiff[39m
-[32m  ✓ [39mTimeZones
-[33m  ✓ [39mCSV
+[33m  ✓ [39m[90mLogExpFunctions[39m
+[33m  ✓ [39m[90mHDF5_jll[39m
+[33m  ✓ [39m[90mStringEncodings[39m
+[33m  ✓ [39m[90mBlosc_jll[39m
+[33m  ✓ [39m[90mSpecialFunctions[39m
+[33m  ✓ [39m[90mHDF5[39m
+[33m  ✓ [39m[90mYAML[39m
+[33m  ✓ [39m[90mBlosc[39m
+[33m  ✓ [39m[90mDiffRules[39m
+[33m  ✓ [39m[90mH5Zblosc[39m
+[33m  ✓ [39m[90mForwardDiff[39m
 [33m  ✓ [39m[90mNLSolversBase[39m
 [33m  ✓ [39m[90mLineSearches[39m
+[33m  ✓ [39m[90mParsers[39m
 [33m  ✓ [39m[90mNLsolve[39m
+[33m  ✓ [39m[90mInlineStrings[39m
+[33m  ✓ [39m[90mJSON3[39m
+[33m  ✓ [39m[90mWeakRefStrings[39m
+[33m  ✓ [39mDataFrames
+[32m  ✓ [39mTimeZones
+[33m  ✓ [39mCSV
 [33m  ✓ [39m[90mInfrastructureSystems[39m
 [33m  ✓ [39mPowerSystems
-  9 dependencies successfully precompiled in 100 seconds (77 already precompiled)
-  [33m8[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
+  52 dependencies successfully precompiled in 132 seconds (34 already precompiled)
+  [33m50[39m dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
 </code></pre></div><pre><code class="julia">using PowerSystems
 using TimeSeries
 using Dates
@@ -130,7 +197,7 @@ config_dir = joinpath(
     joinpath(Utils.path(:folder), &quot;how-to/create-system-representing-united-states&quot;),
     &quot;config&quot;,
 )</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_n3S5ZL to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: AssertionError: Unable to extract /tmp/jl_6zbg0c to /home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data
 Stacktrace:
   [1] unzip(#unused#::Type{Main.__FRANKLIN_4456949.Linux}, filename::String, directory::String)
     @ Main.__FRANKLIN_4456949 ./string:25
@@ -174,12 +241,12 @@ gen = make_pwl(gen);
 gen[!, &quot;fuel_price&quot;] .= 1000.0;  #this formats the &quot;c&quot; columns to hack the heat rate parser in PSY</code></pre>
 <div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/plant.csv" is not a valid file or doesn't exist
 Stacktrace:
-  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, stripwhitespace::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/context.jl:236
   [2] #File#25
-    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+    @ ~/.julia/packages/CSV/jFiCn/src/file.jl:221 [inlined]
   [3] CSV.File(source::String)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/file.jl:221
 </code></pre></div><p>There are some incomplete aspects of this dataset. Here, I've assigned some approximate
 minimum up/down times, and some minor adjustments to categories. There are better
 ways to do this, but this works for this script...</p>
@@ -236,12 +303,12 @@ bus.name = &quot;bus&quot; .* string.(bus.bus_id)
 CSV.write(joinpath(siip_data, &quot;bus.csv&quot;), bus)</code></pre>
 <div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/bus.csv" is not a valid file or doesn't exist
 Stacktrace:
-  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, stripwhitespace::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/context.jl:236
   [2] #File#25
-    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+    @ ~/.julia/packages/CSV/jFiCn/src/file.jl:221 [inlined]
   [3] CSV.File(source::String)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/file.jl:221
 </code></pre></div><p>We need branch names as strings</p>
 <pre><code class="julia">branch = DataFrame(CSV.File(joinpath(datadir, &quot;branch.csv&quot;)))
 branch = leftjoin(
@@ -260,12 +327,12 @@ branch.tr_ratio = branch.from_baseKV ./ branch.to_baseKV
 CSV.write(joinpath(siip_data, &quot;branch.csv&quot;), branch)</code></pre>
 <div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/branch.csv" is not a valid file or doesn't exist
 Stacktrace:
-  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, stripwhitespace::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/context.jl:236
   [2] #File#25
-    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+    @ ~/.julia/packages/CSV/jFiCn/src/file.jl:221 [inlined]
   [3] CSV.File(source::String)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/file.jl:221
 </code></pre></div><p>The PowerSystems parser expects the files to be named a certain way.</p>
 <p>And, we need a <code>control_mode</code> column in dc-line data</p>
 <pre><code class="julia">dcbranch = DataFrame(CSV.File(joinpath(datadir, &quot;dcline.csv&quot;)))
@@ -276,12 +343,12 @@ dcbranch[:, :control_mode] .= &quot;Power&quot;
 CSV.write(joinpath(siip_data, &quot;dc_branch.csv&quot;), dcbranch)</code></pre>
 <div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: "/home/runner/work/SIIP-Tutorial/SIIP-Tutorial/how-to/create-system-representing-united-states/data/dcline.csv" is not a valid file or doesn't exist
 Stacktrace:
-  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/context.jl:256
+  [1] CSV.Context(source::CSV.Arg, header::CSV.Arg, normalizenames::CSV.Arg, datarow::CSV.Arg, skipto::CSV.Arg, footerskip::CSV.Arg, transpose::CSV.Arg, comment::CSV.Arg, ignoreemptyrows::CSV.Arg, ignoreemptylines::CSV.Arg, select::CSV.Arg, drop::CSV.Arg, limit::CSV.Arg, buffer_in_memory::CSV.Arg, threaded::CSV.Arg, ntasks::CSV.Arg, tasks::CSV.Arg, rows_to_check::CSV.Arg, lines_to_check::CSV.Arg, missingstrings::CSV.Arg, missingstring::CSV.Arg, delim::CSV.Arg, ignorerepeated::CSV.Arg, quoted::CSV.Arg, quotechar::CSV.Arg, openquotechar::CSV.Arg, closequotechar::CSV.Arg, escapechar::CSV.Arg, dateformat::CSV.Arg, dateformats::CSV.Arg, decimal::CSV.Arg, truestrings::CSV.Arg, falsestrings::CSV.Arg, stripwhitespace::CSV.Arg, type::CSV.Arg, types::CSV.Arg, typemap::CSV.Arg, pool::CSV.Arg, downcast::CSV.Arg, lazystrings::CSV.Arg, stringtype::CSV.Arg, strict::CSV.Arg, silencewarnings::CSV.Arg, maxwarnings::CSV.Arg, debug::CSV.Arg, parsingdebug::CSV.Arg, validate::CSV.Arg, streaming::CSV.Arg)
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/context.jl:236
   [2] #File#25
-    @ ~/.julia/packages/CSV/9LsxT/src/file.jl:220 [inlined]
+    @ ~/.julia/packages/CSV/jFiCn/src/file.jl:221 [inlined]
   [3] CSV.File(source::String)
-    @ CSV ~/.julia/packages/CSV/9LsxT/src/file.jl:220
+    @ CSV ~/.julia/packages/CSV/jFiCn/src/file.jl:221
 </code></pre></div><h3 id="we_need_to_create_a_reference_for_where_to_get_timeseries_data_for_each_component." ><a href="#we_need_to_create_a_reference_for_where_to_get_timeseries_data_for_each_component."> We need to create a reference for where to get timeseries data for each component.</a></h3><pre><code class="julia">timeseries = []
 ts_csv = [&quot;wind&quot;, &quot;solar&quot;, &quot;hydro&quot;, &quot;demand&quot;]
 plant_ids = Symbol.(string.(gen.plant_id))

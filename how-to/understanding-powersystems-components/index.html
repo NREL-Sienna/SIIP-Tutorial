@@ -167,6 +167,9 @@ time stamp</li>
 │  │  │  │  ├─ ESST4B
 │  │  │  │  │  ⋮
 │  │  │  │  │  
+│  │  │  │  ├─ EX4VSA
+│  │  │  │  │  ⋮
+│  │  │  │  │  
 │  │  │  │  ├─ EXAC1
 │  │  │  │  │  ⋮
 │  │  │  │  │  
@@ -177,6 +180,9 @@ time stamp</li>
 │  │  │  │  │  ⋮
 │  │  │  │  │  
 │  │  │  │  ├─ EXPIC1
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  ├─ EXST1
 │  │  │  │  │  ⋮
 │  │  │  │  │  
 │  │  │  │  ├─ IEEET1
@@ -238,7 +244,10 @@ time stamp</li>
 │  │  │  │  ├─ PSSFixed
 │  │  │  │  │  ⋮
 │  │  │  │  │  
-│  │  │  │  └─ PSSSimple
+│  │  │  │  ├─ PSSSimple
+│  │  │  │  │  ⋮
+│  │  │  │  │  
+│  │  │  │  └─ STAB1
 │  │  │  │     ⋮
 │  │  │  │     
 │  │  │  ├─ Shaft
@@ -357,10 +366,16 @@ time stamp</li>
 │     │  │     ⋮
 │     │  │     
 │     │  ├─ DynamicInjection
+│     │  │  ├─ AggregateDistributedGenerationA
+│     │  │  │  ⋮
+│     │  │  │  
 │     │  │  ├─ DynamicGenerator
 │     │  │  │  ⋮
 │     │  │  │  
 │     │  │  ├─ DynamicInverter
+│     │  │  │  ⋮
+│     │  │  │  
+│     │  │  ├─ GenericDER
 │     │  │  │  ⋮
 │     │  │  │  
 │     │  │  └─ PeriodicVariableSource
@@ -488,50 +503,7 @@ nodes_5 = nodes5() # function to create 5-bus buses</code></pre>
     loads5(nodes_5),
     branches5(nodes_5),
 )</code></pre>
-<div class="code-output"><!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<style>
-  table, td, th {
-      border-collapse: collapse;
-      font-family: sans-serif;
-  }
-
-  td, th {
-      border-bottom: 0;
-      padding: 4px
-  }
-
-  tr:nth-child(odd) {
-      background: #eee;
-  }
-
-  tr:nth-child(even) {
-      background: #fff;
-  }
-
-  tr.header {
-      background: navy !important;
-      color: white;
-      font-weight: bold;
-  }
-
-  tr.subheader {
-      background: lightgray !important;
-      color: black;
-  }
-
-  tr.headerLastRow {
-      border-bottom: 2px solid black;
-  }
-
-  th.rowNumber, td.rowNumber {
-      text-align: right;
-  }
-
-</style>
-<body>
-<table>
+<div class="code-output"><table>
   <caption style = "text-align: left;">System</caption>
   <thead>
     <tr class = "header headerLastRow">
@@ -558,51 +530,7 @@ nodes_5 = nodes5() # function to create 5-bus buses</code></pre>
     </tr>
   </tbody>
 </table>
-</body>
-</html>
 
-<!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<style>
-  table, td, th {
-      border-collapse: collapse;
-      font-family: sans-serif;
-  }
-
-  td, th {
-      border-bottom: 0;
-      padding: 4px
-  }
-
-  tr:nth-child(odd) {
-      background: #eee;
-  }
-
-  tr:nth-child(even) {
-      background: #fff;
-  }
-
-  tr.header {
-      background: #fff !important;
-      font-weight: bold;
-  }
-
-  tr.subheader {
-      background: #fff !important;
-      color: dimgray;
-  }
-
-  tr.headerLastRow {
-      border-bottom: 2px solid black;
-  }
-
-  th.rowNumber, td.rowNumber {
-      text-align: right;
-  }
-
-</style>
-<body>
 <table>
   <caption style = "text-align: left;">Static Components</caption>
   <thead>
@@ -652,8 +580,6 @@ nodes_5 = nodes5() # function to create 5-bus buses</code></pre>
     </tr>
   </tbody>
 </table>
-</body>
-</html>
 
 </div><h3 id="accessing_system_data" ><a href="#accessing_system_data"> Accessing <code>System</code> Data</a></h3><p>PowerSystems provides functional interfaces to all data. The following examples outline
 the intended approach to accessing data expressed using PowerSystems.</p>
@@ -720,48 +646,48 @@ end</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">24×1 TimeSeries.TimeArray{Float64, 1, Dates.DateTime, SubArray{Float64, 1, Vector{Float64}, Tuple{UnitRange{Int64}}, true}} 2024-01-02T00:00:00 to 2024-01-02T23:00:00
 │                     │ A      │
 ├─────────────────────┼────────┤
-│ 2024-01-02T00:00:00 │ 0.8638 │
-│ 2024-01-02T01:00:00 │ 0.7982 │
-│ 2024-01-02T02:00:00 │ 0.7534 │
-│ 2024-01-02T03:00:00 │ 0.7169 │
-│ 2024-01-02T04:00:00 │ 0.7136 │
-│ 2024-01-02T05:00:00 │ 0.7205 │
-│ 2024-01-02T06:00:00 │ 0.775  │
-│ 2024-01-02T07:00:00 │ 0.7258 │
+│ 2024-01-02T00:00:00 │ 0.8374 │
+│ 2024-01-02T01:00:00 │ 0.7858 │
+│ 2024-01-02T02:00:00 │ 0.7884 │
+│ 2024-01-02T03:00:00 │ 0.7686 │
+│ 2024-01-02T04:00:00 │ 0.7009 │
+│ 2024-01-02T05:00:00 │ 0.7646 │
+│ 2024-01-02T06:00:00 │ 0.7694 │
+│ 2024-01-02T07:00:00 │ 0.7726 │
 │ ⋮                   │ ⋮      │
-│ 2024-01-02T17:00:00 │ 0.9123 │
-│ 2024-01-02T18:00:00 │ 1.053  │
-│ 2024-01-02T19:00:00 │ 1.0899 │
-│ 2024-01-02T20:00:00 │ 0.9993 │
-│ 2024-01-02T21:00:00 │ 1.0372 │
-│ 2024-01-02T22:00:00 │ 0.9443 │
-│ 2024-01-02T23:00:00 │ 0.8992 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
+│ 2024-01-02T17:00:00 │ 0.9843 │
+│ 2024-01-02T18:00:00 │ 1.0188 │
+│ 2024-01-02T19:00:00 │ 1.0105 │
+│ 2024-01-02T20:00:00 │ 1.0669 │
+│ 2024-01-02T21:00:00 │ 0.9723 │
+│ 2024-01-02T22:00:00 │ 1.0207 │
+│ 2024-01-02T23:00:00 │ 0.8451 │</code></pre></div><p>Or, we can just get the values of the time series:</p>
 <pre><code class="julia">ts = get_time_series_values(Deterministic, loads[1], ts_names[1])</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">24-element view(::Vector{Float64}, 1:24) with eltype Float64:
- 0.8637974401102881
- 0.7982246244372211
- 0.7533873122943514
- 0.7169065537410935
- 0.7136039187069261
- 0.7204577074418689
- 0.7749557734721172
- 0.7258015096599564
- 0.8410862680831289
- 0.8243438036344217
- 0.8380973444610048
- 0.8421871481915828
- 0.9319644788736567
- 0.8801604523616269
- 0.8338999377440608
- 0.9064333207391887
- 0.8767141373939186
- 0.9122812726547456
- 1.053021727621881
- 1.0899168666995973
- 0.9993287461737296
- 1.0371689576221068
- 0.9442779168599225
- 0.899150779629344</code></pre></div>
+ 0.8374424555922741
+ 0.7857596339915967
+ 0.7883980271568252
+ 0.7685739415468136
+ 0.7008541216701131
+ 0.7645559124680781
+ 0.7693617547408229
+ 0.7725908633435077
+ 0.8546524651177052
+ 0.868461622056783
+ 0.8411118355773125
+ 0.8921369469927433
+ 0.8916528950939349
+ 0.8716660209558981
+ 0.8232163354255192
+ 0.9000582004502795
+ 0.831783962824313
+ 0.9842961671363694
+ 1.01884015436536
+ 1.0104610762220012
+ 1.0668921316887146
+ 0.9722865331042965
+ 1.0206896244384187
+ 0.8451408161316658</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   Dheepak Krishnamurthy.  Last modified: May 9, 2022. Website built with
