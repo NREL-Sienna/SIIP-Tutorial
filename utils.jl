@@ -22,14 +22,6 @@ export D3NetworkLayout
 disable_logging() = configure_logging(console_level = Logging.AboveMaxLevel, filename = nothing)
 
 
-function lx_textinput(p)
-    rpath = Xranklin.unixify(strip(p[1]))
-    lc = Xranklin.cur_lc()
-    Xranklin.attach(lc, rpath)
-    Xranklin.html(open(f->read(f, String), rpath), lc)
-end
-
-
 #################################################################
 
 struct D3LoadProfile
