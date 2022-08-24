@@ -13,6 +13,7 @@ using Base64
 using REPL
 using Markdown
 using JSONTables
+using Xranklin
 import Literate
 
 export D3PowerSystemTypes
