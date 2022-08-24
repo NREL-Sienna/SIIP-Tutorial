@@ -56,9 +56,9 @@ base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&qu
 sys = System(joinpath(base_dir, &quot;matpower&quot;, &quot;case5_re.m&quot;))
 sys</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/KS7DZ/src/parsers/pm_io/matpower.jl:245
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
 ┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/KS7DZ/src/parsers/pm_io/matpower.jl:245
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
 </code></pre><table>
   <caption style = "text-align: left;">System</caption>
   <thead>
@@ -161,108 +161,34 @@ println(&quot;Serializing to $path&quot;)
 to_json(sys, path)
 
 filesize(path) / (1024 * 1024) #MiB</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">Serializing to /tmp/jl_7pTuLe/system.json
-</code></pre><pre><code class="code-result language-plaintext">0.02364635467529297</code></pre></div><h3 id="read_the_json_file_and_create_a_new_system" ><a href="#read_the_json_file_and_create_a_new_system"> Read the JSON file and create a new <code>System</code></a></h3><pre><code class="julia">sys2 = System(path)</code></pre>
-<div class="code-output"><table>
-  <caption style = "text-align: left;">System</caption>
-  <thead>
-    <tr class = "header headerLastRow">
-      <th style = "text-align: left;">Property</th>
-      <th style = "text-align: left;">Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style = "text-align: left;">System Units Base</td>
-      <td style = "text-align: left;">SYSTEM_BASE</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">Base Power</td>
-      <td style = "text-align: left;">100.0</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">Base Frequency</td>
-      <td style = "text-align: left;">60.0</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">Num Components</td>
-      <td style = "text-align: left;">30</td>
-    </tr>
-  </tbody>
-</table>
-
-<table>
-  <caption style = "text-align: left;">Static Components</caption>
-  <thead>
-    <tr class = "header headerLastRow">
-      <th style = "text-align: left;">Type</th>
-      <th style = "text-align: left;">Count</th>
-      <th style = "text-align: left;">Has Static Time Series</th>
-      <th style = "text-align: left;">Has Forecasts</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style = "text-align: left;">Arc</td>
-      <td style = "text-align: left;">6</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">Area</td>
-      <td style = "text-align: left;">1</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">Bus</td>
-      <td style = "text-align: left;">5</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">Line</td>
-      <td style = "text-align: left;">5</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">LoadZone</td>
-      <td style = "text-align: left;">1</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">PhaseShiftingTransformer</td>
-      <td style = "text-align: left;">2</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">PowerLoad</td>
-      <td style = "text-align: left;">3</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">RenewableDispatch</td>
-      <td style = "text-align: left;">2</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-    <tr>
-      <td style = "text-align: left;">ThermalStandard</td>
-      <td style = "text-align: left;">5</td>
-      <td style = "text-align: left;">false</td>
-      <td style = "text-align: left;">false</td>
-    </tr>
-  </tbody>
-</table>
-
-</div>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: invalid redefinition of constant path
+Stacktrace:
+</code></pre></div><h3 id="read_the_json_file_and_create_a_new_system" ><a href="#read_the_json_file_and_create_a_new_system"> Read the JSON file and create a new <code>System</code></a></h3><pre><code class="julia">sys2 = System(path)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: MethodError: Cannot `convert` an object of type typeof(Main.__FRANKLIN_6111808.path) to an object of type Float64
+Closest candidates are:
+  convert(::Type{T}, !Matched::ColorTypes.Gray24) where T<:Real at ~/.julia/packages/ColorTypes/1dGw6/src/conversions.jl:114
+  convert(::Type{T}, !Matched::ColorTypes.Gray) where T<:Real at ~/.julia/packages/ColorTypes/1dGw6/src/conversions.jl:113
+  convert(::Type{T}, !Matched::Base.TwicePrecision) where T<:Number at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/base/twiceprecision.jl:262
+  ...
+Stacktrace:
+  [1] InfrastructureSystems.SystemUnitsSettings(base_value::Function, unit_system::InfrastructureSystems.UnitSystemModule.UnitSystem)
+    @ InfrastructureSystems ~/.julia/packages/InfrastructureSystems/vxA9a/src/internal.jl:11
+  [2] PowerSystems.System(data::InfrastructureSystems.SystemData, base_power::Function, internal::InfrastructureSystems.InfrastructureSystemsInternal; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:97
+  [3] PowerSystems.System(data::InfrastructureSystems.SystemData, base_power::Function, internal::InfrastructureSystems.InfrastructureSystemsInternal)
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:95
+  [4] PowerSystems.System(data::InfrastructureSystems.SystemData, base_power::Function; internal::InfrastructureSystems.InfrastructureSystemsInternal, kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:108
+  [5] PowerSystems.System(data::InfrastructureSystems.SystemData, base_power::Function)
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:108
+  [6] PowerSystems.System(base_power::Function; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:103
+  [7] PowerSystems.System(base_power::Function)
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:103
+</code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
-  Dheepak Krishnamurthy.  Last modified: May 9, 2022. Website built with
+  "Dheepak Krishnamurthy".  Last modified: August 24, 2022. Website built with
   <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
   <a href="https://julialang.org">Julia programming language</a>.
 </div>

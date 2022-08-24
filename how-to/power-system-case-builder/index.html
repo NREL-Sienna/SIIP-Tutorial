@@ -51,10 +51,6 @@ The package has utilities to list the available system data and to create instan
 have been constructed locally, it makes the re-instantiation of systems efficient by utilizing the serialization features and avoiding
 the parsing process for systems that have been previously constructed.</p>
 <h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><div class="code-output"><pre><code class="code-stdout language-plaintext">  Activating project at `~/work/SIIP-Tutorial/SIIP-Tutorial`
-Precompiling project...
-[91m  ✗ [39mSIIP_Tutorial
-  0 dependencies successfully precompiled in 34 seconds (243 already precompiled, 1 skipped during auto due to previous errors)
-  [91m1[39m dependency errored. To see a full report either run `import Pkg; Pkg.precompile()` or load the package
 </code></pre></div><pre><code class="julia">using PowerSystemCaseBuilder</code></pre>
 <h3 id="list_all_systems_in_library" ><a href="#list_all_systems_in_library"> List all systems in library</a></h3><pre><code class="julia">show_systems()</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">
@@ -93,7 +89,8 @@ Category: PowerSystemCaseBuilder.PSITestSystems
 ┌───────────────────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Name                              │ Descriptor                                                                                                                            │
 ├───────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ RTS_GMLC_sys                      │ RTS-GMLC Full system from git repo for day-ahead simulations                                                                          │
+│ RTS_GMLC_DA_sys                   │ RTS-GMLC Full system from git repo for day-ahead simulations                                                                          │
+│ RTS_GMLC_RT_sys                   │ RTS-GMLC Full system from git repo for day-ahead simulations                                                                          │
 │ batt_test_case_b_sys              │ test system for Storage Energy Target formulation(case-b)                                                                             │
 │ batt_test_case_c_sys              │ test system for Storage Energy Target formulation(case-c)                                                                             │
 │ batt_test_case_d_sys              │ test system for Storage Energy Target formulation(case-d)                                                                             │
@@ -126,6 +123,8 @@ Category: PowerSystemCaseBuilder.PSITestSystems
 │ c_sys5_pglib                      │ 5-bus with ThermalMultiStart                                                                                                          │
 │ c_sys5_pglib_sim                  │ 5-bus with ThermalMultiStart for simulation                                                                                           │
 │ c_sys5_phes_ed                    │ 5-bus system with Hydro Pumped Energy Storage for Economic Dispatch Simulations                                                       │
+│ c_sys5_pjm                        │ 5-bus system                                                                                                                          │
+│ c_sys5_pjm_rt                     │ 5-bus system                                                                                                                          │
 │ c_sys5_pwl_ed                     │ 5-bus with pwl cost function                                                                                                          │
 │ c_sys5_pwl_ed_nonconvex           │ 5-bus with SOS cost function for Economic Dispatch Simulations                                                                        │
 │ c_sys5_pwl_uc                     │ 5-bus with SOS cost function for Unit Commitment Simulations                                                                          │
@@ -394,7 +393,7 @@ PowerSystemCaseBuilder.SIIPExampleSystems
 </div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
-  Dheepak Krishnamurthy.  Last modified: May 9, 2022. Website built with
+  "Dheepak Krishnamurthy".  Last modified: August 24, 2022. Website built with
   <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
   <a href="https://julialang.org">Julia programming language</a>.
 </div>
