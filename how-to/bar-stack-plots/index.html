@@ -135,9 +135,15 @@ plot_dataframe(variable, timestamps)</code></pre>
 </div><p>However, interactive plotting can generate much more insightful figures, especially when
 creating somewhat complex stacked figures. So, we can use the PlotlyJS backend for Plots,
 but it requires that PlotlyJS.jl is installed in your Project.toml (if in a notebook,
-WebIO.jl is required too). To startup the PlotlyJS backend, run:
-plotlyjs()</p>
-<p>PowerGraphics creates an un-stacked line plot by default, but supports kwargs to
+WebIO.jl is required too). To startup the PlotlyJS backend, run:</p>
+<pre><code class="julia">plotlyjs()</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: Package PlotlyJS not found in current path:
+- Run `import Pkg; Pkg.add("PlotlyJS")` to install the PlotlyJS package.
+
+Stacktrace:
+  [1] require(into::Module, mod::Symbol)
+    @ Base ./loading.jl:967
+</code></pre></div><p>PowerGraphics creates an un-stacked line plot by default, but supports kwargs to
 create a variety of different figure styles. For example, a stacked area figure can be
 created with the <code>stack = true</code> kwarg:</p>
 <pre><code class="julia">plot_dataframe(variable, timestamps; stack=true)</code></pre>
@@ -163,8 +169,9 @@ plot_pgdata(reserves)</code></pre>
 </div><p>The <code>plot_demand</code> function can also be called with the <code>System</code> rather than the <code>StageResults</code>
 to inspect the input data. This method can also display demands aggregated by a specified
 <code>&lt;:Topology</code>:</p>
-<pre><code class="julia"># plot_demand(uc_results.system, aggregation=Area)</code></pre>
-<p>Another standard aggregation exists based on the fuel categories of the generators in the
+<pre><code class="julia">plot_demand(uc_results.system, aggregation=Area)</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_3619802258482991999.svg">
+</div><p>Another standard aggregation exists based on the fuel categories of the generators in the
 <code>System</code></p>
 <pre><code class="julia">plot_fuel(uc_results)</code></pre>
 <div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_15935845875623854716.svg">
