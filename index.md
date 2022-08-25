@@ -26,6 +26,7 @@ See [How To Guides](/how-to/) for more information.
 1. [Use PowerSystemCaseBuilder](/how-to/power-system-case-builder/)
 
 1. [Operations Problems](/how-to/operations-problems/)
+1. [Sequential Simulations](/how-to/sequential-simulations/)
 
 ## Notes
 
