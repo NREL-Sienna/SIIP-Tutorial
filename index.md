@@ -27,6 +27,7 @@ See [How To Guides](/how-to/) for more information.
 
 1. [Operations Problems](/how-to/operations-problems/)
 1. [Sequential Simulations](/how-to/sequential-simulations/)
+1. [5 Bus Market Simulations](/how-to/5-bus-market-simulation/)
 
 ## Notes
 
