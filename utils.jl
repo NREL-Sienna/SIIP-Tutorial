@@ -1,4 +1,4 @@
-using Literate
+import Literate
 using Plots
 using Graphs, MetaGraphs
 using GraphRecipes
@@ -11,10 +11,8 @@ using PowerSimulations
 using InteractiveUtils
 using Base64
 using REPL
-using Markdown
+import Markdown
 using JSONTables
-using Xranklin
-import Literate
 
 export D3PowerSystemTypes
 export D3NetworkLayout
