@@ -108,7 +108,17 @@ build!(problem, output_dir=mktempdir())
 # about the problem and some references to pretty names for constraints and variables.
 # All of these details are contained within the `optimization_container` field.
 
-typeof(PSI.get_optimization_container(problem))
+function print_struct(type)
+    mutable = ismutable(type) ? "mutable" : ""
+    println("$mutable struct $type")
+    for (fn, ft) in zip(fieldnames(type), fieldtypes(type))
+        println("  $fn::$ft")
+    end
+    println("end")
+end
+
+
+print_struct(typeof(PSI.get_optimization_container(problem)))
 
 # ### Solve an `DecisionModel`
 
