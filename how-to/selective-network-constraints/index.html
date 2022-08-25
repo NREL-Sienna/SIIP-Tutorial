@@ -46,7 +46,7 @@
 
 <div class="franklin-content" >
   <h1 id="selective_flow_constraints_with_powersimulations.jl" ><a href="#selective_flow_constraints_with_powersimulations.jl"> Selective flow constraints with PowerSimulations.jl</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows and Sourabh Dalvi</p>
-<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>The [Operations Problems example]](https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/3<em>PowerSimulations</em>examples/02<em>sequential</em>simulations.ipynb)
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>The <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/3_PowerSimulations_examples/02_sequential_simulations.ipynb">Operations Problems example</a>
 shows the basic building blocks of building optimization problems with PowerSimulations.jl.
 This example shows how to customize the enforcement of branch flow constraints as is common
 when trying to build large scale simulations.</p>
@@ -237,17 +237,13 @@ treatment when we build the model. Here, we can select inter-regional lines, or 
 above a voltage threshold.</p>
 <pre><code class="julia">for line in get_components(Line, sys)
     if (get_base_voltage(get_from(get_arc(line))) &gt;= 230.0) &amp;&amp;
-       (get_base_voltage(get_to(get_arc(line))) &gt;= 230.0)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: incomplete: premature end of input
-Stacktrace:
-</code></pre></div><p>if get<em>area(get_from(get_arc(line))) != get</em>area(get_to(get_arc(line)))</p>
-<pre><code class="julia">@info &quot;Changing $(get_name(line)) to MonitoredLine&quot;
+       (get_base_voltage(get_to(get_arc(line))) &gt;= 230.0)
+        # if get_area(get_from(get_arc(line))) != get_area(get_to(get_arc(line)))
+        @info &quot;Changing $(get_name(line)) to MonitoredLine&quot;
         convert_component!(MonitoredLine, line, sys)
     end
 end</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: line not defined
-Stacktrace:
-</code></pre></div><p>Let's start with a standard unit commitment template using the <code>PTDFPowerModel</code> network
+<p>Let's start with a standard unit commitment template using the <code>PTDFPowerModel</code> network
 formulation which only constructs the admittance matrix rows corresponding to "bounded" lines:</p>
 <pre><code class="julia">template = template_unit_commitment(network=PTDFPowerModel)</code></pre>
 <div class="code-output"><table>

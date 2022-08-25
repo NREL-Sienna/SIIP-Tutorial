@@ -12,10 +12,9 @@
 # ACOPF with a valid commitment pattern. This example uses a `Simulation` with two
 # `DecisionModels` to execute the UC-ACOPF workflow for a single period.
 
-# ## Dependencies
-using SIIPExamples
 using PowerSystems
 using PowerSimulations
+const PSI = PowerSimulations
 using PowerSystemCaseBuilder
 using Dates
 sim_folder = mktempdir(cleanup=true)
@@ -116,5 +115,6 @@ slack_keys = [
 ]
 slack_vars = Dict([k => read_realized_variables(ac_results, k) for k in slack_keys])
 
-# nb # Plot the slack values
-# nb plot_results(slack_vars);
+# # Plot the slack values
+
+# plot_results(slack_vars);
