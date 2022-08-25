@@ -294,16 +294,16 @@ isimmutable(1) = true
 <pre><code class="julia">using Random
 [rand() for i in 1:10]</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">10-element Vector{Float64}:
- 0.9655440021572004
- 0.38708211582666063
- 0.44368762137531215
- 0.9612300968136044
- 0.23860293656661902
- 0.8999046331325534
- 0.22313090160612215
- 0.9780943406096441
- 0.3954820923130964
- 0.896329408184201</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+ 0.07877700792691389
+ 0.440255440191764
+ 0.3565670451736037
+ 0.10368683499704756
+ 0.8404700654120701
+ 0.21492926840042414
+ 0.5629409550063178
+ 0.7027033231170262
+ 0.2881589151927053
+ 0.3297353803453732</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
 <p>For example the following can be used to install JuMP,</p>
 <pre><code class="julia">using Pkg
 Pkg.add(&quot;JuMP&quot;)</code></pre>
@@ -326,13 +326,13 @@ Pkg.instantiate()</code></pre>
 Closest candidates are:
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}, !Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}) at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:184
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod, Dates.TimeType}, !Matched::Type{P}) where P<:Dates.Period at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:286
-  ceil(!Matched::FixedPointNumbers.Normed{T, f}) where {T, f} at ~/.julia/packages/FixedPointNumbers/HAGk2/src/normed.jl:258
+  ceil(!Matched::ColorTypes.Gray{T}) where T at ~/.julia/packages/ColorVectorSpace/bhkoO/src/ColorVectorSpace.jl:219
   ...
 Stacktrace:
 </code></pre></div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
-  "Dheepak Krishnamurthy".  Last modified: August 24, 2022. Website built with
+  "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
   <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
   <a href="https://julialang.org">Julia programming language</a>.
 </div>

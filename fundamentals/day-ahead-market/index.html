@@ -130,7 +130,7 @@ using PowerSystemCaseBuilder
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;; force_build = true, skip_serialization = true)</code></pre>
 You should see the following in your terminal before the output of running the script.<pre><code class="julia">[ Info: Building the RTS test system</code></pre>
 </fieldset><p>Going forward in this tutorial, I'm going to show the output of the terminal on this webpage, instead of screenshots of the vscode terminal, for the clarity of presentation. For example, the output of the <code>system</code> will be as follows:</p>
-<div class="code-output"><pre><code class="code-stdout language-plaintext"> 79.639436 seconds (80.93 M allocations: 4.341 GiB, 2.76% gc time, 83.93% compilation time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext"> 63.714116 seconds (81.19 M allocations: 4.359 GiB, 3.97% gc time, 81.29% compilation time)
 System
 ┌───────────────────┬─────────────┐
 │ Property          │ Value       │
@@ -186,9 +186,9 @@ The following is the output of the same <code>build_system</code> function 3 mor
    force_build = true, skip_serialization = true);
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
    force_build = true, skip_serialization = true);</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">  1.386902 seconds (8.49 M allocations: 425.298 MiB, 11.78% gc time)
-  1.367489 seconds (8.49 M allocations: 425.322 MiB, 11.95% gc time)
-  1.312500 seconds (8.49 M allocations: 425.304 MiB, 8.71% gc time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  0.940181 seconds (8.49 M allocations: 425.364 MiB, 12.45% gc time)
+  0.948271 seconds (8.49 M allocations: 425.313 MiB, 13.53% gc time)
+  0.927579 seconds (8.49 M allocations: 425.327 MiB, 12.32% gc time)
 </code></pre></div>There are ways to decrease the "first time to run" for Julia code but we'll cover that in a more advanced session.
 For now, it is enough to just be aware of this quirk of the language.
 
@@ -312,36 +312,36 @@ PowerSimulations Problem Auxiliary variables Results
 PowerSimulations Problem Expressions Results
 ┌─────────────────────────────────────────────┐
 │ ProductionCostExpression__ThermalStandard   │
-│ ProductionCostExpression__HydroDispatch     │
 │ ProductionCostExpression__RenewableDispatch │
+│ ProductionCostExpression__HydroDispatch     │
 └─────────────────────────────────────────────┘
 
 PowerSimulations Problem Parameters Results
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
-│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
-│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Reg_Up     │
 │ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
-│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
 │ ActivePowerTimeSeriesParameter__RenewableDispatch                                   │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
 │ ActivePowerTimeSeriesParameter__HydroDispatch                                       │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Reg_Up     │
 │ ActivePowerTimeSeriesParameter__PowerLoad                                           │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
 │ ActivePowerTimeSeriesParameter__RenewableFix                                        │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 PowerSimulations Problem Variables Results
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│ StartVariable__ThermalStandard                                                  │
-│ ActivePowerVariable__RenewableDispatch                                          │
-│ ActivePowerVariable__HydroDispatch                                              │
 │ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
-│ ActivePowerVariable__ThermalStandard                                            │
-│ StopVariable__ThermalStandard                                                   │
-│ OnVariable__ThermalStandard                                                     │
+│ ActivePowerVariable__HydroDispatch                                              │
 │ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
-│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
+│ StartVariable__ThermalStandard                                                  │
+│ StopVariable__ThermalStandard                                                   │
+│ ActivePowerVariable__ThermalStandard                                            │
+│ ActivePowerVariable__RenewableDispatch                                          │
 │ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Reg_Up     │
 │ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
+│ OnVariable__ThermalStandard                                                     │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 </code></pre></div><p>For example, if you are interested in getting the objection function value, you can use the <code>get_objective_value</code> function:</p>
 <pre><code class="julia">get_objective_value(results)</code></pre>
@@ -488,7 +488,7 @@ For our current workflow however, we won't need to deal with <code>Revise</code>
 
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
-  "Dheepak Krishnamurthy".  Last modified: August 24, 2022. Website built with
+  "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
   <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
   <a href="https://julialang.org">Julia programming language</a>.
 </div>
