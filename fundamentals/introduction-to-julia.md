@@ -81,7 +81,7 @@ Julia is great for math
 Even math involving complex numbers
 
 ```!
-(2 + 1im) \* (1 - 2im)
+(2 + 1im) * (1 - 2im)
 ```
 
 We can also write things like the following using `√` i.e. `\sqrt`
@@ -139,17 +139,17 @@ x = A \ b
 ```
 
 ```!
-A \* x
+A * x
 ```
 
 ```!
-A \* x == b
+A * x == b
 ```
 
 Note that when multiplying vectors and matrices, dimensions matter. For example, you can't multiply a vector by a vector:
 
 ```!
-b \* b
+b * b
 ```
 
 But multiplying transposes works:
