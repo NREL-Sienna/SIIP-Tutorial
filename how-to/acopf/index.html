@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="acopf_with_powersimulations.jl_using_powermodels.jl" ><a href="#acopf_with_powersimulations.jl_using_powermodels.jl"> ACOPF with PowerSimulations.jl using PowerModels.jl</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>PowerSimulations.jl supports non-linear AC optimal power flow through a deep integration
+with <a href="https://github.com/lanl-ansi/PowerModels.jl">PowerModels.jl</a>. This example shows a
+single multi-period optimization of economic dispatch with a full representation of
+AC optimal power flow. However, since we use a case where generators are subject to
+minimum operating points, we need to also execute a unit commitment problem to provide the
+ACOPF with a valid commitment pattern. This example uses a <code>Simulation</code> with two
+<code>DecisionModels</code> to execute the UC-ACOPF workflow for a single period.</p>
+<h2 id="dependencies" ><a href="#dependencies"> Dependencies</a></h2><pre><code class="julia">using SIIPExamples
+using PowerSystems
+using PowerSimulations
+using PowerSystemCaseBuilder
+using Dates
+sim_folder = mktempdir(cleanup=true)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: Package SIIPExamples not found in current path:
+- Run `import Pkg; Pkg.add("SIIPExamples")` to install the SIIPExamples package.
+
+Stacktrace:
+  [1] require(into::Module, mod::Symbol)
+    @ Base ./loading.jl:967
+  [2] eval
+    @ ./boot.jl:373 [inlined]
+  [3] include_string(mapexpr::typeof(REPL.softscope), mod::Module, code::String, filename::String)
+    @ Base ./loading.jl:1196
+  [4] include_string
+    @ ./loading.jl:1180 [inlined]
+  [5] #61
+    @ ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:178 [inlined]
+  [6] (::IOCapture.var"#3#5"{DataType, Xranklin.var"#61#62"{Module, String}, Task, IOContext{Base.PipeEndpoint}, IOContext{Base.PipeEndpoint}, Base.PipeEndpoint, Base.PipeEndpoint})()
+    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:118
+  [7] with_logstate(f::Function, logstate::Any)
+    @ Base.CoreLogging ./logging.jl:511
+  [8] with_logger
+    @ ./logging.jl:623 [inlined]
+  [9] capture(f::Xranklin.var"#61#62"{Module, String}; rethrow::Type, color::Bool)
+    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:116
+ [10] capture
+    @ ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:75 [inlined]
+ [11] _eval_code_cell(mdl::Module, code::String, cell_name::String)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:177
+ [12] eval_code_cell!(ctx::Xranklin.LocalContext, cell_code::SubString{String}, cell_name::String; imgdir_html::String, imgdir_latex::String, force::Bool, indep::Bool)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:114
+ [13] html_code_block(b::FranklinParser.Block, lc::Xranklin.LocalContext)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/convert/markdown/rules/code.jl:242</code></pre></div><p>We'll just use a suitable <code>System</code> that contains valid AC power flow parameters</p>
+<pre><code class="julia">sys = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
+transform_single_time_series!(sys, 1, Hour(1))</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: build_system not defined
+Stacktrace:
+</code></pre></div><p>Since we'll be doing non-linear optimization, we need a solver that supports non-linear
+problems. Ipopt is quite good. And, we'll need a separate solver that can handle integer variables.
+So, we'll use HiGHS for the UC problem.</p>
+<pre><code class="julia">using Ipopt
+solver = optimizer_with_attributes(Ipopt.Optimizer)
+using HiGHS # mip solver
+uc_solver = optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.5)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: Package Ipopt not found in current path:
+- Run `import Pkg; Pkg.add("Ipopt")` to install the Ipopt package.
+
+Stacktrace:
+  [1] require(into::Module, mod::Symbol)
+    @ Base ./loading.jl:967
+  [2] eval
+    @ ./boot.jl:373 [inlined]
+  [3] include_string(mapexpr::typeof(REPL.softscope), mod::Module, code::String, filename::String)
+    @ Base ./loading.jl:1196
+  [4] include_string
+    @ ./loading.jl:1180 [inlined]
+  [5] #61
+    @ ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:178 [inlined]
+  [6] (::IOCapture.var"#3#5"{DataType, Xranklin.var"#61#62"{Module, String}, Task, IOContext{Base.PipeEndpoint}, IOContext{Base.PipeEndpoint}, Base.PipeEndpoint, Base.PipeEndpoint})()
+    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:118
+  [7] with_logstate(f::Function, logstate::Any)
+    @ Base.CoreLogging ./logging.jl:511
+  [8] with_logger
+    @ ./logging.jl:623 [inlined]
+  [9] capture(f::Xranklin.var"#61#62"{Module, String}; rethrow::Type, color::Bool)
+    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:116
+ [10] capture
+    @ ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:75 [inlined]
+ [11] _eval_code_cell(mdl::Module, code::String, cell_name::String)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:177
+ [12] eval_code_cell!(ctx::Xranklin.LocalContext, cell_code::SubString{String}, cell_name::String; imgdir_html::String, imgdir_latex::String, force::Bool, indep::Bool)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:114
+ [13] html_code_block(b::FranklinParser.Block, lc::Xranklin.LocalContext)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/convert/markdown/rules/code.jl:242</code></pre></div><p>Here, we want do define an economic dispatch (linear generation decisions) with an ACOPF
+network representation.
+So, starting with the network, we can select from <em>almost</em> any of the endpoints on this
+tree:</p>
+<pre><code class="julia"># print_tree(PowerSimulations.PM.AbstractPowerModel)</code></pre>
+<p>First, we can setup a template with a suitable ACOPF network formulation, and formulations
+that represent each of the relevant device categories</p>
+<pre><code class="julia">ed_template = ProblemTemplate()
+set_device_model!(ed_template, ThermalStandard, ThermalStandardDispatch)
+set_device_model!(ed_template, PowerLoad, StaticPowerLoad)
+set_device_model!(ed_template, Line, StaticBranch)
+set_device_model!(ed_template, TapTransformer, StaticBranch)
+set_device_model!(ed_template, Transformer2W, StaticBranch)
+set_device_model!(ed_template, HVDCLine, HVDCDispatch)
+set_network_model!(ed_template, NetworkModel(ACPPowerModel, use_slacks=true))</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: ProblemTemplate not defined
+Stacktrace:
+</code></pre></div><p>We also need to setup a UC template with a simplified network representation</p>
+<pre><code class="julia">uc_template = ProblemTemplate(DCPPowerModel)
+set_device_model!(uc_template, ThermalStandard, ThermalBasicUnitCommitment)
+set_device_model!(uc_template, PowerLoad, StaticPowerLoad)
+set_device_model!(uc_template, Line, StaticBranch)
+set_device_model!(uc_template, TapTransformer, StaticBranch)
+set_device_model!(uc_template, Transformer2W, StaticBranch)
+set_device_model!(uc_template, HVDCLine, HVDCDispatch)
+set_service_model!(uc_template, VariableReserve&lbrace;ReserveUp&rbrace;, RangeReserve)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: ProblemTemplate not defined
+Stacktrace:
+</code></pre></div><p>Now we can build a simulation to solve the UC, pass the commitment pattern to the ACOPF
+and then solve the ACOPF.</p>
+<pre><code class="julia">models = SimulationModels(
+    decision_models=[
+        DecisionModel(uc_template, sys, name=&quot;UC&quot;, optimizer=uc_solver),
+        DecisionModel(
+            ed_template,
+            sys,
+            name=&quot;ACOPF&quot;,
+            optimizer=solver,
+            initialize_model=false,
+        ),
+    ],
+)
+sequence = SimulationSequence(
+    models=models,
+    feedforwards=Dict(
+        &quot;ACOPF&quot; =&gt; [
+            SemiContinuousFeedforward(
+                component_type=ThermalStandard,
+                source=OnVariable,
+                affected_values=[ActivePowerVariable, ReactivePowerVariable],
+            ),
+        ],
+    ),
+    ini_cond_chronology=InterProblemChronology(),
+)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: uc_solver not defined
+Stacktrace:
+</code></pre></div><p>Note that in the above feedforward definition, the <code>OnVariable</code> for the <code>ThermalStandard</code>
+components is affecting both the <code>ActivePowerVariable</code> and the <code>ReactivePowerVariable</code>.
+This is the connection that restricts the ACOPF to only represent active and reactive
+power injections from the units that are committed in the UC problem. It's not guaranteed
+that the UC result generates an AC feasible initial condition, so this problem selects
+a particular period (<code>initial_time</code>) where the conditions are suitable.</p>
+<pre><code class="julia">sim = Simulation(
+    name=&quot;UC-ACOPF&quot;,
+    steps=12,
+    models=models,
+    sequence=sequence,
+    simulation_folder=sim_folder,
+)
+
+build!(sim)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: models not defined
+Stacktrace:
+</code></pre></div><p>And solve it ...</p>
+<pre><code class="julia">execute!(sim, enable_progress_bar=false)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: execute! not defined
+Stacktrace:
+</code></pre></div><p>And extract some results</p>
+<pre><code class="julia">results = SimulationResults(sim)
+ac_results = get_decision_problem_results(results, &quot;ACOPF&quot;)
+
+slack_keys = [
+    k for k in list_variable_keys(ac_results) if PSI.get_entry_type(k) ∈ [SystemBalanceSlackDown, SystemBalanceSlackUp]
+]
+slack_vars = Dict([k =&gt; read_realized_variables(ac_results, k) for k in slack_keys])</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: SimulationResults not defined
+Stacktrace:
+</code></pre></div><p>nb # Plot the slack values
+nb plot_results(slack_vars);</p>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>

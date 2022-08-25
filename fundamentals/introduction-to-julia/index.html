@@ -295,16 +295,16 @@ isimmutable(1) = true
 <pre><code class="julia">using Random
 [rand() for i in 1:10]</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">10-element Vector{Float64}:
- 0.5456324068267664
- 0.5806323150557143
- 0.20262707889477616
- 0.15763961362217804
- 0.16600598009535494
- 0.5137448407161466
- 0.4699438837133978
- 0.11792744452609272
- 0.39918038144855483
- 0.09684542020871856</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+ 0.20869968878079248
+ 0.4208299349746849
+ 0.10294788338053762
+ 0.5619017333388734
+ 0.6894078584599025
+ 0.08581575556495391
+ 0.48093527732233876
+ 0.18295984213365746
+ 0.1366352778038471
+ 0.9205720574138856</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
 <p>For example the following can be used to install JuMP,</p>
 <pre><code class="julia">using Pkg
 Pkg.add(&quot;JuMP&quot;)</code></pre>
@@ -327,7 +327,7 @@ Pkg.instantiate()</code></pre>
 Closest candidates are:
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}, !Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}) at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:184
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod, Dates.TimeType}, !Matched::Type{P}) where P<:Dates.Period at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:286
-  ceil(!Matched::ColorTypes.Gray{T}) where T at ~/.julia/packages/ColorVectorSpace/bhkoO/src/ColorVectorSpace.jl:219
+  ceil(!Matched::FixedPointNumbers.Fixed{T, f}) where {T, f} at ~/.julia/packages/FixedPointNumbers/HAGk2/src/fixed.jl:131
   ...
 Stacktrace:
 </code></pre></div>
