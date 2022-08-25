@@ -73,10 +73,8 @@ To make <code>π</code> (and most other greek letters), type <code>\pi</code> an
 <div class="code-output"><pre><code class="code-result language-plaintext">Symbol</code></pre></div><h3 id="arithmetic_and_equality_testing" ><a href="#arithmetic_and_equality_testing"> Arithmetic and Equality Testing</a></h3><p>Julia is great for math</p>
 <pre><code class="julia">1 + 1</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">2</code></pre></div><p>Even math involving complex numbers</p>
-<pre><code class="julia">(2 + 1im) \* (1 - 2im)</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: space before "(" not allowed in "* (" at string:1
-Stacktrace:
-</code></pre></div><p>We can also write things like the following using <code>√</code> i.e. <code>\sqrt</code></p>
+<pre><code class="julia">(2 + 1im) * (1 - 2im)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">4 - 3im</code></pre></div><p>We can also write things like the following using <code>√</code> i.e. <code>\sqrt</code></p>
 <pre><code class="julia">sin(2π / 3) == √3 / 2</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">false</code></pre></div><p>Wait. What?</p>
 <pre><code class="julia">sin(2π / 3) - √3 / 2</code></pre>
@@ -101,15 +99,18 @@ careful, this can throw up all manner of issues. For example:</p>
 <pre><code class="julia">x = A \ b</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">2-element Vector{Float64}:
  -3.9999999999999987
-  4.499999999999999</code></pre></div><pre><code class="julia">A \* x</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: "*" is not a unary operator
-Stacktrace:
-</code></pre></div><pre><code class="julia">A \* x == b</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: "*" is not a unary operator
-Stacktrace:
-</code></pre></div><p>Note that when multiplying vectors and matrices, dimensions matter. For example, you can't multiply a vector by a vector:</p>
-<pre><code class="julia">b \* b</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: "*" is not a unary operator
+  4.499999999999999</code></pre></div><pre><code class="julia">A * x</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">2-element Vector{Float64}:
+ 5.0
+ 6.0</code></pre></div><pre><code class="julia">A * x == b</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">true</code></pre></div><p>Note that when multiplying vectors and matrices, dimensions matter. For example, you can't multiply a vector by a vector:</p>
+<pre><code class="julia">b * b</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: MethodError: no method matching *(::Vector{Int64}, ::Vector{Int64})
+Closest candidates are:
+  *(::Any, ::Any, !Matched::Any, !Matched::Any...) at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/base/operators.jl:655
+  *(!Matched::StridedMatrix{T}, ::StridedVector{S}) where {T<:Union{Float32, Float64, ComplexF32, ComplexF64}, S<:Real} at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/LinearAlgebra/src/matmul.jl:44
+  *(::StridedVecOrMat, !Matched::LinearAlgebra.Adjoint{<:Any, <:LinearAlgebra.LQPackedQ}) at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/LinearAlgebra/src/lq.jl:266
+  ...
 Stacktrace:
 </code></pre></div><p>But multiplying transposes works:</p>
 <pre><code class="julia">@show b' _ b
@@ -294,16 +295,16 @@ isimmutable(1) = true
 <pre><code class="julia">using Random
 [rand() for i in 1:10]</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">10-element Vector{Float64}:
- 0.49359352949339463
- 0.4031194783460018
- 0.8308278570085
- 0.2063478628221852
- 0.3547218860618675
- 0.34010320409077666
- 0.7267019017817367
- 0.10165312675976268
- 0.9662172317668214
- 0.21541408046043864</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
+ 0.931887564917961
+ 0.9003695508717469
+ 0.10512641546721768
+ 0.9759113790568611
+ 0.9753529883830656
+ 0.03770988174637224
+ 0.2048581592219777
+ 0.44339127853212534
+ 0.870669714363189
+ 0.73421597549935</code></pre></div><p>The Package Manager is used to install packages that are not part of Julia's standard library.</p>
 <p>For example the following can be used to install JuMP,</p>
 <pre><code class="julia">using Pkg
 Pkg.add(&quot;JuMP&quot;)</code></pre>
@@ -326,7 +327,7 @@ Pkg.instantiate()</code></pre>
 Closest candidates are:
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}, !Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod}) at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:184
   ceil(!Matched::Union{Dates.Day, Dates.Week, Dates.TimePeriod, Dates.TimeType}, !Matched::Type{P}) where P<:Dates.Period at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/stdlib/v1.7/Dates/src/rounding.jl:286
-  ceil(!Matched::FixedPointNumbers.Fixed{T, f}) where {T, f} at ~/.julia/packages/FixedPointNumbers/HAGk2/src/fixed.jl:131
+  ceil(!Matched::ForwardDiff.Dual) at ~/.julia/packages/ForwardDiff/pDtsf/src/dual.jl:323
   ...
 Stacktrace:
 </code></pre></div>
