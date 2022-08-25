@@ -4,7 +4,7 @@
 
 # ## Introduction
 
-# The [Operations Problems example]](https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/3_PowerSimulations_examples/02_sequential_simulations.ipynb)
+# The [Operations Problems example](https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/3_PowerSimulations_examples/02_sequential_simulations.ipynb)
 # shows the basic building blocks of building optimization problems with PowerSimulations.jl.
 # This example shows how to customize the enforcement of branch flow constraints as is common
 # when trying to build large scale simulations.
@@ -33,7 +33,7 @@ sys = build_system(PSITestSystems, "modified_RTS_GMLC_DA_sys")
 for line in get_components(Line, sys)
     if (get_base_voltage(get_from(get_arc(line))) >= 230.0) &&
        (get_base_voltage(get_to(get_arc(line))) >= 230.0)
-        # if get_area(get_from(get_arc(line))) != get_area(get_to(get_arc(line)))
+        ## if get_area(get_from(get_arc(line))) != get_area(get_to(get_arc(line)))
         @info "Changing $(get_name(line)) to MonitoredLine"
         convert_component!(MonitoredLine, line, sys)
     end

@@ -30,6 +30,8 @@ See [How To Guides](/how-to/) for more information.
 1. [5 Bus Market Simulations](/how-to/5-bus-market-simulation/)
 1. [Bar Stack Plots](/how-to/bar-stack-plots/)
 1. [Hydropower Simulation](/how-to/hydro-simulation/)
+1. [ACOPF](/how-to/acopf/)
+1. [Selective Network Constraints](/how-to/selective-network-constraints/)
 
 ## Notes
 
