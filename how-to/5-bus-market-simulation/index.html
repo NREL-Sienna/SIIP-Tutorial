@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="5_bus_market_simulation_with_powersimulations.jl" ><a href="#5_bus_market_simulation_with_powersimulations.jl"> 5-bus Market simulation with PowerSimulations.jl</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>PowerSimulations.jl supports simulations that consist of sequential optimization problems
+where results from previous problems inform subsequent problems in a variety of ways. This
+example demonstrates some of these capabilities to represent electricity market clearing.</p>
+<h2 id="dependencies_and_data" ><a href="#dependencies_and_data"> Dependencies and Data</a></h2><p>First, let's create <code>System</code> to represent the Day-Ahead and Real-Time market clearing
+process with hourly, and 5-minute time series data, respectively.</p>
+<h3 id="modeling_packages" ><a href="#modeling_packages"> Modeling Packages</a></h3><pre><code class="julia">using PowerSystems
+using PowerSimulations
+using PowerSystemCaseBuilder</code></pre>
+<h3 id="data_management_packages" ><a href="#data_management_packages"> Data management packages</a></h3><pre><code class="julia">using Dates
+using DataFrames</code></pre>
+<h3 id="optimization_packages" ><a href="#optimization_packages"> Optimization packages</a></h3><pre><code class="julia">using HiGHS # mip solver
+solver = optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.5)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">MathOptInterface.OptimizerWithAttributes(HiGHS.Optimizer, Pair{MathOptInterface.AbstractOptimizerAttribute, Any}[MathOptInterface.RawOptimizerAttribute("mip_rel_gap") => 0.5])</code></pre></div><h3 id="5_bus_data" ><a href="#5_bus_data"> 5-bus Data</a></h3><p>The five bus system data here includes hourly day-ahead data, 5-minute real-time market
+data, and 6-second actual data. We'll only use the hourly and 5-minute data for the
+example simulations below, but the 6-second data is included for future development.</p>
+<pre><code class="julia">sys_DA = build_system(SIIPExampleSystems, &quot;5_bus_matpower_DA&quot;)
+sys_RT = build_system(SIIPExampleSystems, &quot;5_bus_matpower_RT&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+</code></pre><table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">SYSTEM_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">30</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">6</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PhaseShiftingTransformer</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">RenewableDispatch</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style = "text-align: left;">Time Series Summary</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Components with time series data</td>
+      <td style = "text-align: left;">5</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total StaticTimeSeries</td>
+      <td style = "text-align: left;">5</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total Forecasts</td>
+      <td style = "text-align: left;">5</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Resolution</td>
+      <td style = "text-align: left;">60 minutes</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">First initial time</td>
+      <td style = "text-align: left;">2020-01-01T00:00:00</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Last initial time</td>
+      <td style = "text-align: left;">2020-03-24T12:00:00</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Horizon</td>
+      <td style = "text-align: left;">12</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Interval</td>
+      <td style = "text-align: left;">60 minutes</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Forecast window count</td>
+      <td style = "text-align: left;">2005</td>
+    </tr>
+  </tbody>
+</table>
+</div><h2 id="problemtemplate" ><a href="#problemtemplate"> <code>ProblemTemplate</code></a></h2><pre><code class="julia">template_uc = template_unit_commitment(use_slacks=true)
+template_ed = template_economic_dispatch(
+    network=NetworkModel(CopperPlatePowerModel, duals=[CopperPlateBalanceConstraint]),
+)</code></pre>
+<div class="code-output"><table>
+  <caption style = "text-align: left;">Network Model</caption>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Network Model</td>
+      <td style = "text-align: left;">PowerSimulations.CopperPlatePowerModel</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Slacks</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PTDF</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Duals</td>
+      <td style = "text-align: left;">PowerSimulations.CopperPlateBalanceConstraint</td>
+    </tr>
+  </tbody>
+</table>
+
+Device Models
+┌───────────────────────────────────┬──────────────────────────────────────────┬────────┐
+│ Device Type                       │ Formulation                              │ Slacks │
+├───────────────────────────────────┼──────────────────────────────────────────┼────────┤
+│ PowerSystems.ThermalStandard      │ PowerSimulations.ThermalBasicDispatch    │ false  │
+│ PowerSystems.HydroEnergyReservoir │ PowerSimulations.HydroDispatchRunOfRiver │ false  │
+│ PowerSystems.RenewableDispatch    │ PowerSimulations.RenewableFullDispatch   │ false  │
+│ PowerSystems.PowerLoad            │ PowerSimulations.StaticPowerLoad         │ false  │
+│ PowerSystems.InterruptibleLoad    │ PowerSimulations.InterruptiblePowerLoad  │ false  │
+│ PowerSystems.RenewableFix         │ PowerSimulations.FixedOutput             │ false  │
+│ PowerSystems.HydroDispatch        │ PowerSimulations.HydroDispatchRunOfRiver │ false  │
+└───────────────────────────────────┴──────────────────────────────────────────┴────────┘
+
+<table>
+  <caption style = "text-align: left;">Branch Models</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Branch Type</th>
+      <th style = "text-align: left;">Formulation</th>
+      <th style = "text-align: left;">Slacks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">PowerSystems.Transformer2W</td>
+      <td style = "text-align: left;">PowerSimulations.StaticBranch</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerSystems.Line</td>
+      <td style = "text-align: left;">PowerSimulations.StaticBranch</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerSystems.HVDCLine</td>
+      <td style = "text-align: left;">PowerSimulations.HVDCDispatch</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerSystems.TapTransformer</td>
+      <td style = "text-align: left;">PowerSimulations.StaticBranch</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style = "text-align: left;">Service Models</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Service Type</th>
+      <th style = "text-align: left;">Formulation</th>
+      <th style = "text-align: left;">Slacks</th>
+      <th style = "text-align: left;">Aggregated Model</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">PowerSystems.VariableReserve{PowerSystems.ReserveUp}</td>
+      <td style = "text-align: left;">PowerSimulations.RangeReserve</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerSystems.VariableReserve{PowerSystems.ReserveDown}</td>
+      <td style = "text-align: left;">PowerSimulations.RangeReserve</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+  </tbody>
+</table>
+</div><h3 id="define_the_simulation_sequence" ><a href="#define_the_simulation_sequence"> Define the Simulation Sequence</a></h3><pre><code class="julia">models = SimulationModels(
+    decision_models=[
+        DecisionModel(template_uc, sys_DA, name=&quot;UC&quot;, optimizer=solver),
+        DecisionModel(template_ed, sys_RT, name=&quot;ED&quot;, optimizer=solver),
+    ],
+)
+
+feedforward = Dict(
+    &quot;ED&quot; =&gt; [
+        SemiContinuousFeedforward(
+            component_type=ThermalStandard,
+            source=OnVariable,
+            affected_values=[ActivePowerVariable],
+        ),
+    ],
+)
+
+DA_RT_sequence = SimulationSequence(
+    models=models,
+    ini_cond_chronology=InterProblemChronology(),
+    feedforwards=feedforward,
+)</code></pre>
+<div class="code-output">
+<table>
+  <caption style = "text-align: left;">Simulation Sequence</caption>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Simulation Step Interval</td>
+      <td style = "text-align: left;">24 hours</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Number of Problems</td>
+      <td style = "text-align: left;">2</td>
+    </tr>
+  </tbody>
+</table>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: navy !important;
+      color: white;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: lightgray !important;
+      color: black;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Simulation Problems</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Model Name</th>
+      <th style = "text-align: left;">Horizon</th>
+      <th style = "text-align: left;">Interval</th>
+      <th style = "text-align: left;">Executions Per Step</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">UC</td>
+      <td style = "text-align: left;">48</td>
+      <td style = "text-align: left;">1440 minutes</td>
+      <td style = "text-align: left;">1</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ED</td>
+      <td style = "text-align: left;">12</td>
+      <td style = "text-align: left;">60 minutes</td>
+      <td style = "text-align: left;">24</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<table>
+  <caption style = "text-align: left;">Feedforwards</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Model Name</th>
+      <th style = "text-align: left;">Feed Forward Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">ED</td>
+      <td style = "text-align: left;">PowerSimulations.SemiContinuousFeedforward</td>
+    </tr>
+  </tbody>
+</table>
+</div><h2 id="simulation" ><a href="#simulation"> <code>Simulation</code></a></h2><pre><code class="julia">file_path = mktempdir(cleanup=true)
+sim = Simulation(
+    name=&quot;5bus-test&quot;,
+    steps=1,
+    models=models,
+    sequence=DA_RT_sequence,
+    simulation_folder=file_path,
+)</code></pre>
+<div class="code-output"><table>
+  <caption style = "text-align: left;">Simulation</caption>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Simulation Name</td>
+      <td style = "text-align: left;">5bus-test</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Build Status</td>
+      <td style = "text-align: left;">EMPTY</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Run Status</td>
+      <td style = "text-align: left;">NOT_READY</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Initial Time</td>
+      <td style = "text-align: left;">Unset Initial Time</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Steps</td>
+      <td style = "text-align: left;">1</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style = "text-align: left;">Decision Models</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Model Name</th>
+      <th style = "text-align: left;">Model Type</th>
+      <th style = "text-align: left;">Status</th>
+      <th style = "text-align: left;">Output Directory</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">UC</td>
+      <td style = "text-align: left;">PowerSimulations.GenericOpProblem</td>
+      <td style = "text-align: left;">EMPTY</td>
+      <td style = "text-align: left;">nothing</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ED</td>
+      <td style = "text-align: left;">PowerSimulations.GenericOpProblem</td>
+      <td style = "text-align: left;">EMPTY</td>
+      <td style = "text-align: left;">nothing</td>
+    </tr>
+  </tbody>
+</table>
+
+No Emulator Model Specified
+
+<table>
+  <caption style = "text-align: left;">Simulation Sequence</caption>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Simulation Step Interval</td>
+      <td style = "text-align: left;">24 hours</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Number of Problems</td>
+      <td style = "text-align: left;">2</td>
+    </tr>
+  </tbody>
+</table>
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<style>
+  table, td, th {
+      border-collapse: collapse;
+      font-family: sans-serif;
+  }
+
+  td, th {
+      border-bottom: 0;
+      padding: 4px
+  }
+
+  tr:nth-child(odd) {
+      background: #eee;
+  }
+
+  tr:nth-child(even) {
+      background: #fff;
+  }
+
+  tr.header {
+      background: navy !important;
+      color: white;
+      font-weight: bold;
+  }
+
+  tr.subheader {
+      background: lightgray !important;
+      color: black;
+  }
+
+  tr.headerLastRow {
+      border-bottom: 2px solid black;
+  }
+
+  th.rowNumber, td.rowNumber {
+      text-align: right;
+  }
+
+</style>
+<body>
+<table>
+  <caption style = "text-align: left;">Simulation Problems</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Model Name</th>
+      <th style = "text-align: left;">Horizon</th>
+      <th style = "text-align: left;">Interval</th>
+      <th style = "text-align: left;">Executions Per Step</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">UC</td>
+      <td style = "text-align: left;">48</td>
+      <td style = "text-align: left;">1440 minutes</td>
+      <td style = "text-align: left;">1</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ED</td>
+      <td style = "text-align: left;">12</td>
+      <td style = "text-align: left;">60 minutes</td>
+      <td style = "text-align: left;">24</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+<table>
+  <caption style = "text-align: left;">Feedforwards</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Model Name</th>
+      <th style = "text-align: left;">Feed Forward Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">ED</td>
+      <td style = "text-align: left;">PowerSimulations.SemiContinuousFeedforward</td>
+    </tr>
+  </tbody>
+</table>
+</div><h3 id="build_simulation" ><a href="#build_simulation"> Build simulation</a></h3><pre><code class="julia">build!(sim)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.BuildStatusModule.BuildStatus.BUILT = 0</code></pre></div><h3 id="execute_simulation" ><a href="#execute_simulation"> Execute simulation</a></h3><pre><code class="julia">execute!(sim, enable_progress_bar=false)
+
+# Results</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.RunStatusModule.RunStatus.SUCCESSFUL = 0</code></pre></div><p>First we can load the result metadata</p>
+<pre><code class="julia">results = SimulationResults(sim);
+uc_results = get_decision_problem_results(results, &quot;UC&quot;)
+ed_results = get_decision_problem_results(results, &quot;ED&quot;);</code></pre>
+<p>Then we can read and examine the results of interest. For example, if we want to read
+marginal prices of the balance constraint, we can see what dual values are available:</p>
+<pre><code class="julia">list_dual_names(ed_results)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">1-element Vector{String}:
+ "CopperPlateBalanceConstraint__System"</code></pre></div><p>Then, we can read the results of the dual</p>
+<pre><code class="julia">prices = read_dual(ed_results, &quot;CopperPlateBalanceConstraint__System&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">DataStructures.SortedDict{Dates.DateTime, DataFrames.DataFrame, Base.Order.ForwardOrdering} with 24 entries:
+  DateTime("2020-01-01T00:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T00:00:00                                1000.0
+   2 │ 2020-01-01T01:00:00                                1000.0
+   3 │ 2020-01-01T02:00:00                                1000.0
+   4 │ 2020-01-01T03:00:00                                1000.0
+   5 │ 2020-01-01T04:00:00                                1000.0
+   6 │ 2020-01-01T05:00:00                                1000.0
+   7 │ 2020-01-01T06:00:00                                1000.0
+   8 │ 2020-01-01T07:00:00                                1000.0
+   9 │ 2020-01-01T08:00:00                                1000.0
+  10 │ 2020-01-01T09:00:00                                1000.0
+  11 │ 2020-01-01T10:00:00                                1000.0
+  12 │ 2020-01-01T11:00:00                                1000.0
+  DateTime("2020-01-01T01:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T01:00:00                                1000.0
+   2 │ 2020-01-01T02:00:00                                1000.0
+   3 │ 2020-01-01T03:00:00                                1000.0
+   4 │ 2020-01-01T04:00:00                                1000.0
+   5 │ 2020-01-01T05:00:00                                1000.0
+   6 │ 2020-01-01T06:00:00                                1000.0
+   7 │ 2020-01-01T07:00:00                                1000.0
+   8 │ 2020-01-01T08:00:00                                1000.0
+   9 │ 2020-01-01T09:00:00                                1000.0
+  10 │ 2020-01-01T10:00:00                                1000.0
+  11 │ 2020-01-01T11:00:00                                1000.0
+  12 │ 2020-01-01T12:00:00                                1000.0
+  DateTime("2020-01-01T02:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T02:00:00                                1000.0
+   2 │ 2020-01-01T03:00:00                                1000.0
+   3 │ 2020-01-01T04:00:00                                1000.0
+   4 │ 2020-01-01T05:00:00                                1000.0
+   5 │ 2020-01-01T06:00:00                                1000.0
+   6 │ 2020-01-01T07:00:00                                1000.0
+   7 │ 2020-01-01T08:00:00                                1000.0
+   8 │ 2020-01-01T09:00:00                                1000.0
+   9 │ 2020-01-01T10:00:00                                1000.0
+  10 │ 2020-01-01T11:00:00                                1000.0
+  11 │ 2020-01-01T12:00:00                                1000.0
+  12 │ 2020-01-01T13:00:00                                1000.0
+  DateTime("2020-01-01T03:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T03:00:00                                1000.0
+   2 │ 2020-01-01T04:00:00                                1000.0
+   3 │ 2020-01-01T05:00:00                                1000.0
+   4 │ 2020-01-01T06:00:00                                1000.0
+   5 │ 2020-01-01T07:00:00                                1000.0
+   6 │ 2020-01-01T08:00:00                                1000.0
+   7 │ 2020-01-01T09:00:00                                1000.0
+   8 │ 2020-01-01T10:00:00                                1000.0
+   9 │ 2020-01-01T11:00:00                                1000.0
+  10 │ 2020-01-01T12:00:00                                1000.0
+  11 │ 2020-01-01T13:00:00                                1000.0
+  12 │ 2020-01-01T14:00:00                                1000.0
+  DateTime("2020-01-01T04:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T04:00:00                                1000.0
+   2 │ 2020-01-01T05:00:00                                1000.0
+   3 │ 2020-01-01T06:00:00                                1000.0
+   4 │ 2020-01-01T07:00:00                                1000.0
+   5 │ 2020-01-01T08:00:00                                1000.0
+   6 │ 2020-01-01T09:00:00                                1000.0
+   7 │ 2020-01-01T10:00:00                                1000.0
+   8 │ 2020-01-01T11:00:00                                1000.0
+   9 │ 2020-01-01T12:00:00                                1000.0
+  10 │ 2020-01-01T13:00:00                                1000.0
+  11 │ 2020-01-01T14:00:00                                1000.0
+  12 │ 2020-01-01T15:00:00                                1000.0
+  DateTime("2020-01-01T05:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T05:00:00                                1000.0
+   2 │ 2020-01-01T06:00:00                                1000.0
+   3 │ 2020-01-01T07:00:00                                1000.0
+   4 │ 2020-01-01T08:00:00                                1000.0
+   5 │ 2020-01-01T09:00:00                                1000.0
+   6 │ 2020-01-01T10:00:00                                1000.0
+   7 │ 2020-01-01T11:00:00                                1000.0
+   8 │ 2020-01-01T12:00:00                                1000.0
+   9 │ 2020-01-01T13:00:00                                1000.0
+  10 │ 2020-01-01T14:00:00                                1000.0
+  11 │ 2020-01-01T15:00:00                                1000.0
+  12 │ 2020-01-01T16:00:00                                1000.0
+  DateTime("2020-01-01T06:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T06:00:00                                1000.0
+   2 │ 2020-01-01T07:00:00                                1000.0
+   3 │ 2020-01-01T08:00:00                                1000.0
+   4 │ 2020-01-01T09:00:00                                1000.0
+   5 │ 2020-01-01T10:00:00                                1000.0
+   6 │ 2020-01-01T11:00:00                                1000.0
+   7 │ 2020-01-01T12:00:00                                1000.0
+   8 │ 2020-01-01T13:00:00                                1000.0
+   9 │ 2020-01-01T14:00:00                                1000.0
+  10 │ 2020-01-01T15:00:00                                1000.0
+  11 │ 2020-01-01T16:00:00                                1000.0
+  12 │ 2020-01-01T17:00:00                                1000.0
+  DateTime("2020-01-01T07:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T07:00:00                                1000.0
+   2 │ 2020-01-01T08:00:00                                1000.0
+   3 │ 2020-01-01T09:00:00                                1000.0
+   4 │ 2020-01-01T10:00:00                                1000.0
+   5 │ 2020-01-01T11:00:00                                1000.0
+   6 │ 2020-01-01T12:00:00                                1000.0
+   7 │ 2020-01-01T13:00:00                                1000.0
+   8 │ 2020-01-01T14:00:00                                1000.0
+   9 │ 2020-01-01T15:00:00                                1000.0
+  10 │ 2020-01-01T16:00:00                                1000.0
+  11 │ 2020-01-01T17:00:00                                1000.0
+  12 │ 2020-01-01T18:00:00                                1000.0
+  DateTime("2020-01-01T08:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T08:00:00                                1000.0
+   2 │ 2020-01-01T09:00:00                                1000.0
+   3 │ 2020-01-01T10:00:00                                1000.0
+   4 │ 2020-01-01T11:00:00                                1000.0
+   5 │ 2020-01-01T12:00:00                                1000.0
+   6 │ 2020-01-01T13:00:00                                1000.0
+   7 │ 2020-01-01T14:00:00                                1000.0
+   8 │ 2020-01-01T15:00:00                                1000.0
+   9 │ 2020-01-01T16:00:00                                1000.0
+  10 │ 2020-01-01T17:00:00                                1000.0
+  11 │ 2020-01-01T18:00:00                                1000.0
+  12 │ 2020-01-01T19:00:00                                1000.0
+  DateTime("2020-01-01T09:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T09:00:00                                1000.0
+   2 │ 2020-01-01T10:00:00                                1000.0
+   3 │ 2020-01-01T11:00:00                                1000.0
+   4 │ 2020-01-01T12:00:00                                1000.0
+   5 │ 2020-01-01T13:00:00                                1000.0
+   6 │ 2020-01-01T14:00:00                                1000.0
+   7 │ 2020-01-01T15:00:00                                1000.0
+   8 │ 2020-01-01T16:00:00                                1000.0
+   9 │ 2020-01-01T17:00:00                                1000.0
+  10 │ 2020-01-01T18:00:00                                1000.0
+  11 │ 2020-01-01T19:00:00                                1000.0
+  12 │ 2020-01-01T20:00:00                                1000.0
+  DateTime("2020-01-01T10:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T10:00:00                                1000.0
+   2 │ 2020-01-01T11:00:00                                1000.0
+   3 │ 2020-01-01T12:00:00                                1000.0
+   4 │ 2020-01-01T13:00:00                                1000.0
+   5 │ 2020-01-01T14:00:00                                1000.0
+   6 │ 2020-01-01T15:00:00                                1000.0
+   7 │ 2020-01-01T16:00:00                                1000.0
+   8 │ 2020-01-01T17:00:00                                1000.0
+   9 │ 2020-01-01T18:00:00                                1000.0
+  10 │ 2020-01-01T19:00:00                                1000.0
+  11 │ 2020-01-01T20:00:00                                1000.0
+  12 │ 2020-01-01T21:00:00                                1000.0
+  DateTime("2020-01-01T11:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T11:00:00                                1000.0
+   2 │ 2020-01-01T12:00:00                                1000.0
+   3 │ 2020-01-01T13:00:00                                1000.0
+   4 │ 2020-01-01T14:00:00                                1000.0
+   5 │ 2020-01-01T15:00:00                                1000.0
+   6 │ 2020-01-01T16:00:00                                1000.0
+   7 │ 2020-01-01T17:00:00                                1000.0
+   8 │ 2020-01-01T18:00:00                                1000.0
+   9 │ 2020-01-01T19:00:00                                1000.0
+  10 │ 2020-01-01T20:00:00                                1000.0
+  11 │ 2020-01-01T21:00:00                                1000.0
+  12 │ 2020-01-01T22:00:00                                1000.0
+  DateTime("2020-01-01T12:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T12:00:00                                1000.0
+   2 │ 2020-01-01T13:00:00                                1000.0
+   3 │ 2020-01-01T14:00:00                                1000.0
+   4 │ 2020-01-01T15:00:00                                1000.0
+   5 │ 2020-01-01T16:00:00                                1000.0
+   6 │ 2020-01-01T17:00:00                                1000.0
+   7 │ 2020-01-01T18:00:00                                1000.0
+   8 │ 2020-01-01T19:00:00                                1000.0
+   9 │ 2020-01-01T20:00:00                                1000.0
+  10 │ 2020-01-01T21:00:00                                1000.0
+  11 │ 2020-01-01T22:00:00                                1000.0
+  12 │ 2020-01-01T23:00:00                                1000.0
+  DateTime("2020-01-01T13:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T13:00:00                                1000.0
+   2 │ 2020-01-01T14:00:00                                1000.0
+   3 │ 2020-01-01T15:00:00                                1000.0
+   4 │ 2020-01-01T16:00:00                                1000.0
+   5 │ 2020-01-01T17:00:00                                1000.0
+   6 │ 2020-01-01T18:00:00                                1000.0
+   7 │ 2020-01-01T19:00:00                                1000.0
+   8 │ 2020-01-01T20:00:00                                1000.0
+   9 │ 2020-01-01T21:00:00                                1000.0
+  10 │ 2020-01-01T22:00:00                                1000.0
+  11 │ 2020-01-01T23:00:00                                1000.0
+  12 │ 2020-01-02T00:00:00                                1000.0
+  DateTime("2020-01-01T14:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T14:00:00                                1000.0
+   2 │ 2020-01-01T15:00:00                                1000.0
+   3 │ 2020-01-01T16:00:00                                1000.0
+   4 │ 2020-01-01T17:00:00                                1000.0
+   5 │ 2020-01-01T18:00:00                                1000.0
+   6 │ 2020-01-01T19:00:00                                1000.0
+   7 │ 2020-01-01T20:00:00                                1000.0
+   8 │ 2020-01-01T21:00:00                                1000.0
+   9 │ 2020-01-01T22:00:00                                1000.0
+  10 │ 2020-01-01T23:00:00                                1000.0
+  11 │ 2020-01-02T00:00:00                                1000.0
+  12 │ 2020-01-02T01:00:00                                1000.0
+  DateTime("2020-01-01T15:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T15:00:00                                1000.0
+   2 │ 2020-01-01T16:00:00                                1000.0
+   3 │ 2020-01-01T17:00:00                                1000.0
+   4 │ 2020-01-01T18:00:00                                1000.0
+   5 │ 2020-01-01T19:00:00                                1000.0
+   6 │ 2020-01-01T20:00:00                                1000.0
+   7 │ 2020-01-01T21:00:00                                1000.0
+   8 │ 2020-01-01T22:00:00                                1000.0
+   9 │ 2020-01-01T23:00:00                                1000.0
+  10 │ 2020-01-02T00:00:00                                1000.0
+  11 │ 2020-01-02T01:00:00                                1000.0
+  12 │ 2020-01-02T02:00:00                                1000.0
+  DateTime("2020-01-01T16:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T16:00:00                                1000.0
+   2 │ 2020-01-01T17:00:00                                1000.0
+   3 │ 2020-01-01T18:00:00                                1000.0
+   4 │ 2020-01-01T19:00:00                                1000.0
+   5 │ 2020-01-01T20:00:00                                1000.0
+   6 │ 2020-01-01T21:00:00                                1000.0
+   7 │ 2020-01-01T22:00:00                                1000.0
+   8 │ 2020-01-01T23:00:00                                1000.0
+   9 │ 2020-01-02T00:00:00                                1000.0
+  10 │ 2020-01-02T01:00:00                                1000.0
+  11 │ 2020-01-02T02:00:00                                1000.0
+  12 │ 2020-01-02T03:00:00                                1000.0
+  DateTime("2020-01-01T17:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T17:00:00                                1000.0
+   2 │ 2020-01-01T18:00:00                                1000.0
+   3 │ 2020-01-01T19:00:00                                1000.0
+   4 │ 2020-01-01T20:00:00                                1000.0
+   5 │ 2020-01-01T21:00:00                                1000.0
+   6 │ 2020-01-01T22:00:00                                1000.0
+   7 │ 2020-01-01T23:00:00                                1000.0
+   8 │ 2020-01-02T00:00:00                                1000.0
+   9 │ 2020-01-02T01:00:00                                1000.0
+  10 │ 2020-01-02T02:00:00                                1000.0
+  11 │ 2020-01-02T03:00:00                                1000.0
+  12 │ 2020-01-02T04:00:00                                1000.0
+  DateTime("2020-01-01T18:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T18:00:00                                1000.0
+   2 │ 2020-01-01T19:00:00                                1000.0
+   3 │ 2020-01-01T20:00:00                                1000.0
+   4 │ 2020-01-01T21:00:00                                1000.0
+   5 │ 2020-01-01T22:00:00                                1000.0
+   6 │ 2020-01-01T23:00:00                                1000.0
+   7 │ 2020-01-02T00:00:00                                1000.0
+   8 │ 2020-01-02T01:00:00                                1000.0
+   9 │ 2020-01-02T02:00:00                                1000.0
+  10 │ 2020-01-02T03:00:00                                1000.0
+  11 │ 2020-01-02T04:00:00                                1000.0
+  12 │ 2020-01-02T05:00:00                                1000.0
+  DateTime("2020-01-01T19:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T19:00:00                                1000.0
+   2 │ 2020-01-01T20:00:00                                1000.0
+   3 │ 2020-01-01T21:00:00                                1000.0
+   4 │ 2020-01-01T22:00:00                                1000.0
+   5 │ 2020-01-01T23:00:00                                1000.0
+   6 │ 2020-01-02T00:00:00                                1000.0
+   7 │ 2020-01-02T01:00:00                                1000.0
+   8 │ 2020-01-02T02:00:00                                1000.0
+   9 │ 2020-01-02T03:00:00                                1000.0
+  10 │ 2020-01-02T04:00:00                                1000.0
+  11 │ 2020-01-02T05:00:00                                1000.0
+  12 │ 2020-01-02T06:00:00                                1000.0
+  DateTime("2020-01-01T20:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T20:00:00                                1000.0
+   2 │ 2020-01-01T21:00:00                                1000.0
+   3 │ 2020-01-01T22:00:00                                1000.0
+   4 │ 2020-01-01T23:00:00                                1000.0
+   5 │ 2020-01-02T00:00:00                                1000.0
+   6 │ 2020-01-02T01:00:00                                1000.0
+   7 │ 2020-01-02T02:00:00                                1000.0
+   8 │ 2020-01-02T03:00:00                                1000.0
+   9 │ 2020-01-02T04:00:00                                1000.0
+  10 │ 2020-01-02T05:00:00                                1000.0
+  11 │ 2020-01-02T06:00:00                                1000.0
+  12 │ 2020-01-02T07:00:00                                1000.0
+  DateTime("2020-01-01T21:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T21:00:00                                1000.0
+   2 │ 2020-01-01T22:00:00                                1000.0
+   3 │ 2020-01-01T23:00:00                                1000.0
+   4 │ 2020-01-02T00:00:00                                1000.0
+   5 │ 2020-01-02T01:00:00                                1000.0
+   6 │ 2020-01-02T02:00:00                                1000.0
+   7 │ 2020-01-02T03:00:00                                1000.0
+   8 │ 2020-01-02T04:00:00                                1000.0
+   9 │ 2020-01-02T05:00:00                                1000.0
+  10 │ 2020-01-02T06:00:00                                1000.0
+  11 │ 2020-01-02T07:00:00                                1000.0
+  12 │ 2020-01-02T08:00:00                                1000.0
+  DateTime("2020-01-01T22:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T22:00:00                                1000.0
+   2 │ 2020-01-01T23:00:00                                1000.0
+   3 │ 2020-01-02T00:00:00                                1000.0
+   4 │ 2020-01-02T01:00:00                                1000.0
+   5 │ 2020-01-02T02:00:00                                1000.0
+   6 │ 2020-01-02T03:00:00                                1000.0
+   7 │ 2020-01-02T04:00:00                                1000.0
+   8 │ 2020-01-02T05:00:00                                1000.0
+   9 │ 2020-01-02T06:00:00                                1000.0
+  10 │ 2020-01-02T07:00:00                                1000.0
+  11 │ 2020-01-02T08:00:00                                1000.0
+  12 │ 2020-01-02T09:00:00                                1000.0
+  DateTime("2020-01-01T23:00:00") => 12×2 DataFrame
+ Row │ DateTime             CopperPlateBalanceConstraint__System
+     │ DateTime             Float64
+─────┼───────────────────────────────────────────────────────────
+   1 │ 2020-01-01T23:00:00                                1000.0
+   2 │ 2020-01-02T00:00:00                                1000.0
+   3 │ 2020-01-02T01:00:00                                1000.0
+   4 │ 2020-01-02T02:00:00                                1000.0
+   5 │ 2020-01-02T03:00:00                                1000.0
+   6 │ 2020-01-02T04:00:00                                1000.0
+   7 │ 2020-01-02T05:00:00                                1000.0
+   8 │ 2020-01-02T06:00:00                                1000.0
+   9 │ 2020-01-02T07:00:00                                1000.0
+  10 │ 2020-01-02T08:00:00                                1000.0
+  11 │ 2020-01-02T09:00:00                                1000.0
+  12 │ 2020-01-02T10:00:00                                1000.0</code></pre></div><p>or if we want to look at the realized values</p>
+<pre><code class="julia">read_realized_dual(ed_results, &quot;CopperPlateBalanceConstraint__System&quot;)</code></pre>
+<div class="code-output"><div class="data-frame"><p>24 rows × 2 columns</p><table class="data-frame"><thead><tr><th></th><th>DateTime</th><th>CopperPlateBalanceConstraint__System</th></tr><tr><th></th><th title="Dates.DateTime">DateTime</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>2020-01-01T00:00:00</td><td>1000.0</td></tr><tr><th>2</th><td>2020-01-01T01:00:00</td><td>1000.0</td></tr><tr><th>3</th><td>2020-01-01T02:00:00</td><td>1000.0</td></tr><tr><th>4</th><td>2020-01-01T03:00:00</td><td>1000.0</td></tr><tr><th>5</th><td>2020-01-01T04:00:00</td><td>1000.0</td></tr><tr><th>6</th><td>2020-01-01T05:00:00</td><td>1000.0</td></tr><tr><th>7</th><td>2020-01-01T06:00:00</td><td>1000.0</td></tr><tr><th>8</th><td>2020-01-01T07:00:00</td><td>1000.0</td></tr><tr><th>9</th><td>2020-01-01T08:00:00</td><td>1000.0</td></tr><tr><th>10</th><td>2020-01-01T09:00:00</td><td>1000.0</td></tr><tr><th>11</th><td>2020-01-01T10:00:00</td><td>1000.0</td></tr><tr><th>12</th><td>2020-01-01T11:00:00</td><td>1000.0</td></tr><tr><th>13</th><td>2020-01-01T12:00:00</td><td>1000.0</td></tr><tr><th>14</th><td>2020-01-01T13:00:00</td><td>1000.0</td></tr><tr><th>15</th><td>2020-01-01T14:00:00</td><td>1000.0</td></tr><tr><th>16</th><td>2020-01-01T15:00:00</td><td>1000.0</td></tr><tr><th>17</th><td>2020-01-01T16:00:00</td><td>1000.0</td></tr><tr><th>18</th><td>2020-01-01T17:00:00</td><td>1000.0</td></tr><tr><th>19</th><td>2020-01-01T18:00:00</td><td>1000.0</td></tr><tr><th>20</th><td>2020-01-01T19:00:00</td><td>1000.0</td></tr><tr><th>21</th><td>2020-01-01T20:00:00</td><td>1000.0</td></tr><tr><th>22</th><td>2020-01-01T21:00:00</td><td>1000.0</td></tr><tr><th>23</th><td>2020-01-01T22:00:00</td><td>1000.0</td></tr><tr><th>24</th><td>2020-01-01T23:00:00</td><td>1000.0</td></tr></tbody></table></div></div><p>Note that in this simulation the prices are all equal to the balance slack
+penalty value of &#36;100000/MWh because there is unserved energy in the result</p>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>
