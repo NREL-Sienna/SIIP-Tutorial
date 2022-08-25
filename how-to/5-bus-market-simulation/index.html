@@ -63,15 +63,7 @@ data, and 6-second actual data. We'll only use the hourly and 5-minute data for 
 example simulations below, but the 6-second data is included for future development.</p>
 <pre><code class="julia">sys_DA = build_system(SIIPExampleSystems, &quot;5_bus_matpower_DA&quot;)
 sys_RT = build_system(SIIPExampleSystems, &quot;5_bus_matpower_RT&quot;)</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
-┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
-┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
-┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
-└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
-</code></pre><table>
+<div class="code-output"><table>
   <caption style = "text-align: left;">System</caption>
   <thead>
     <tr class = "header headerLastRow">

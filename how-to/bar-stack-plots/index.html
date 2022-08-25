@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
   <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
   <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
   <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
@@ -44,7 +45,130 @@
 
 
 <div class="franklin-content" >
-  <span style="color:red;">[FAILED:]&gt;\literate{how-to/base-stack-plots/literate.jl}&lt;</span>
+  <h1 id="bar_and_stack_plots_with_powergraphics.jl" ><a href="#bar_and_stack_plots_with_powergraphics.jl"> Bar and stack plots with PowerGraphics.jl</a></h1><p>PowerGraphics also provides some basic specifications for plotting <code>SimulationResults</code>.
+This example demonstrates some simple plotting capabilities using different Plots.julia
+backends.</p>
+<p>The plotting capabilities use the Julia Plots package which can generate plots using
+several different graphics packages. We'll use GR.jl and PlotlyJS.jl.</p>
+<h2 id="dependencies" ><a href="#dependencies"> Dependencies</a></h2><pre><code class="julia">using PowerSystems # to load results
+using PowerSimulations # to load results
+using PowerGraphics
+using PowerSystemCaseBuilder</code></pre>
+<h3 id="results_file" ><a href="#results_file"> Results file</a></h3><p>If you have already run some of the other examples, you should have generated some results
+(If you haven't run some of the other simulations, you can run</p>
+<pre><code class="julia">using Dates
+using DataFrames
+using HiGHS # mip solver
+solver = optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.5)
+sys_DA = build_system(SIIPExampleSystems, &quot;5_bus_matpower_DA&quot;)
+sys_RT = build_system(SIIPExampleSystems, &quot;5_bus_matpower_RT&quot;)
+template_uc = template_unit_commitment(use_slacks=true)
+template_ed = template_economic_dispatch(
+    network=NetworkModel(CopperPlatePowerModel, duals=[CopperPlateBalanceConstraint]),
+)
+models = SimulationModels(
+    decision_models=[
+        DecisionModel(template_uc, sys_DA, name=&quot;UC&quot;, optimizer=solver),
+        DecisionModel(template_ed, sys_RT, name=&quot;ED&quot;, optimizer=solver),
+    ],
+)
+feedforward = Dict(
+    &quot;ED&quot; =&gt; [
+        SemiContinuousFeedforward(
+            component_type=ThermalStandard,
+            source=OnVariable,
+            affected_values=[ActivePowerVariable],
+        ),
+    ],
+)
+DA_RT_sequence = SimulationSequence(
+    models=models,
+    ini_cond_chronology=InterProblemChronology(),
+    feedforwards=feedforward,
+)
+file_path = mktempdir(cleanup=true)
+sim = Simulation(
+    name=&quot;5bus-test&quot;,
+    steps=1,
+    models=models,
+    sequence=DA_RT_sequence,
+    simulation_folder=file_path,
+)
+
+build!(sim)
+
+execute!(sim, enable_progress_bar=false)
+results = SimulationResults(sim);
+uc_results = get_decision_problem_results(results, &quot;UC&quot;)
+ed_results = get_decision_problem_results(results, &quot;ED&quot;);
+list_dual_names(ed_results)
+prices = read_dual(ed_results, &quot;CopperPlateBalanceConstraint__System&quot;)
+read_realized_dual(ed_results, &quot;CopperPlateBalanceConstraint__System&quot;)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
+└ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
+</code></pre><div class="data-frame"><p>24 rows × 2 columns</p><table class="data-frame"><thead><tr><th></th><th>DateTime</th><th>CopperPlateBalanceConstraint__System</th></tr><tr><th></th><th title="Dates.DateTime">DateTime</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>2020-01-01T00:00:00</td><td>1000.0</td></tr><tr><th>2</th><td>2020-01-01T01:00:00</td><td>1000.0</td></tr><tr><th>3</th><td>2020-01-01T02:00:00</td><td>1000.0</td></tr><tr><th>4</th><td>2020-01-01T03:00:00</td><td>1000.0</td></tr><tr><th>5</th><td>2020-01-01T04:00:00</td><td>1000.0</td></tr><tr><th>6</th><td>2020-01-01T05:00:00</td><td>1000.0</td></tr><tr><th>7</th><td>2020-01-01T06:00:00</td><td>1000.0</td></tr><tr><th>8</th><td>2020-01-01T07:00:00</td><td>1000.0</td></tr><tr><th>9</th><td>2020-01-01T08:00:00</td><td>1000.0</td></tr><tr><th>10</th><td>2020-01-01T09:00:00</td><td>1000.0</td></tr><tr><th>11</th><td>2020-01-01T10:00:00</td><td>1000.0</td></tr><tr><th>12</th><td>2020-01-01T11:00:00</td><td>1000.0</td></tr><tr><th>13</th><td>2020-01-01T12:00:00</td><td>1000.0</td></tr><tr><th>14</th><td>2020-01-01T13:00:00</td><td>1000.0</td></tr><tr><th>15</th><td>2020-01-01T14:00:00</td><td>1000.0</td></tr><tr><th>16</th><td>2020-01-01T15:00:00</td><td>1000.0</td></tr><tr><th>17</th><td>2020-01-01T16:00:00</td><td>1000.0</td></tr><tr><th>18</th><td>2020-01-01T17:00:00</td><td>1000.0</td></tr><tr><th>19</th><td>2020-01-01T18:00:00</td><td>1000.0</td></tr><tr><th>20</th><td>2020-01-01T19:00:00</td><td>1000.0</td></tr><tr><th>21</th><td>2020-01-01T20:00:00</td><td>1000.0</td></tr><tr><th>22</th><td>2020-01-01T21:00:00</td><td>1000.0</td></tr><tr><th>23</th><td>2020-01-01T22:00:00</td><td>1000.0</td></tr><tr><th>24</th><td>2020-01-01T23:00:00</td><td>1000.0</td></tr></tbody></table></div></div><p>Alternatively, you can load the results into memory with:</p>
+<pre><code class="julia">simulation_folder = joinpath(pkgdir(SIIPExamples), &quot;rts-test&quot;)
+simulation_folder =
+    joinpath(simulation_folder, &quot;$(maximum(parse.(Int64,readdir(simulation_folder))))&quot;)
+
+results = SimulationResults(simulation_folder);
+uc_results = get_decision_problem_results(results, &quot;UC&quot;)</code></pre>
+<p>Since some of the plotting capabilities rely on input data as well as output data (e.g. fuel plots)
+but the result deserialization doesn't load the <code>System</code>, we can add the <code>System</code> to the <code>results</code>
+so that the plotting routines can find the requisite data.</p>
+<pre><code class="julia">set_system!(uc_results, sys_DA)</code></pre>
+<h2 id="plots" ><a href="#plots"> Plots</a></h2><p>By default, PowerGraphics uses the GR graphics package as the backend for Plots.jl to
+generate figures. This creates static plots and should execute without any extra steps.
+For example, we can create a plot of a particular variable in the <code>uc_results</code> object:</p>
+<pre><code class="julia">gr() # loads the GR backend
+timestamps = get_realized_timestamps(uc_results)
+variable = read_realized_variable(uc_results, &quot;ActivePowerVariable__ThermalStandard&quot;)
+
+plot_dataframe(variable, timestamps)</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_16532162136195553941.svg">
+</div><p>However, interactive plotting can generate much more insightful figures, especially when
+creating somewhat complex stacked figures. So, we can use the PlotlyJS backend for Plots,
+but it requires that PlotlyJS.jl is installed in your Project.toml (if in a notebook,
+WebIO.jl is required too). To startup the PlotlyJS backend, run:
+plotlyjs()</p>
+<p>PowerGraphics creates an un-stacked line plot by default, but supports kwargs to
+create a variety of different figure styles. For example, a stacked area figure can be
+created with the <code>stack = true</code> kwarg:</p>
+<pre><code class="julia">plot_dataframe(variable, timestamps; stack=true)</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_18075788111770482227.svg">
+</div><p>Or a bar chart can be created with <code>bar = true</code>:</p>
+<pre><code class="julia">plot_dataframe(variable, timestamps; bar=true)</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_5170786140890808585.svg">
+</div><p>Or a stacked bar chart...</p>
+<pre><code class="julia">plot_dataframe(variable, timestamps; bar=true, stack=true)</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_17807382274789300802.svg">
+</div><p>PowerGraphics also supports some basic aggregation to create cleaner plots. For example,
+we can create a plot of the different variables:</p>
+<pre><code class="julia">generation = get_generation_data(uc_results)
+plot_pgdata(generation, stack=true)
+
+reserves = get_service_data(uc_results)
+plot_pgdata(reserves)</code></pre>
+<div class="code-output"><pre class="fig-stdout"><code class="code-stdout language-plaintext">GKS: Rectangle definition is invalid in routine SET_VIEWPORT
+</code></pre><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_11657471083614463017.svg">
+</div><p>Another standard aggregation is available to plot demand values:</p>
+<pre><code class="julia">plot_demand(uc_results)</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_13975563792646355419.svg">
+</div><p>The <code>plot_demand</code> function can also be called with the <code>System</code> rather than the <code>StageResults</code>
+to inspect the input data. This method can also display demands aggregated by a specified
+<code>&lt;:Topology</code>:</p>
+<pre><code class="julia"># plot_demand(uc_results.system, aggregation=Area)</code></pre>
+<p>Another standard aggregation exists based on the fuel categories of the generators in the
+<code>System</code></p>
+<pre><code class="julia">plot_fuel(uc_results)</code></pre>
+<div class="code-output"><img class="code-figure" src="/SIIP-Tutorial/assets/how-to/bar-stack-plots/index/figs-html/__autofig_15935845875623854716.svg">
+</div>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
   "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
@@ -134,6 +258,10 @@
 </div>
 
     
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
     
   </body>
 
