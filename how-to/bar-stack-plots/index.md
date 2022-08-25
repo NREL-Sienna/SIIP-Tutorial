@@ -1,1 +1,1 @@
-\literate{how-to/base-stack-plots/literate.jl}
+\literate{how-to/bar-stack-plots/literate.jl}
