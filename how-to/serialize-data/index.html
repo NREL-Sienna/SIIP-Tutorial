@@ -52,7 +52,7 @@ provides an example of how to write and read a <code>System</code> to/from disk.
 <pre><code class="julia">using PowerSystems
 using TimeSeries
 
-base_dir = PowerSystems.download(PowerSystems.TestData; branch = &quot;master&quot;);
+base_dir = PowerSystems.download(PowerSystems.TestData; branch=&quot;master&quot;);
 sys = System(joinpath(base_dir, &quot;matpower&quot;, &quot;case5_re.m&quot;))
 sys</code></pre>
 <div class="code-output"><pre><code class="code-stdout language-plaintext">┌ Error: Generator voltage set-points for bus 3 are inconsistent. This can lead to unexpected results
@@ -60,6 +60,112 @@ sys</code></pre>
 ┌ Error: Generator voltage set-points for bus 10 are inconsistent. This can lead to unexpected results
 └ @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/parsers/pm_io/matpower.jl:245
 </code></pre><table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">SYSTEM_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">30</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">6</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PhaseShiftingTransformer</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">RenewableDispatch</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><h3 id="write_data_to_a_temporary_directory" ><a href="#write_data_to_a_temporary_directory"> Write data to a temporary directory</a></h3><pre><code class="julia">folder = mktempdir()
+@show folder, typeof(folder)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">(folder, typeof(folder)) = ("/tmp/jl_HaAnxn", String)
+</code></pre></div><h3 id="test" ><a href="#test"> Test</a></h3><pre><code class="julia">path_to_file = joinpath(folder, &quot;system.json&quot;)
+println(&quot;Serializing to $path&quot;)
+to_json(sys, path_to_file, force=true)
+
+filesize(path_to_file) / (1024 * 1024)</code></pre>
+<div class="code-output"><pre><code class="code-stdout language-plaintext">Serializing to path
+</code></pre><pre><code class="code-result language-plaintext">0.02388477325439453</code></pre></div><h3 id="read_the_json_file_and_create_a_new_system" ><a href="#read_the_json_file_and_create_a_new_system"> Read the JSON file and create a new <code>System</code></a></h3><pre><code class="julia">sys2 = System(path_to_file)</code></pre>
+<div class="code-output"><table>
   <caption style = "text-align: left;">System</caption>
   <thead>
     <tr class = "header headerLastRow">
