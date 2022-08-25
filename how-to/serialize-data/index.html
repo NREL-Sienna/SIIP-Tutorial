@@ -157,7 +157,7 @@ sys</code></pre>
 
 </div><h3 id="write_data_to_a_temporary_directory" ><a href="#write_data_to_a_temporary_directory"> Write data to a temporary directory</a></h3><pre><code class="julia">folder = mktempdir()
 @show folder, typeof(folder)</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">(folder, typeof(folder)) = ("/tmp/jl_O3p84I", String)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">(folder, typeof(folder)) = ("/tmp/jl_bjoEpJ", String)
 </code></pre></div><h3 id="test" ><a href="#test"> Test</a></h3><pre><code class="julia">path_to_file = joinpath(folder, &quot;system.json&quot;)
 println(&quot;Serializing to $path&quot;)
 to_json(sys, path_to_file, force=true)

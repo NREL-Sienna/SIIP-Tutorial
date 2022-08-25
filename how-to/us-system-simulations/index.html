@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="large_scale_production_cost_modeling_with_powersimulations.jl" ><a href="#large_scale_production_cost_modeling_with_powersimulations.jl"> Large Scale Production Cost Modeling with PowerSimulations.jl</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>This example shows a basic PCM simulation using the system data assembled in the
+<a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/08_US_system.ipynb">US-System example</a>.</p>
+<h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><pre><code class="julia">using PowerSystems
+using PowerSimulations
+using PowerGraphics
+using Logging
+using Dates
+
+PSI = PowerSimulations
+plotlyjs()</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: Package PlotlyJS not found in current path:
+- Run `import Pkg; Pkg.add("PlotlyJS")` to install the PlotlyJS package.
+
+Stacktrace:
+  [1] require(into::Module, mod::Symbol)
+    @ Base ./loading.jl:967
+</code></pre></div><h3 id="optimization_packages" ><a href="#optimization_packages"> Optimization packages</a></h3><p>You can use the free solvers as in one of the other PowerSimulations.jl examples, but on
+large problems it's useful to have a solver with better performance. I'll use the Xpress
+solver since I have a license, but others such as Gurobi or CPLEX work well too.</p>
+<pre><code class="julia">using Xpress
+solver = optimizer_with_attributes(Xpress.Optimizer, &quot;MIPRELSTOP&quot; =&gt; 0.1, &quot;OUTPUTLOG&quot; =&gt; 1)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: ArgumentError: Package Xpress not found in current path:
+- Run `import Pkg; Pkg.add("Xpress")` to install the Xpress package.
+
+Stacktrace:
+  [1] require(into::Module, mod::Symbol)
+    @ Base ./loading.jl:967
+  [2] eval
+    @ ./boot.jl:373 [inlined]
+  [3] include_string(mapexpr::typeof(REPL.softscope), mod::Module, code::String, filename::String)
+    @ Base ./loading.jl:1196
+  [4] include_string
+    @ ./loading.jl:1180 [inlined]
+  [5] #61
+    @ ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:178 [inlined]
+  [6] (::IOCapture.var"#3#5"{DataType, Xranklin.var"#61#62"{Module, String}, Task, IOContext{Base.PipeEndpoint}, IOContext{Base.PipeEndpoint}, Base.PipeEndpoint, Base.PipeEndpoint})()
+    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:118
+  [7] with_logstate(f::Function, logstate::Any)
+    @ Base.CoreLogging ./logging.jl:511
+  [8] with_logger
+    @ ./logging.jl:623 [inlined]
+  [9] capture(f::Xranklin.var"#61#62"{Module, String}; rethrow::Type, color::Bool)
+    @ IOCapture ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:116
+ [10] capture
+    @ ~/.julia/packages/IOCapture/sXY71/src/IOCapture.jl:75 [inlined]
+ [11] _eval_code_cell(mdl::Module, code::String, cell_name::String)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:177
+ [12] eval_code_cell!(ctx::Xranklin.LocalContext, cell_code::SubString{String}, cell_name::String; imgdir_html::String, imgdir_latex::String, force::Bool, indep::Bool)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/context/code/notebook_code.jl:114
+ [13] html_code_block(b::FranklinParser.Block, lc::Xranklin.LocalContext)
+    @ Xranklin ~/.julia/packages/Xranklin/rDvw7/src/convert/markdown/rules/code.jl:242</code></pre></div><h3 id="load_the_us_system." ><a href="#load_the_us_system."> Load the US <code>System</code>.</a></h3><p>If you have run the
+<a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/08_US-System.ipynb">US-System example</a>, the data will
+be serialized in the json and H5 format, so we can efficiently deserialize it:</p>
+<pre><code class="julia">pkgpath = joinpath(&quot;how-to&quot;, &quot;create-system-representing-united-states&quot;, &quot;data&quot;)
+
+sys = System(joinpath(&quot;how-to&quot;, &quot;create-system-representing-united-states&quot;, &quot;data&quot;, &quot;SIIP&quot;, &quot;sys.json&quot;))
+horizon = 24;
+interval = Dates.Hour(24);
+transform_single_time_series!(sys, horizon, interval);</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: IOError: cd("how-to/create-system-representing-united-states/data/SIIP"): no such file or directory (ENOENT)
+Stacktrace:
+  [1] uv_error
+    @ ./libuv.jl:97 [inlined]
+  [2] cd(dir::String)
+    @ Base.Filesystem ./file.jl:89
+  [3] PowerSystems.System(file_path::String; assign_new_uuids::Bool, kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:183
+  [4] PowerSystems.System(file_path::String)
+    @ PowerSystems ~/.julia/packages/PowerSystems/zVsmd/src/base.jl:168
+</code></pre></div><h3 id="selecting_flow_limited_lines" ><a href="#selecting_flow_limited_lines"> Selecting flow limited lines</a></h3><p>Since PowerSimulations will apply constraints by component type (e.g. Line), we need to
+change the component type of the lines on which we want to enforce flow limits. So, let's
+change the device type of certain branches from Line to MonitoredLine differentiate
+treatment when we build the model. Here, we can select inter-regional lines, or lines
+above a voltage threshold.</p>
+<pre><code class="julia">for line in get_components(Line, sys)
+    if (get_base_voltage(get_from(get_arc(line))) &gt;= 230.0) &amp;&amp;
+       (get_base_voltage(get_to(get_arc(line))) &gt;= 230.0)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: syntax: incomplete: premature end of input
+Stacktrace:
+</code></pre></div><p>if get<em>area(get_from(get_arc(line))) != get</em>area(get_to(get_arc(line)))</p>
+<pre><code class="julia">@info &quot;Changing $(get_name(line)) to MonitoredLine&quot;
+        convert_component!(MonitoredLine, line, sys)
+    end
+end</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: line not defined
+Stacktrace:
+</code></pre></div><h3 id="create_a_template" ><a href="#create_a_template"> Create a <code>template</code></a></h3><p>Now we can create a <code>template</code> that applies an unbounded formulation to <code>Line</code>s and the standard
+flow limited formulation to <code>MonitoredLine</code>s.</p>
+<pre><code class="julia">template = ProblemTemplate(DCPPowerModel)
+set_device_model!(template, Line, StaticBranchUnbounded)
+set_device_model!(template, TapTransformer, StaticBranchUnbounded)
+set_device_model!(template, MonitoredLine, StaticBranch)
+set_device_model!(template, ThermalStandard, ThermalStandardUnitCommitment)
+set_device_model!(template, RenewableDispatch, RenewableFullDispatch)
+set_device_model!(template, PowerLoad, StaticPowerLoad)
+set_device_model!(template, HydroDispatch, FixedOutput)</code></pre>
+<h3 id="build_and_execute_single_step_problem" ><a href="#build_and_execute_single_step_problem"> Build and execute single step problem</a></h3><pre><code class="julia">op_problem = DecisionModel(template, sys; optimizer=solver, horizon=24)
+
+build!(op_problem, output_dir=mktempdir(), console_level=Logging.Info)
+
+solve!(op_problem)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: solver not defined
+Stacktrace:
+</code></pre></div><h3 id="analyze_results" ><a href="#analyze_results"> Analyze results</a></h3><pre><code class="julia">res = ProblemResults(op_problem)
+plot_fuel(res)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: op_problem not defined
+Stacktrace:
+</code></pre></div><h2 id="sequential_simulation" ><a href="#sequential_simulation"> Sequential Simulation</a></h2><p>In addition to defining the formulation template, sequential simulations require
+definitions for how information flows between problems.</p>
+<pre><code class="julia">sim_folder = mkpath(joinpath(pkgpath, &quot;Texas-sim&quot;))
+models = SimulationModels(
+    decision_models=[
+        DecisionModel(
+            template,
+            sys,
+            name=&quot;UC&quot;,
+            optimizer=solver,
+            system_to_file=false,
+        ),
+    ],
+)
+DA_sequence =
+    SimulationSequence(models=models, ini_cond_chronology=IntraProblemChronology())</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: solver not defined
+Stacktrace:
+</code></pre></div><h3 id="define_and_build_a_simulation" ><a href="#define_and_build_a_simulation"> Define and build a simulation</a></h3><pre><code class="julia">sim = Simulation(
+    name=&quot;Texas-test&quot;,
+    steps=3,
+    models=models,
+    sequence=DA_sequence,
+    simulation_folder=&quot;Texas-sim&quot;,
+)
+
+build!(
+    sim,
+    console_level=Logging.Info,
+    file_level=Logging.Debug,
+    recorders=[:simulation],
+)</code></pre>
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: UndefVarError: models not defined
+Stacktrace:
+</code></pre></div><h3 id="execute_the_simulation" ><a href="#execute_the_simulation"> Execute the simulation</a></h3><p>nb execute!(sim)</p>
+<h3 id="load_and_analyze_results" ><a href="#load_and_analyze_results"> Load and analyze results</a></h3><p>nb results = SimulationResults(sim);
+nb uc<em>results = get</em>decision<em>problem</em>results(results, "UC");</p>
+<p>nb plot_fuel(uc_results)</p>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>

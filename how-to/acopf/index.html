@@ -59,7 +59,7 @@ const PSI = PowerSimulations
 using PowerSystemCaseBuilder
 using Dates
 sim_folder = mktempdir(cleanup=true)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_ec3q2H"</code></pre></div><p>We'll just use a suitable <code>System</code> that contains valid AC power flow parameters</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_fGANQG"</code></pre></div><p>We'll just use a suitable <code>System</code> that contains valid AC power flow parameters</p>
 <pre><code class="julia">sys = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
 transform_single_time_series!(sys, 1, Hour(1))</code></pre>
 <p>Since we'll be doing non-linear optimization, we need a solver that supports non-linear
