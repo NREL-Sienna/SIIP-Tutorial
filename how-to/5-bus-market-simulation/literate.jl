@@ -98,5 +98,5 @@ prices = read_dual(ed_results, "CopperPlateBalanceConstraint__System")
 # or if we want to look at the realized values
 read_realized_dual(ed_results, "CopperPlateBalanceConstraint__System")
 
-# *note that in this simulation the prices are all equal to the balance slack
+# Note that in this simulation the prices are all equal to the balance slack
 # penalty value of \$100000/MWh because there is unserved energy in the result

@@ -2944,28 +2944,28 @@ ed_results = get_decision_problem_results(results, &quot;ED&quot;); # ED stage r
   48 │ 2020-01-03T23:00:00      29.022)</code></pre></div><p>We can just list the variable names contained in <code>uc_results</code>:</p>
 <pre><code class="julia">list_variable_names(uc_results)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">11-element Vector{String}:
+ "OnVariable__ThermalStandard"
  "ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveDown__Reg_Down"
- "ActivePowerVariable__RenewableDispatch"
  "StopVariable__ThermalStandard"
- "ActivePowerVariable__HydroDispatch"
- "StartVariable__ThermalStandard"
- "ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3"
  "ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1"
+ "ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3"
+ "ActivePowerVariable__RenewableDispatch"
+ "ActivePowerVariable__HydroDispatch"
  "ActivePowerVariable__ThermalStandard"
- "ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Reg_Up"
  "ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2"
- "OnVariable__ThermalStandard"</code></pre></div><p>and a number of parameters (this pattern also works for aux_variables, expressions, and duals)</p>
+ "ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Reg_Up"
+ "StartVariable__ThermalStandard"</code></pre></div><p>and a number of parameters (this pattern also works for aux_variables, expressions, and duals)</p>
 <pre><code class="julia">list_parameter_names(uc_results)</code></pre>
 <div class="code-output"><pre><code class="code-result language-plaintext">9-element Vector{String}:
- "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1"
  "ActivePowerTimeSeriesParameter__RenewableDispatch"
- "ActivePowerTimeSeriesParameter__PowerLoad"
- "ActivePowerTimeSeriesParameter__HydroDispatch"
- "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveDown__Reg_Down"
  "ActivePowerTimeSeriesParameter__RenewableFix"
+ "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveDown__Reg_Down"
+ "ActivePowerTimeSeriesParameter__HydroDispatch"
  "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Reg_Up"
  "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2"
- "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3"</code></pre></div><p>Now we can read the specific results of interest for a specific problem, time window (optional),
+ "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1"
+ "RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3"
+ "ActivePowerTimeSeriesParameter__PowerLoad"</code></pre></div><p>Now we can read the specific results of interest for a specific problem, time window (optional),
 and set of variables, duals, or parameters (optional)</p>
 <pre><code class="julia">Dict([
     v =&gt; read_variable(uc_results, v) for v in [
