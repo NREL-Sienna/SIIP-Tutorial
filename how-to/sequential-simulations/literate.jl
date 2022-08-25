@@ -18,7 +18,7 @@ using PowerSystemCaseBuilder
 using Dates
 
 # ### Optimization packages
-using HiGHS #solver
+using HiGHS # solver
 
 # ### Optimizer
 # It's most convenient to define an optimizer instance upfront and pass it into the
@@ -56,7 +56,7 @@ set_device_model!(template_uc, ThermalStandard, ThermalStandardUnitCommitment)
 # In addition to the manual specification process demonstrated in the OperationsProblem
 # example, PSI also provides pre-specified templates for some standard problems:
 template_ed = template_economic_dispatch(
-    network = NetworkModel(StandardPTDFModel, PTDF = PTDF(sys_DA), use_slacks = true),#NetworkModel(CopperPlatePowerModel, use_slacks = true),
+    network=NetworkModel(StandardPTDFModel, PTDF=PTDF(sys_DA), use_slacks=true),# NetworkModel(CopperPlatePowerModel, use_slacks = true),
 )
 
 # ### Define the `SimulationModels`
@@ -66,9 +66,9 @@ template_ed = template_economic_dispatch(
 # a stage. In this case, we want to define two stages with the `ProblemTemplate`s
 # and the `System`s that we've already created.
 models = SimulationModels(
-    decision_models = [
-        DecisionModel(template_uc, sys_DA, optimizer = solver, name = "UC"),
-        DecisionModel(template_ed, sys_RT, optimizer = solver, name = "ED"),
+    decision_models=[
+        DecisionModel(template_uc, sys_DA, optimizer=solver, name="UC"),
+        DecisionModel(template_ed, sys_RT, optimizer=solver, name="ED"),
     ],
 )
 
@@ -97,9 +97,9 @@ models = SimulationModels(
 feedforward = Dict(
     "ED" => [
         SemiContinuousFeedforward(
-            component_type = ThermalStandard,
-            source = OnVariable,
-            affected_values = [ActivePowerVariable],
+            component_type=ThermalStandard,
+            source=OnVariable,
+            affected_values=[ActivePowerVariable],
         ),
     ],
 )
@@ -117,20 +117,20 @@ feedforward = Dict(
 # Now we can put it all together to define a `SimulationSequence`
 
 DA_RT_sequence = SimulationSequence(
-    models = models,
-    ini_cond_chronology = InterProblemChronology(),
-    feedforwards = feedforward,
+    models=models,
+    ini_cond_chronology=InterProblemChronology(),
+    feedforwards=feedforward,
 )
 
 # ## `Simulation`
 # Now, we can build and execute a simulation using the `SimulationSequence` and `Stage`s
 # that we've defined.
 sim = Simulation(
-    name = "rts-test",
-    steps = 2,
-    models = models,
-    sequence = DA_RT_sequence,
-    simulation_folder = mktempdir(".", cleanup = true),
+    name="rts-test",
+    steps=2,
+    models=models,
+    sequence=DA_RT_sequence,
+    simulation_folder=mktempdir(cleanup=true),
 )
 
 # ### Build simulation
@@ -139,7 +139,7 @@ build!(sim)
 # ### Execute simulation
 # the following command returns the status of the simulation (0: is proper execution) and
 # stores the results in a set of HDF5 files on disk.
-execute!(sim, enable_progress_bar = false)
+execute!(sim, enable_progress_bar=false)
 
 # ## Results
 # To access the results, we need to load the simulation result metadata and then make
@@ -178,8 +178,8 @@ Dict([
 read_parameter(
     ed_results,
     "ActivePowerTimeSeriesParameter__RenewableFix",
-    initial_time = DateTime("2020-01-01T06:00:00"),
-    count = 5,
+    initial_time=DateTime("2020-01-01T06:00:00"),
+    count=5,
 )
 
 # * note that this returns the results of each execution step in a separate dataframe *
