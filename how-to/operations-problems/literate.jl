@@ -86,6 +86,10 @@ solver = optimizer_with_attributes(HiGHS.Optimizer, "mip_rel_gap" => 0.5)
 # The construction of an `DecisionModel` essentially applies an `ProblemTemplate`
 # to `System` data to create a JuMP model.
 
+# If `initialize_model=true` is set, this fails to solve.
+# Using `initialize_model=false` seems to be necessary here, when using `HiGHS`.
+# This might have something to do with the poor quality of the solution that the initialization problem produces and the ability of HiGHS to use that as a starting point.
+
 problem = DecisionModel(template_uc, sys; optimizer=solver, horizon=24, initialize_model=false)
 
 build!(problem, output_dir=mktempdir())
