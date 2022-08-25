@@ -86,7 +86,7 @@ solver = optimizer_with_attributes(HiGHS.Optimizer, "mip_rel_gap" => 0.5)
 # The construction of an `DecisionModel` essentially applies an `ProblemTemplate`
 # to `System` data to create a JuMP model.
 
-problem = DecisionModel(template_uc, sys; optimizer=solver, horizon=24)
+problem = DecisionModel(template_uc, sys; optimizer=solver, horizon=24, initialize_model=false)
 
 build!(problem, output_dir=mktempdir())
 
