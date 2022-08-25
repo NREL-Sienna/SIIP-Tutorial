@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/SIIP-Tutorial/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/franklin.css">
+  <link rel="stylesheet" href="/SIIP-Tutorial/css/basic.css">
+  <link rel="icon" href="/SIIP-Tutorial/assets/favicon.png">
+  <title>SIIP Tutorial</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js" integrity="sha512-V0j9LhrK9IMNdFYZqh+IqU4cjo7wdxyHNyH+L0td4HryBuZ7Oq6QxP2/CWr6TituX31+gv5PnolvERuTbz8UNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+      const PlotlyJS_json = async (div, url) => {
+        response = await fetch(url)
+        fig = await response.json()
+        if (typeof fig.config === 'undefined') { fig["config"]={} }
+          delete fig.layout.width
+          delete fig.layout.height
+          fig["layout"]["autosize"] = true
+          fig["config"]["autosizable"] = true
+          fig["config"]["responsive"] = true
+          fig.config["scrollZoom"] = false
+          delete fig.config.staticPlot
+          delete fig.config.displayModeBar
+          delete fig.config.doubleClick
+          delete fig.config.showTips
+          Plotly.newPlot(div, fig);
+      }
+  </script>
+</head>
+<body>
+  <header>
+  <div class="blog-name"><a href="/SIIP-Tutorial/">SIIP Tutorial</a></div>
+  <nav>
+    <ul>
+      <li><a href="/SIIP-Tutorial/">Home</a></li>
+    </ul>
+    <img src="/SIIP-Tutorial/assets/hamburger.svg" id="menu-icon" />
+  </nav>
+</header>
+
+
+
+<div class="franklin-content" >
+  <h1 id="hydropower_simulations_with_powersimulations.jl" ><a href="#hydropower_simulations_with_powersimulations.jl"> Hydropower Simulations with PowerSimulations.jl</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows and Sourabh Dalvi</p>
+<h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>PowerSimulations.jl supports simulations that consist of sequential optimization problems
+where results from previous problems inform subsequent problems in a variety of ways.
+This example demonstrates a few of the options for modeling hydropower generation.</p>
+<h3 id="modeling_packages" ><a href="#modeling_packages"> Modeling Packages</a></h3><pre><code class="julia">using PowerSystems
+using PowerSimulations
+const PSI = PowerSimulations
+using PowerSystemCaseBuilder</code></pre>
+<h3 id="data_management_packages" ><a href="#data_management_packages"> Data management packages</a></h3><pre><code class="julia">using Dates
+using DataFrames</code></pre>
+<h3 id="optimization_packages" ><a href="#optimization_packages"> Optimization packages</a></h3><pre><code class="julia">using HiGHS # solver
+solver = optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.05)
+odir = mktempdir(cleanup=true) # tmpdir for build steps</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_rOWtzy"</code></pre></div><h3 id="data" ><a href="#data"> Data</a></h3><p>PowerSystemCaseBuilder links to some meaningless test data that is suitable for this example.
+We can load three systems of different resolution for the examples here:</p>
+<pre><code class="julia">c_sys5_hy_wk = build_system(SIIPExampleSystems, &quot;5_bus_hydro_wk_sys&quot;)
+c_sys5_hy_uc = build_system(SIIPExampleSystems, &quot;5_bus_hydro_uc_sys&quot;)
+c_sys5_hy_ed = build_system(SIIPExampleSystems, &quot;5_bus_hydro_ed_sys&quot;)
+
+c_sys5_hy_wk_targets = build_system(SIIPExampleSystems, &quot;5_bus_hydro_wk_sys_with_targets&quot;)
+c_sys5_hy_uc_targets = build_system(SIIPExampleSystems, &quot;5_bus_hydro_uc_sys_with_targets&quot;)
+c_sys5_hy_ed_targets = build_system(SIIPExampleSystems, &quot;5_bus_hydro_ed_sys_with_targets&quot;)</code></pre>
+<div class="code-output"><table>
+  <caption style = "text-align: left;">System</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">System Units Base</td>
+      <td style = "text-align: left;">DEVICE_BASE</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Power</td>
+      <td style = "text-align: left;">100.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Base Frequency</td>
+      <td style = "text-align: left;">60.0</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Num Components</td>
+      <td style = "text-align: left;">35</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style = "text-align: left;">Static Components</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Type</th>
+      <th style = "text-align: left;">Count</th>
+      <th style = "text-align: left;">Has Static Time Series</th>
+      <th style = "text-align: left;">Has Forecasts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Arc</td>
+      <td style = "text-align: left;">6</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Area</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Bus</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">HydroDispatch</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">HydroEnergyReservoir</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">HydroPumpedStorage</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Line</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">LoadZone</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">PowerLoad</td>
+      <td style = "text-align: left;">3</td>
+      <td style = "text-align: left;">true</td>
+      <td style = "text-align: left;">true</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">TapTransformer</td>
+      <td style = "text-align: left;">2</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">ThermalStandard</td>
+      <td style = "text-align: left;">5</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">VariableReserve{PowerSystems.ReserveUp}</td>
+      <td style = "text-align: left;">1</td>
+      <td style = "text-align: left;">false</td>
+      <td style = "text-align: left;">false</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style = "text-align: left;">Time Series Summary</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Property</th>
+      <th style = "text-align: left;">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">Components with time series data</td>
+      <td style = "text-align: left;">6</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total StaticTimeSeries</td>
+      <td style = "text-align: left;">12</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Total Forecasts</td>
+      <td style = "text-align: left;">12</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Resolution</td>
+      <td style = "text-align: left;">60 minutes</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">First initial time</td>
+      <td style = "text-align: left;">2020-01-01T00:00:00</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Last initial time</td>
+      <td style = "text-align: left;">2020-03-24T12:00:00</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Horizon</td>
+      <td style = "text-align: left;">12</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Interval</td>
+      <td style = "text-align: left;">60 minutes</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">Forecast window count</td>
+      <td style = "text-align: left;">2005</td>
+    </tr>
+  </tbody>
+</table>
+</div><p>This line just overloads JuMP printing to remove double underscores added by PowerSimulations.jl</p>
+<pre><code class="julia">PSI.JuMP._wrap_in_math_mode(str) = &quot;\$\$ $(replace(str, &quot;__&quot; =&gt; &quot;&quot;)) \$\$&quot;</code></pre>
+<h2 id="two_powersimulations_features_determine_hydropower_representation." ><a href="#two_powersimulations_features_determine_hydropower_representation."> Two PowerSimulations features determine hydropower representation.</a></h2><p>There are two principal ways that we can customize hydropower representation in
+PowerSimulations. First, we can play with the formulation applied to hydropower generators
+using the <code>DeviceModel</code>. We can also adjust how simulations are configured to represent
+different decision making processes and the information flow between those processes.</p>
+<h3 id="hydropower_devicemodels" ><a href="#hydropower_devicemodels"> Hydropower <code>DeviceModel</code>s</a></h3><p>First, the assignment of device formulations to particular device types gives us control
+over the representation of devices. This is accomplished by defining <code>DeviceModel</code>
+instances. For hydro power representations, we have two available generator types in
+PowerSystems:</p>
+<pre><code class="julia"># print_tree(HydroGen)</code></pre>
+<p>And in PowerSimulations, we have several available formulations that can be applied to
+the hydropower generation devices:</p>
+<pre><code class="julia"># print_tree(PSI.AbstractHydroFormulation)</code></pre>
+<p>Let's see what some of the different combinations create. First, let's apply the
+<code>HydroDispatchRunOfRiver</code> formulation to the <code>HydroEnergyReservoir</code> generators, and the
+<code>FixedOutput</code> formulation to <code>HydroDispatch</code> generators.</p>
+<ul>
+<li>The <code>FixedOutput</code> formulation just acts
+like a load subtractor, forcing the system to accept it's generation.</li>
+<li>The <code>HydroDispatchRunOfRiver</code> formulation represents the the energy flowing out of
+a reservoir. The model can choose to produce power with that energy or just let it spill by.</li>
+</ul>
+<pre><code class="julia">template = ProblemTemplate()
+set_device_model!(template, HydroEnergyReservoir, HydroDispatchRunOfRiver)
+set_device_model!(template, HydroDispatch, FixedOutput)
+set_device_model!(template, PowerLoad, StaticPowerLoad)
+
+prob = DecisionModel(template, c_sys5_hy_uc, horizon=2)
+build!(prob, output_dir=odir)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.BuildStatusModule.BuildStatus.BUILT = 0</code></pre></div><p>Now we can see the resulting JuMP model:</p>
+<pre><code class="julia">PSI.get_jump_model(prob)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 4
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 2 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 4 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 8 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 4 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 4 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: NO_OPTIMIZER
+Solver name: No optimizer attached.</code></pre></div><p>The first two constraints are the power balance constraints that require the generation
+from the controllable <code>HydroEnergyReservoir</code> generators to be equal to the load (flat 10.0 for all time periods)
+minus the generation from the <code>HydroDispatch</code> generators [1.97, 1.983, ...]. The 3rd and 4th
+constraints limit the output of the <code>HydroEnergyReservoir</code> generator to the limit defined by the
+<code>max_activepwoer</code> time series. And the last 4 constraints are the lower and upper bounds of
+the <code>HydroEnergyReservoir</code> operating range.</p>
+<p>Next, let's apply the <code>HydroDispatchReservoirBudget</code> formulation to the <code>HydroEnergyReservoir</code> generators.</p>
+<pre><code class="julia">template = ProblemTemplate()
+set_device_model!(template, HydroEnergyReservoir, HydroDispatchReservoirBudget)
+set_device_model!(template, PowerLoad, StaticPowerLoad)
+
+prob = DecisionModel(template, c_sys5_hy_uc, horizon=2)
+build!(prob, output_dir=odir)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.BuildStatusModule.BuildStatus.BUILT = 0</code></pre></div><p>And, the resulting JuMP model:</p>
+<pre><code class="julia">PSI.get_jump_model(prob)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 4
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 2 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 4 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 6 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 4 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 4 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: NO_OPTIMIZER
+Solver name: No optimizer attached.</code></pre></div><p>Finally, let's apply the <code>HydroDispatchReservoirStorage</code> formulation to the <code>HydroEnergyReservoir</code> generators.</p>
+<pre><code class="julia">template = ProblemTemplate()
+set_device_model!(template, HydroEnergyReservoir, HydroDispatchReservoirStorage)
+set_device_model!(template, PowerLoad, StaticPowerLoad)
+
+prob = DecisionModel(template, c_sys5_hy_uc_targets, horizon=24)
+build!(prob, output_dir=odir)
+
+PSI.get_jump_model(prob)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 240
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 120 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 48 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 48 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 240 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 192 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: NO_OPTIMIZER
+Solver name: No optimizer attached.</code></pre></div><h3 id="multi_stage_simulationsequence" ><a href="#multi_stage_simulationsequence"> Multi-Stage <code>SimulationSequence</code></a></h3><p>The purpose of a multi-stage simulation is to represent scheduling decisions consistently
+with the time scales that govern different elements of power systems.</p>
+<h4 id="multi_day_to_daily_simulation" ><a href="#multi_day_to_daily_simulation"> Multi-Day to Daily Simulation:</a></h4><p>In the multi-day model, we'll use a really simple representation of all system devices
+so that we can maintain computational tractability while getting an estimate of system
+requirements/capabilities.</p>
+<pre><code class="julia">template_md = ProblemTemplate()
+set_device_model!(template_md, ThermalStandard, ThermalDispatchNoMin)
+set_device_model!(template_md, PowerLoad, StaticPowerLoad)
+set_device_model!(template_md, HydroEnergyReservoir, HydroDispatchReservoirStorage)</code></pre>
+<p>For the daily model, we can increase the modeling detail since we'll be solving shorter
+problems.</p>
+<pre><code class="julia">template_da = ProblemTemplate()
+set_device_model!(template_da, ThermalStandard, ThermalBasicUnitCommitment)
+set_device_model!(template_da, PowerLoad, StaticPowerLoad)
+set_device_model!(template_da, HydroEnergyReservoir, HydroDispatchReservoirStorage)
+
+problems = SimulationModels(
+    decision_models=[
+        DecisionModel(
+            template_md,
+            c_sys5_hy_wk_targets,
+            name=&quot;MD&quot;,
+            optimizer=solver,
+            system_to_file=false,
+            initialize_model=false,
+        ),
+        DecisionModel(
+            template_da,
+            c_sys5_hy_uc_targets,
+            name=&quot;DA&quot;,
+            optimizer=solver,
+            system_to_file=false,
+            initialize_model=false,
+        ),
+    ],
+)</code></pre>
+<div class="code-output">
+<table>
+  <caption style = "text-align: left;">Decision Models</caption>
+  <thead>
+    <tr class = "header headerLastRow">
+      <th style = "text-align: left;">Model Name</th>
+      <th style = "text-align: left;">Model Type</th>
+      <th style = "text-align: left;">Status</th>
+      <th style = "text-align: left;">Output Directory</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style = "text-align: left;">MD</td>
+      <td style = "text-align: left;">PowerSimulations.GenericOpProblem</td>
+      <td style = "text-align: left;">EMPTY</td>
+      <td style = "text-align: left;">nothing</td>
+    </tr>
+    <tr>
+      <td style = "text-align: left;">DA</td>
+      <td style = "text-align: left;">PowerSimulations.GenericOpProblem</td>
+      <td style = "text-align: left;">EMPTY</td>
+      <td style = "text-align: left;">nothing</td>
+    </tr>
+  </tbody>
+</table>
+
+No Emulator Model Specified
+</div><p>This builds the sequence and passes the the energy dispatch schedule for the <code>HydroEnergyReservoir</code>
+generator from the "MD" problem to the "DA" problem in the form of an energy limit over the
+synchronized periods.</p>
+<pre><code class="julia">sequence = SimulationSequence(
+    models=problems,
+    feedforwards=Dict(
+        &quot;DA&quot; =&gt; [
+            EnergyLimitFeedforward(
+                component_type=HydroEnergyReservoir,
+                source=ActivePowerVariable,
+                affected_values=[ActivePowerVariable],
+                number_of_periods=get_forecast_horizon(c_sys5_hy_uc_targets),
+            ),
+        ],
+    ),
+    ini_cond_chronology=InterProblemChronology(),
+);
+
+sim = Simulation(
+    name=&quot;hydro&quot;,
+    steps=1,
+    models=problems,
+    sequence=sequence,
+    simulation_folder=odir,
+)
+
+build!(sim)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.BuildStatusModule.BuildStatus.BUILT = 0</code></pre></div><p>We can look at the "MD" Model</p>
+<pre><code class="julia">PSI.get_jump_model(sim.models.decision_models[1])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 52
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 30 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 14 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 14 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 52 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 48 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: EMPTY_OPTIMIZER
+Solver name: HiGHS</code></pre></div><p>And we can look at the "DA" model</p>
+<pre><code class="julia">PSI.get_jump_model(sim.models.decision_models[2])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 984
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 480 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 168 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 290 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 624 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 816 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.ZeroOne`: 360 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: EMPTY_OPTIMIZER
+Solver name: HiGHS</code></pre></div><h1 id="3_stage_simulation" ><a href="#3_stage_simulation"> 3-Stage Simulation:</a></h1><pre><code class="julia">transform_single_time_series!(c_sys5_hy_wk, 2, Hour(24)) # TODO fix PSI to enable longer intervals of stage 1</code></pre>
+<p>For the real time model, we can increase the modeling detail since we'll be solving shorter
+problems.</p>
+<pre><code class="julia">template_ed = ProblemTemplate()
+set_device_model!(template_ed, ThermalStandard, ThermalDispatchNoMin)
+set_device_model!(template_ed, PowerLoad, StaticPowerLoad)
+set_device_model!(template_ed, HydroEnergyReservoir, HydroDispatchReservoirStorage)
+
+problems = SimulationModels(
+    decision_models=[
+        DecisionModel(
+            template_md,
+            c_sys5_hy_wk_targets,
+            name=&quot;MD&quot;,
+            optimizer=solver,
+            system_to_file=false,
+            initialize_model=false,
+        ),
+        DecisionModel(
+            template_da,
+            c_sys5_hy_uc_targets,
+            name=&quot;DA&quot;,
+            optimizer=solver,
+            system_to_file=false,
+            initialize_model=false,
+        ),
+        DecisionModel(
+            template_ed,
+            c_sys5_hy_ed_targets,
+            name=&quot;ED&quot;,
+            optimizer=solver,
+            system_to_file=false,
+            initialize_model=false,
+        ),
+    ],
+)
+
+sequence = SimulationSequence(
+    models=problems,
+    feedforwards=Dict(
+        &quot;DA&quot; =&gt; [
+            EnergyLimitFeedforward(
+                component_type=HydroEnergyReservoir,
+                source=ActivePowerVariable,
+                affected_values=[ActivePowerVariable],
+                number_of_periods=get_forecast_horizon(c_sys5_hy_uc_targets),
+            ),
+        ],
+        &quot;ED&quot; =&gt; [
+            EnergyLimitFeedforward(
+                component_type=HydroEnergyReservoir,
+                source=ActivePowerVariable,
+                affected_values=[ActivePowerVariable],
+                number_of_periods=get_forecast_horizon(c_sys5_hy_ed_targets),
+            ),
+        ],
+    ),
+    ini_cond_chronology=InterProblemChronology(),
+);
+
+sim = Simulation(
+    name=&quot;hydro&quot;,
+    steps=1,
+    models=problems,
+    sequence=sequence,
+    simulation_folder=odir,
+)
+
+build!(sim)</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">PowerSimulations.BuildStatusModule.BuildStatus.BUILT = 0</code></pre></div><p>We can look at the "MD" Model</p>
+<pre><code class="julia">PSI.get_jump_model(sim.models.decision_models[1])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 52
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 30 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 14 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 14 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 52 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 48 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: EMPTY_OPTIMIZER
+Solver name: HiGHS</code></pre></div><p>And we can look at the "DA" model</p>
+<pre><code class="julia">PSI.get_jump_model(sim.models.decision_models[2])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 984
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 480 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 168 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 290 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 624 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 816 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.ZeroOne`: 360 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: EMPTY_OPTIMIZER
+Solver name: HiGHS</code></pre></div><p>And we can look at the "ED" model</p>
+<pre><code class="julia">PSI.get_jump_model(sim.models.decision_models[3])</code></pre>
+<div class="code-output"><pre><code class="code-result language-plaintext">A JuMP Model
+Minimization problem with:
+Variables: 312
+Objective function type: JuMP.AffExpr
+`JuMP.AffExpr`-in-`MathOptInterface.EqualTo{Float64}`: 180 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.GreaterThan{Float64}`: 84 constraints
+`JuMP.AffExpr`-in-`MathOptInterface.LessThan{Float64}`: 86 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.GreaterThan{Float64}`: 312 constraints
+`JuMP.VariableRef`-in-`MathOptInterface.LessThan{Float64}`: 288 constraints
+Model mode: AUTOMATIC
+CachingOptimizer state: EMPTY_OPTIMIZER
+Solver name: HiGHS</code></pre></div>
+  <div class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+  "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
+  <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
+  <a href="https://julialang.org">Julia programming language</a>.
+</div>
+
+<script>
+  var coll = document.getElementsByClassName('collapsible')
+  var i
+
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener('click', function () {
+      this.classList.toggle('active')
+      var content = this.nextElementSibling
+      if (content.style.display === 'block') {
+        content.style.display = 'none'
+      } else {
+        content.style.display = 'block'
+      }
+    })
+  }
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js"></script>
+
+<script>
+  ;(function () {
+    // Get the elements.
+    // - the 'pre' element.
+    // - the 'div' with the 'paste-content' id.
+
+    var pre = document.getElementsByTagName('pre')
+
+    // Add a copy button in the 'pre' element.
+    // which only has the className of 'language-'.
+
+    for (var i = 0; i < pre.length; i++) {
+      var isResult = pre[i].children[0].className.indexOf('code-result')
+      var isStdout = pre[i].children[0].className.indexOf('code-stdout')
+
+      if (isResult !== 0 && isStdout !== 0) {
+        var button = document.createElement('button')
+        button.className = 'copy-button'
+        button.textContent = 'Copy'
+
+        pre[i].prepend(button)
+      }
+    }
+
+    // Run Clipboard
+
+    var copyCode = new Clipboard('.copy-button', {
+      target: function (trigger) {
+        return trigger.nextElementSibling
+      },
+    })
+
+    // On success:
+    // - Change the "Copy" text to "Copied".
+    // - Swap it to "Copy" in 2s.
+    // - Lead user to the "contenteditable" area with Velocity scroll.
+
+    copyCode.on('success', function (event) {
+      event.clearSelection()
+      event.trigger.textContent = 'Copied'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 2000)
+    })
+
+    // On error (Safari):
+    // - Change the  "Press Ctrl+C to copy"
+    // - Swap it to "Copy" in 2s.
+
+    copyCode.on('error', function (event) {
+      event.trigger.textContent = 'Press "Ctrl + C" to copy'
+      window.setTimeout(function () {
+        event.trigger.textContent = 'Copy'
+      }, 5000)
+    })
+  })()
+</script>
+
+</div>
+
+    
+    
+        <script src="/SIIP-Tutorial/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+
+</html>
