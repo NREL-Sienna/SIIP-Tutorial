@@ -130,7 +130,7 @@ using PowerSystemCaseBuilder
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;; force_build = true, skip_serialization = true)</code></pre>
 You should see the following in your terminal before the output of running the script.<pre><code class="julia">[ Info: Building the RTS test system</code></pre>
 </fieldset><p>Going forward in this tutorial, I'm going to show the output of the terminal on this webpage, instead of screenshots of the vscode terminal, for the clarity of presentation. For example, the output of the <code>system</code> will be as follows:</p>
-<div class="code-output"><pre><code class="code-stdout language-plaintext"> 57.427593 seconds (80.06 M allocations: 4.285 GiB, 3.32% gc time, 88.89% compilation time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext"> 58.194427 seconds (80.21 M allocations: 4.297 GiB, 3.40% gc time, 79.65% compilation time)
 System
 ┌───────────────────┬─────────────┐
 │ Property          │ Value       │
@@ -186,9 +186,9 @@ The following is the output of the same <code>build_system</code> function 3 mor
    force_build = true, skip_serialization = true);
 @time system = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;;
    force_build = true, skip_serialization = true);</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">  0.972691 seconds (8.49 M allocations: 425.298 MiB, 13.12% gc time)
-  0.920926 seconds (8.49 M allocations: 425.313 MiB, 9.60% gc time)
-  0.922039 seconds (8.49 M allocations: 425.313 MiB, 9.53% gc time)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">  0.784078 seconds (8.49 M allocations: 425.365 MiB, 12.97% gc time)
+  0.739909 seconds (8.49 M allocations: 425.380 MiB, 9.12% gc time)
+  0.745997 seconds (8.49 M allocations: 425.380 MiB, 9.08% gc time)
 </code></pre></div>There are ways to decrease the "first time to run" for Julia code but we'll cover that in a more advanced session.
 For now, it is enough to just be aware of this quirk of the language.
 
@@ -318,30 +318,30 @@ PowerSimulations Problem Expressions Results
 
 PowerSimulations Problem Parameters Results
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ ActivePowerTimeSeriesParameter__PowerLoad                                           │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
 │ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
 │ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
-│ ActivePowerTimeSeriesParameter__PowerLoad                                           │
-│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
-│ ActivePowerTimeSeriesParameter__RenewableFix                                        │
 │ ActivePowerTimeSeriesParameter__HydroDispatch                                       │
-│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
 │ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Reg_Up     │
+│ RequirementTimeSeriesParameter__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
 │ ActivePowerTimeSeriesParameter__RenewableDispatch                                   │
+│ ActivePowerTimeSeriesParameter__RenewableFix                                        │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 PowerSimulations Problem Variables Results
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │ OnVariable__ThermalStandard                                                     │
 │ ActivePowerVariable__ThermalStandard                                            │
-│ StartVariable__ThermalStandard                                                  │
-│ StopVariable__ThermalStandard                                                   │
-│ ActivePowerVariable__HydroDispatch                                              │
-│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
 │ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R2 │
 │ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R1 │
+│ StopVariable__ThermalStandard                                                   │
+│ StartVariable__ThermalStandard                                                  │
 │ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Reg_Up     │
-│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
 │ ActivePowerVariable__RenewableDispatch                                          │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveUp__Spin_Up_R3 │
+│ ActivePowerVariable__HydroDispatch                                              │
+│ ActivePowerReserveVariable__VariableReserve__PowerSystems.ReserveDown__Reg_Down │
 └─────────────────────────────────────────────────────────────────────────────────┘
 </code></pre></div><p>For example, if you are interested in getting the objection function value, you can use the <code>get_objective_value</code> function:</p>
 <pre><code class="julia">get_objective_value(results)</code></pre>
