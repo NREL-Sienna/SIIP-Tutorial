@@ -58,7 +58,7 @@ using DataFrames</code></pre>
 <h3 id="optimization_packages" ><a href="#optimization_packages"> Optimization packages</a></h3><pre><code class="julia">using HiGHS # solver
 solver = optimizer_with_attributes(HiGHS.Optimizer, &quot;mip_rel_gap&quot; =&gt; 0.05)
 odir = mktempdir(cleanup=true) # tmpdir for build steps</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_HP4kM6"</code></pre></div><h3 id="data" ><a href="#data"> Data</a></h3><p>PowerSystemCaseBuilder links to some meaningless test data that is suitable for this example.
+<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_yVCX57"</code></pre></div><h3 id="data" ><a href="#data"> Data</a></h3><p>PowerSystemCaseBuilder links to some meaningless test data that is suitable for this example.
 We can load three systems of different resolution for the examples here:</p>
 <pre><code class="julia">c_sys5_hy_wk = build_system(SIIPExampleSystems, &quot;5_bus_hydro_wk_sys&quot;)
 c_sys5_hy_uc = build_system(SIIPExampleSystems, &quot;5_bus_hydro_uc_sys&quot;)
