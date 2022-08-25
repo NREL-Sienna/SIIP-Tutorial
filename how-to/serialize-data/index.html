@@ -45,7 +45,8 @@
 
 
 <div class="franklin-content" >
-  <h1 id="serializing_powersystem_data" ><a href="#serializing_powersystem_data"> Serializing PowerSystem Data</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
+  <p>jl #! format: off</p>
+<h1 id="serializing_powersystem_data" ><a href="#serializing_powersystem_data"> Serializing PowerSystem Data</a></h1><p><strong>Originally Contributed by</strong>: Clayton Barrows</p>
 <h2 id="introduction" ><a href="#introduction"> Introduction</a></h2><p>PowerSystems.jl supports serializing/deserializing data with JSON. This notebook
 provides an example of how to write and read a <code>System</code> to/from disk.</p>
 <h3 id="dependencies" ><a href="#dependencies"> Dependencies</a></h3><p>Let's use a dataset from the <a href="https://nbviewer.jupyter.org/github/NREL-SIIP/SIIPExamples.jl/blob/master/notebook/2_PowerSystems_examples/parse_matpower.ipynb">tabular data parsing example</a></p>
@@ -157,7 +158,7 @@ sys</code></pre>
 
 </div><h3 id="write_data_to_a_temporary_directory" ><a href="#write_data_to_a_temporary_directory"> Write data to a temporary directory</a></h3><pre><code class="julia">folder = mktempdir()
 @show folder, typeof(folder)</code></pre>
-<div class="code-output"><pre><code class="code-stdout language-plaintext">(folder, typeof(folder)) = ("/tmp/jl_HaAnxn", String)
+<div class="code-output"><pre><code class="code-stdout language-plaintext">(folder, typeof(folder)) = ("/tmp/jl_od77Oy", String)
 </code></pre></div><h3 id="test" ><a href="#test"> Test</a></h3><pre><code class="julia">path_to_file = joinpath(folder, &quot;system.json&quot;)
 println(&quot;Serializing to $path&quot;)
 to_json(sys, path_to_file, force=true)
