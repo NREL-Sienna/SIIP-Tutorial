@@ -25,6 +25,8 @@ See [How To Guides](/how-to/) for more information.
 1. [Load dynamics data](/how-to/load-dynamics-systems-data/)
 1. [Use PowerSystemCaseBuilder](/how-to/power-system-case-builder/)
 
+1. [Operations Problems](/how-to/operations-problems/)
+
 ## Notes
 
 If you see a code block like the one below, unless otherwise specified it is a snippet of Julia code.
