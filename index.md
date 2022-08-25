@@ -34,7 +34,7 @@ See [How To Guides](/how-to/) for more information.
 1. [Selective Network Constraints](/how-to/selective-network-constraints/)
 1. [United States](/how-to/us-system-simulations/)
 1. [TAMU Simulations](/how-to/tamu-simulations/)
-1. [Market Big Cost](/how-to/market-bid-cost/)
+1. [Market Bid Cost](/how-to/market-bid-cost/)
 1. [PTDF](/how-to/ptdf/)
 
 ## Notes
