@@ -95,7 +95,7 @@ plot_dataframe(variable, timestamps)
 # creating somewhat complex stacked figures. So, we can use the PlotlyJS backend for Plots,
 # but it requires that PlotlyJS.jl is installed in your Project.toml (if in a notebook,
 # WebIO.jl is required too). To startup the PlotlyJS backend, run:
-plotlyjs()
+# plotlyjs()
 
 # PowerGraphics creates an un-stacked line plot by default, but supports kwargs to
 # create a variety of different figure styles. For example, a stacked area figure can be
@@ -123,7 +123,8 @@ plot_demand(uc_results)
 # The `plot_demand` function can also be called with the `System` rather than the `StageResults`
 # to inspect the input data. This method can also display demands aggregated by a specified
 # `<:Topology`:
-plot_demand(uc_results.system, aggregation=Area)
+
+## plot_demand(uc_results.system, aggregation=Area)
 
 # Another standard aggregation exists based on the fuel categories of the generators in the
 # `System`
