@@ -17,15 +17,3 @@ using TimeSeries
 base_dir = PowerSystems.download(PowerSystems.TestData; branch = "master");
 sys = System(joinpath(base_dir, "matpower", "case5_re.m"))
 sys
-
-# ### Write data to a temporary directory
-
-folder = mktempdir()
-path = joinpath(folder, "system.json")
-println("Serializing to $path")
-to_json(sys, path)
-
-filesize(path) / (1024 * 1024) #MiB
-
-# ### Read the JSON file and create a new `System`
-sys2 = System(path)
