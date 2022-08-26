@@ -59,7 +59,7 @@ const PSI = PowerSimulations
 using PowerSystemCaseBuilder
 using Dates
 sim_folder = mktempdir(cleanup=true)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_ZdQV6A"</code></pre></div><p>We'll just use a suitable <code>System</code> that contains valid AC power flow parameters</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_zDGP9Q"</code></pre></div><p>We'll just use a suitable <code>System</code> that contains valid AC power flow parameters</p>
 <pre><code class="julia">sys = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
 transform_single_time_series!(sys, 1, Hour(1))</code></pre>
 <p>Since we'll be doing non-linear optimization, we need a solver that supports non-linear
@@ -279,7 +279,7 @@ Stacktrace:
 </code></pre></div><h1 id="plot_the_slack_values" ><a href="#plot_the_slack_values"> Plot the slack values</a></h1><p>plot_results(slack_vars);</p>
   <div class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
-  "Dheepak Krishnamurthy".  Last modified: August 25, 2022. Website built with
+  "Dheepak Krishnamurthy".  Last modified: August 26, 2022. Website built with
   <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the
   <a href="https://julialang.org">Julia programming language</a>.
 </div>
