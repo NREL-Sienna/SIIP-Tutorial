@@ -59,7 +59,7 @@ const PSI = PowerSimulations
 using PowerSystemCaseBuilder
 using Dates
 sim_folder = mktempdir(cleanup=true)</code></pre>
-<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_zDGP9Q"</code></pre></div><p>We'll just use a suitable <code>System</code> that contains valid AC power flow parameters</p>
+<div class="code-output"><pre><code class="code-result language-plaintext">"/tmp/jl_yYPa5k"</code></pre></div><p>We'll just use a suitable <code>System</code> that contains valid AC power flow parameters</p>
 <pre><code class="julia">sys = build_system(PSITestSystems, &quot;modified_RTS_GMLC_DA_sys&quot;)
 transform_single_time_series!(sys, 1, Hour(1))</code></pre>
 <p>Since we'll be doing non-linear optimization, we need a solver that supports non-linear
@@ -253,24 +253,24 @@ slack_keys = [
     k for k in list_variable_keys(ac_results) if PSI.get_entry_type(k) ∈ [SystemBalanceSlackDown, SystemBalanceSlackUp]
 ]
 slack_vars = Dict([k =&gt; read_realized_variables(ac_results, k) for k in slack_keys])</code></pre>
-<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: MethodError: no method matching length(::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackUp, PowerSystems.Bus})
+<div class="code-output"><pre><code class="code-stderr language-plaintext">LoadError: MethodError: no method matching length(::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackDown, PowerSystems.Bus})
 Closest candidates are:
   length(!Matched::Union{Base.KeySet, Base.ValueIterator}) at /opt/hostedtoolcache/julia/1.7.3/x64/share/julia/base/abstractdict.jl:58
   length(!Matched::Union{DataStructures.OrderedRobinDict, DataStructures.RobinDict}) at ~/.julia/packages/DataStructures/59MD0/src/ordered_robin_dict.jl:86
   length(!Matched::Union{DataStructures.SortedDict, DataStructures.SortedMultiDict, DataStructures.SortedSet}) at ~/.julia/packages/DataStructures/59MD0/src/container_loops.jl:322
   ...
 Stacktrace:
-  [1] length(g::Base.Generator{PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackUp, PowerSystems.Bus}, PowerSimulations.var"#312#313"})
+  [1] length(g::Base.Generator{PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackDown, PowerSystems.Bus}, PowerSimulations.var"#312#313"})
     @ Base ./generator.jl:50
-  [2] _similar_shape(itr::Base.Generator{PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackUp, PowerSystems.Bus}, PowerSimulations.var"#312#313"}, #unused#::Base.HasLength)
+  [2] _similar_shape(itr::Base.Generator{PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackDown, PowerSystems.Bus}, PowerSimulations.var"#312#313"}, #unused#::Base.HasLength)
     @ Base ./array.jl:600
-  [3] collect(itr::Base.Generator{PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackUp, PowerSystems.Bus}, PowerSimulations.var"#312#313"})
+  [3] collect(itr::Base.Generator{PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackDown, PowerSystems.Bus}, PowerSimulations.var"#312#313"})
     @ Base ./array.jl:723
-  [4] read_realized_variables(res::PowerSimulations.SimulationProblemResults{PowerSimulations.DecisionModelSimulationResults}, variables::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackUp, PowerSystems.Bus}; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+  [4] read_realized_variables(res::PowerSimulations.SimulationProblemResults{PowerSimulations.DecisionModelSimulationResults}, variables::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackDown, PowerSystems.Bus}; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
     @ PowerSimulations ~/.julia/packages/PowerSimulations/HKwUO/src/simulation/simulation_problem_results.jl:268
-  [5] read_realized_variables(res::PowerSimulations.SimulationProblemResults{PowerSimulations.DecisionModelSimulationResults}, variables::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackUp, PowerSystems.Bus})
+  [5] read_realized_variables(res::PowerSimulations.SimulationProblemResults{PowerSimulations.DecisionModelSimulationResults}, variables::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackDown, PowerSystems.Bus})
     @ PowerSimulations ~/.julia/packages/PowerSimulations/HKwUO/src/simulation/simulation_problem_results.jl:268
-  [6] (::Main.__FRANKLIN_1802956.var"#9#10")(k::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackUp, PowerSystems.Bus})
+  [6] (::Main.__FRANKLIN_1802956.var"#9#10")(k::PowerSimulations.VariableKey{PowerSimulations.SystemBalanceSlackDown, PowerSystems.Bus})
     @ Main.__FRANKLIN_1802956 ./none:0
   [7] iterate
     @ ./generator.jl:47 [inlined]
